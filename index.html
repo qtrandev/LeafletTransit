@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html data-ng-app="demoApp">
+
+	<head>
+		<title>Using Leaflet</title>
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+		<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+	</head>
+
+	<body >
+		<h1>Leaflet Demo</h1>
+
+		<div id="map"></div>
+
+		<script>
+			
+			// Initialize map
+			var map = L.map('map').setView([25.80, -80.20], 10);
+
+			// Load MapBox map
+			L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+				maxZoom: 18,
+				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+					'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+					'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+				id: 'examples.map-i875mjb7'
+			}).addTo(map);
+
+			// Load XML file
+			xmlhttp=new XMLHttpRequest();
+			xmlhttp.open("GET","sample.xml",false);
+			xmlhttp.send();
+			xmlDoc=xmlhttp.responseXML;
+
+			// Create buses list from XML file
+			var idList = xmlDoc.getElementsByTagName("ID");
+			var nameList = xmlDoc.getElementsByTagName("BusName");
+			var latList = xmlDoc.getElementsByTagName("Latitude");
+			var lonList = xmlDoc.getElementsByTagName("Longitude");
+			var descList = xmlDoc.getElementsByTagName("ToolTip");
+			for (i = 0; i < idList.length; i++) {
+				// Add each bus to the map
+			    L.marker([latList[i].childNodes[0].nodeValue, lonList[i].childNodes[0].nodeValue]).addTo(map).bindPopup(
+			    	'Bus # '+descList[i].childNodes[0].nodeValue+
+			    	' (ID: '+idList[i].childNodes[0].nodeValue+')');
+			}
+
+
+		</script>
+
+		<style>
+
+		#map { height: 480px; }
+
+		</style>
+	</body>
+
+</html>
