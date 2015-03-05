@@ -2,57 +2,94 @@
 <html data-ng-app="demoApp">
 
 	<head>
-		<title>Using Leaflet</title>
+		<title>Miami Dade Transit</title>
 		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 		<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	</head>
 
 	<body >
-		<h1>Leaflet Demo</h1>
+		<h1>Miami Dade Transit Leaflet Demo</h1>
 
-		<div id="map"></div>
+		<div id="map" style="height: 480px"></div>
+
+		<p>Data retrieved from <a href="http://www.miamidade.gov/transit/WebServices/Buses/?BusID=">http://www.miamidade.gov/transit/WebServices/Buses/?BusID=</a>.<br />When data is unavailable (night-time), sample data is shown. </p>
 
 		<script>
 			
 			// Initialize map
-			var map = L.map('map').setView([25.80, -80.20], 10);
+			var map = L.map('map').setView([25.80, -80.20], 8);
+			var dataSource = "http://www.miamidade.gov/transit/WebServices/Buses/?BusID=";
 
 			// Load MapBox map
-			L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+			var accessToken = 'pk.eyJ1IjoicXRyYW5kZXYiLCJhIjoiSDF2cGNjZyJ9.D1ybOKe77AQDPHkxCCEpJQ';
+			L.tileLayer('https://{s}.tiles.mapbox.com/v4/qtrandev.lc0i743k/{z}/{x}/{y}.png?access_token=' + accessToken, {
 				maxZoom: 18,
 				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
 					'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-					'Imagery © <a href="http://mapbox.com">Mapbox</a>',
-				id: 'examples.map-i875mjb7'
+					'Imagery © <a href="http://mapbox.com">Mapbox</a>'
 			}).addTo(map);
 
-			// Load XML file
-			xmlhttp=new XMLHttpRequest();
-			xmlhttp.open("GET","sample.xml",false);
-			xmlhttp.send();
-			xmlDoc=xmlhttp.responseXML;
 
-			// Create buses list from XML file
-			var idList = xmlDoc.getElementsByTagName("ID");
-			var nameList = xmlDoc.getElementsByTagName("BusName");
-			var latList = xmlDoc.getElementsByTagName("Latitude");
-			var lonList = xmlDoc.getElementsByTagName("Longitude");
-			var descList = xmlDoc.getElementsByTagName("ToolTip");
-			for (i = 0; i < idList.length; i++) {
-				// Add each bus to the map
-			    L.marker([latList[i].childNodes[0].nodeValue, lonList[i].childNodes[0].nodeValue]).addTo(map).bindPopup(
-			    	'Bus # '+descList[i].childNodes[0].nodeValue+
-			    	' (ID: '+idList[i].childNodes[0].nodeValue+')');
+			$.getJSON('http://anyorigin.com/dev/get?url='+dataSource+'&callback=?',
+				function(data){
+					getXML($.parseXML(data.contents));
+				});
+
+			//Intialize bus icon
+			var myIcon = L.icon({
+			    iconUrl: 'mapIcon-Bus-Stop.png',
+			    iconSize: [32, 32],
+			    iconAnchor: [16, 32]
+			});
+
+			// Load XML file
+			function getXML(xmlData) {
+				// Load sample data if data is unvailable
+				if (xmlData.getElementsByTagName("BusID").length > 0) {
+					generateBusList(xmlData, "REAL-TIME");
+				} else {
+					dataSource = "Buses.xml";
+					xmlhttp=new XMLHttpRequest();
+					xmlhttp.open("GET",dataSource,false);
+					xmlhttp.send();
+					xmlData=xmlhttp.responseXML;
+					generateBusList(xmlData, "SAMPLE");
+					alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
+				}
 			}
+
+			// Create buses list from Miami Transit XML file
+			function generateBusList(xmlDoc, realText) {
+				var idList = xmlDoc.getElementsByTagName("BusID");
+				var nameList = xmlDoc.getElementsByTagName("BusName");
+				var latList = xmlDoc.getElementsByTagName("Latitude");
+				var lonList = xmlDoc.getElementsByTagName("Longitude");
+				var descList = xmlDoc.getElementsByTagName("TripHeadsign");
+				var timeList = xmlDoc.getElementsByTagName("LocationUpdated");
+				for (i = 0; i < idList.length; i++) {
+					// Add each bus to the map
+					addMarker(
+						latList[i].childNodes[0].nodeValue,
+						lonList[i].childNodes[0].nodeValue,
+						nameList[i].childNodes[0].nodeValue,
+						descList[i].childNodes[0].nodeValue,
+						idList[i].childNodes[0].nodeValue,
+						timeList[i].childNodes[0].nodeValue,
+						realText
+					);
+				}
+			}
+
+			function addMarker(lat, lon, name, desc, id, time, realText) {
+				L.marker([lat, lon], {icon: myIcon}).addTo(map).bindPopup(
+			    	realText+' ('+name+') Bus # '+desc+
+			    	' (ID: '+id+') <br /> Location Updated: '+time,
+			    	{ offset: new L.Point(0, -16) });
+			}		
 
 
 		</script>
-
-		<style>
-
-		#map { height: 480px; }
-
-		</style>
 	</body>
 
 </html>

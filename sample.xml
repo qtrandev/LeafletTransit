@@ -41,12 +41,12 @@
         </InfoWindow>
     </marker>
     <marker>
-        <ID>1083</ID>
-        <BusName>6341</BusName>
-        <Latitude>25.89542</Latitude>
-        <Longitude>-80.1438</Longitude>
+        <ID>1084</ID>
+        <BusName>6342</BusName>
+        <Latitude>25.81542</Latitude>
+        <Longitude>-80.2438</Longitude>
         <ImageSource>/transit/mobile/images/MapMarker-Bus-CW.png</ImageSource>
-        <ToolTip>6341  (Clockwise)  12mph  2:32:54 PM</ToolTip>
+        <ToolTip>6342  (Clockwise)  12mph  2:32:54 PM</ToolTip>
         <zIndex>-9542</zIndex>
         <InfoWindow>
             <img src="/transit/mobile/images/mapIcon-Bus.png" align="left" style="width:32px; height:32px; margin:2px;" />
@@ -61,12 +61,12 @@
         </InfoWindow>
     </marker>
         <marker>
-        <ID>1083</ID>
-        <BusName>6341</BusName>
-        <Latitude>25.99542</Latitude>
-        <Longitude>-80.1438</Longitude>
+        <ID>1085</ID>
+        <BusName>6343</BusName>
+        <Latitude>25.84542</Latitude>
+        <Longitude>-80.3138</Longitude>
         <ImageSource>/transit/mobile/images/MapMarker-Bus-CW.png</ImageSource>
-        <ToolTip>6341  (Clockwise)  12mph  2:32:54 PM</ToolTip>
+        <ToolTip>6343  (Clockwise)  12mph  2:32:54 PM</ToolTip>
         <zIndex>-9542</zIndex>
         <InfoWindow>
             <img src="/transit/mobile/images/mapIcon-Bus.png" align="left" style="width:32px; height:32px; margin:2px;" />
@@ -81,12 +81,12 @@
         </InfoWindow>
     </marker>
         <marker>
-        <ID>1083</ID>
-        <BusName>6341</BusName>
-        <Latitude>26.09542</Latitude>
-        <Longitude>-80.1438</Longitude>
+        <ID>1086</ID>
+        <BusName>6344</BusName>
+        <Latitude>25.79542</Latitude>
+        <Longitude>-80.2138</Longitude>
         <ImageSource>/transit/mobile/images/MapMarker-Bus-CW.png</ImageSource>
-        <ToolTip>6341  (Clockwise)  12mph  2:32:54 PM</ToolTip>
+        <ToolTip>6344  (Clockwise)  12mph  2:32:54 PM</ToolTip>
         <zIndex>-9542</zIndex>
         <InfoWindow>
             <img src="/transit/mobile/images/mapIcon-Bus.png" align="left" style="width:32px; height:32px; margin:2px;" />
