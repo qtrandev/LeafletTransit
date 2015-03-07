@@ -22,7 +22,7 @@
 			// Initialize map
 			var map = L.map('map').setView([25.80, -80.20], 8);
 			var dataSource = "http://www.miamidade.gov/transit/WebServices/Buses/?BusID=";
-			var production = false;
+			var production = true;
 
 			// Load MapBox map
 			var accessToken = 'pk.eyJ1IjoicXRyYW5kZXYiLCJhIjoiSDF2cGNjZyJ9.D1ybOKe77AQDPHkxCCEpJQ';
@@ -46,9 +46,9 @@
 			    iconAnchor: [20, 40]
 			});
 
-			var allTrips = []; // Hold all trips to display route shapes on map
 			var routeInfos = []; // Hold all route information such as descriptions and colors
-			var tripRouteShapeRef = []; // Keep track of each route ID its shape ID
+			// Keep track of each route ID, trip ID, and its shape ID.
+			var tripRouteShapeRef = []; // Format is {tripId: "", routeId: "", shapeId: ""}
 			var currentRoute = 1;
 
 			if (production) {
@@ -64,9 +64,9 @@
 				xmlhttp.send();
 				xmlData=xmlhttp.responseXML;
 				generateBusList(xmlData, "SAMPLE"); // Load bus list
-				loadRouteInfos(); // Bus list must be loaded first
+				loadRouteColors(); // Bus list must be loaded first
 				//displayRoutes();
-				displayRoutesFromTripId(allTrips); // Bus list must be loaded first to have the trip IDs
+				displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
 			}
 
 			// Load XML file
@@ -74,6 +74,8 @@
 				// Load sample data if data is unvailable
 				if (xmlData.getElementsByTagName("BusID").length > 0) {
 					generateBusList(xmlData, "REAL-TIME");
+					loadRouteColors(); // Bus list must be loaded first
+					displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
 				} else {
 					dataSource = "Buses.xml";
 					xmlhttp=new XMLHttpRequest();
@@ -81,6 +83,8 @@
 					xmlhttp.send();
 					xmlData=xmlhttp.responseXML;
 					generateBusList(xmlData, "SAMPLE");
+					loadRouteColors(); // Bus list must be loaded first
+					displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
 					alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
 				}
 			}
@@ -94,6 +98,7 @@
 				var descList = xmlDoc.getElementsByTagName("TripHeadsign");
 				var timeList = xmlDoc.getElementsByTagName("LocationUpdated");
 				var tripList = xmlDoc.getElementsByTagName("TripID");
+				var routeList = xmlDoc.getElementsByTagName("RouteID");
 				for (i = 0; i < idList.length; i++) {
 					// Add each bus to the map
 					addMarker(
@@ -105,8 +110,12 @@
 						timeList[i].childNodes[0].nodeValue,
 						realText
 					);
-					console.log("Adding Trip ID to list: "+tripList[i].childNodes[0].nodeValue+" Trip list size = "+allTrips.length);
-					allTrips[allTrips.length] = tripList[i].childNodes[0].nodeValue;
+					console.log("Adding Trip ID to list: "+tripList[i].childNodes[0].nodeValue+" Trip list size = "+tripRouteShapeRef.length);
+					tripRouteShapeRef[tripRouteShapeRef.length] = {
+						tripId: tripList[i].childNodes[0].nodeValue, 
+						routeId: routeList[i].childNodes[0].nodeValue, 
+						shapeId: ""
+					};
 				}
 			}
 
@@ -117,24 +126,26 @@
 			    	{ offset: new L.Point(0, -16) });
 			}		
 
-			function loadRouteInfos() {
+			function loadRouteColors() {
 				xmlhttp=new XMLHttpRequest();
 				xmlhttp.open("GET","BusRoutes.xml",false);
 				xmlhttp.send();
 				xmlData=xmlhttp.responseXML;
 
 				var routeIdList = xmlData.getElementsByTagName("RouteID");
-				var descList = xmlData.getElementsByTagName("RouteDescription");
+				//var descList = xmlData.getElementsByTagName("RouteDescription");
 				var colorList = xmlData.getElementsByTagName("RouteColor");
 				for (i = 0; i < routeIdList.length; i++) {
-					// Add to routeInfos list
-					routeInfos[routeInfos.length] = {
-						routeId: routeIdList[i].childNodes[0].nodeValue, 
-						desc: descList[i].childNodes[0].nodeValue, 
-						color: colorList[i].childNodes[0].nodeValue
-					};
-					console.log("Added route ID: "+routeIdList[i].childNodes[0].nodeValue);
+					// Add to global ref list
+					// Data format is {tripId: "", routeId: "", shapeId: ""}
+					for (j = 0; j < tripRouteShapeRef.length; j++) {
+						if (tripRouteShapeRef[j].routeId == routeIdList[i].childNodes[0].nodeValue) {
+							tripRouteShapeRef[j].color = colorList[i].childNodes[0].nodeValue;
+							break;
+						}
+					}
 				}
+				
 			}
 
 			function displayRoutes() {
@@ -154,17 +165,35 @@
 				}
 			}
 
-			function displayRoutesFromTripId(tripIds) {				
-				for (i = 0; i < tripIds.length; i++) {
+			function displayRoutesFromTripId(tripRefs) {				
+				for (i = 0; i < tripRefs.length; i++) {
 					// Get shapeId for each trip
-					//console.log("Trip ID retrieved: "+tripIds[i]);
-					var source = 'http://www.miamidade.gov/transit/WebServices/BusRouteShapesByTrip/?TripID='+tripIds[i];
+					console.log("Trip ID retrieved: "+tripRefs[i].tripId);
+					var source = 'http://www.miamidade.gov/transit/WebServices/BusRouteShapesByTrip/?TripID='+tripRefs[i].tripId;
 					$.getJSON('http://anyorigin.com/dev/get?url='+source+'&callback=?',
 					function(data){
 						var shapeId = $.parseXML(data.contents).getElementsByTagName("ShapeID")[0].childNodes[0].nodeValue;
 						//console.log("Shape ID retrieved: "+shapeId);
 						displayFromShapeId(shapeId);
 					});
+					$.getJSON(
+				       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
+				       (function(thistripId) {
+				          return function(data) {
+				            var shapeId = $.parseXML(data.contents).getElementsByTagName("ShapeID")[0].childNodes[0].nodeValue;
+							//console.log("Shape ID retrieved: "+shapeId);
+							// Add shape ID into global trip reference list
+							// Data format is {tripId: "", routeId: "", shapeId: ""}
+							for (i = 0; i < tripRouteShapeRef.length; i++) {
+								if (tripRouteShapeRef[i].tripId == thistripId) {
+									tripRouteShapeRef[i].shapeId = shapeId;
+									//console.log("Updated shape ID into global list for trip ID: "+tripRouteShapeRef[i].tripId);
+								}
+							}
+							displayFromShapeId(shapeId);
+				          };
+				       }(tripRefs[i].tripId))
+				    );
 				}
 			}
 
@@ -175,9 +204,16 @@
 			       (function(thisshapeId) {
 			          return function(data) {
 			            console.log("Data received. Displaying route from the Shape ID: "+thisshapeId);
-						var color = routeInfos;
-						addRoutePoints('#AA0077', $.parseXML(data.contents));
-			             // create a new closure on the parameter thisi
+			            // Find the color for the route
+						var color = "";
+						for (i = 0; i < tripRouteShapeRef.length; i++) {
+							if (tripRouteShapeRef[i].shapeId == thisshapeId) {
+								color = tripRouteShapeRef[i].color;
+								break;
+							}
+						}
+						addRoutePoints('#'+color, $.parseXML(data.contents));
+			             // create a new closure on the parameter thisshapeId
 			             // which will hold the correct value at invocation time
 			          };
 			       }(shapeId)) // calling the function with the current value
