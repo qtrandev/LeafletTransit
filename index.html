@@ -16,10 +16,13 @@
 		<p>Data retrieved from <a href="http://www.miamidade.gov/transit/WebServices/Buses/?BusID=">http://www.miamidade.gov/transit/WebServices/Buses/?BusID=</a>.<br />When data is unavailable (night-time), sample data is shown. </p>
 
 		<script>
+
+			/* This page is made to be one page to make it easier for new users to understand the code. Separate the scripts and css when it is too big. */
 			
 			// Initialize map
 			var map = L.map('map').setView([25.80, -80.20], 8);
 			var dataSource = "http://www.miamidade.gov/transit/WebServices/Buses/?BusID=";
+			var production = false;
 
 			// Load MapBox map
 			var accessToken = 'pk.eyJ1IjoicXRyYW5kZXYiLCJhIjoiSDF2cGNjZyJ9.D1ybOKe77AQDPHkxCCEpJQ';
@@ -30,18 +33,41 @@
 					'Imagery © <a href="http://mapbox.com">Mapbox</a>'
 			}).addTo(map);
 
-
-			$.getJSON('http://anyorigin.com/dev/get?url='+dataSource+'&callback=?',
-				function(data){
-					getXML($.parseXML(data.contents));
-				});
-
 			//Intialize bus icon
 			var myIcon = L.icon({
 			    iconUrl: 'mapIcon-Bus-Stop.png',
 			    iconSize: [32, 32],
 			    iconAnchor: [16, 32]
 			});
+
+			var myIcon2 = L.icon({
+			    iconUrl: 'rail_logo.gif',
+			    iconSize: [40, 40],
+			    iconAnchor: [20, 40]
+			});
+
+			var allTrips = []; // Hold all trips to display route shapes on map
+			var routeInfos = []; // Hold all route information such as descriptions and colors
+			var tripRouteShapeRef = []; // Keep track of each route ID its shape ID
+			var currentRoute = 1;
+
+			if (production) {
+				// Bypass cross-origin remote server access linmitation using anyorigin.com - can set up a proxy web server instead
+				$.getJSON('http://anyorigin.com/dev/get?url='+dataSource+'&callback=?',
+					function(data){
+						getXML($.parseXML(data.contents));
+					});
+			} else {
+				dataSource = "Buses.xml";
+				xmlhttp=new XMLHttpRequest();
+				xmlhttp.open("GET",dataSource,false);
+				xmlhttp.send();
+				xmlData=xmlhttp.responseXML;
+				generateBusList(xmlData, "SAMPLE"); // Load bus list
+				loadRouteInfos(); // Bus list must be loaded first
+				//displayRoutes();
+				displayRoutesFromTripId(allTrips); // Bus list must be loaded first to have the trip IDs
+			}
 
 			// Load XML file
 			function getXML(xmlData) {
@@ -67,6 +93,7 @@
 				var lonList = xmlDoc.getElementsByTagName("Longitude");
 				var descList = xmlDoc.getElementsByTagName("TripHeadsign");
 				var timeList = xmlDoc.getElementsByTagName("LocationUpdated");
+				var tripList = xmlDoc.getElementsByTagName("TripID");
 				for (i = 0; i < idList.length; i++) {
 					// Add each bus to the map
 					addMarker(
@@ -78,6 +105,8 @@
 						timeList[i].childNodes[0].nodeValue,
 						realText
 					);
+					console.log("Adding Trip ID to list: "+tripList[i].childNodes[0].nodeValue+" Trip list size = "+allTrips.length);
+					allTrips[allTrips.length] = tripList[i].childNodes[0].nodeValue;
 				}
 			}
 
@@ -88,6 +117,86 @@
 			    	{ offset: new L.Point(0, -16) });
 			}		
 
+			function loadRouteInfos() {
+				xmlhttp=new XMLHttpRequest();
+				xmlhttp.open("GET","BusRoutes.xml",false);
+				xmlhttp.send();
+				xmlData=xmlhttp.responseXML;
+
+				var routeIdList = xmlData.getElementsByTagName("RouteID");
+				var descList = xmlData.getElementsByTagName("RouteDescription");
+				var colorList = xmlData.getElementsByTagName("RouteColor");
+				for (i = 0; i < routeIdList.length; i++) {
+					// Add to routeInfos list
+					routeInfos[routeInfos.length] = {
+						routeId: routeIdList[i].childNodes[0].nodeValue, 
+						desc: descList[i].childNodes[0].nodeValue, 
+						color: colorList[i].childNodes[0].nodeValue
+					};
+					console.log("Added route ID: "+routeIdList[i].childNodes[0].nodeValue);
+				}
+			}
+
+			function displayRoutes() {
+				var routes = [
+					{route:"1" , shapeId: "128407"},
+					{route:"2" , shapeId: "128412"},
+					{route:"3" , shapeId: "128415"}
+				];
+				for (i = 0; i < routes.length; i++) {
+					//console.log("Route:"+route.route);
+					currentRoute = routes[i].route;
+					var source = 'http://www.miamidade.gov/transit/WebServices/BusRouteShape/?ShapeID='+routes[i].shapeId;
+					$.getJSON('http://anyorigin.com/dev/get?url='+source+'&callback=?',
+					function(data){
+						addRoutePoints('#FF0044', $.parseXML(data.contents));
+					});
+				}
+			}
+
+			function displayRoutesFromTripId(tripIds) {				
+				for (i = 0; i < tripIds.length; i++) {
+					// Get shapeId for each trip
+					//console.log("Trip ID retrieved: "+tripIds[i]);
+					var source = 'http://www.miamidade.gov/transit/WebServices/BusRouteShapesByTrip/?TripID='+tripIds[i];
+					$.getJSON('http://anyorigin.com/dev/get?url='+source+'&callback=?',
+					function(data){
+						var shapeId = $.parseXML(data.contents).getElementsByTagName("ShapeID")[0].childNodes[0].nodeValue;
+						//console.log("Shape ID retrieved: "+shapeId);
+						displayFromShapeId(shapeId);
+					});
+				}
+			}
+
+			function displayFromShapeId(shapeId) {
+				var source = 'http://www.miamidade.gov/transit/WebServices/BusRouteShape/?ShapeID='+shapeId;
+				$.getJSON(
+			       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
+			       (function(thisshapeId) {
+			          return function(data) {
+			            console.log("Data received. Displaying route from the Shape ID: "+thisshapeId);
+						var color = routeInfos;
+						addRoutePoints('#AA0077', $.parseXML(data.contents));
+			             // create a new closure on the parameter thisi
+			             // which will hold the correct value at invocation time
+			          };
+			       }(shapeId)) // calling the function with the current value
+			    );
+			}
+
+			function addRoutePoints(routeColor, xmlDoc) {
+				var latList = xmlDoc.getElementsByTagName("Latitude");
+				var lonList = xmlDoc.getElementsByTagName("Longitude");
+				var latlngs = [];
+				for (i = 0; i < latList.length; i++) {
+					//L.marker([latList[i].childNodes[0].nodeValue, lonList[i].childNodes[0].nodeValue], {icon: myIcon2}).addTo(map).bindPopup(
+				    //	'Route # '+route,
+				    //	{ offset: new L.Point(0, -20) });
+					latlngs[latlngs.length] = (L.latLng(latList[i].childNodes[0].nodeValue, lonList[i].childNodes[0].nodeValue));
+				}
+
+				L.polyline(latlngs, {color: routeColor}).addTo(map);
+			}
 
 		</script>
 	</body>
