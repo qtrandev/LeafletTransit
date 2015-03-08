@@ -50,6 +50,9 @@
 			// Keep track of each route ID, trip ID and its shape ID, and color of the route.
 			var tripRouteShapeRef = []; // Format is {tripId: "", routeId: "", shapeId: "", color: ""}
 
+			// Track which shape ID and the corresponding has already been displayed
+			var displayedShapeIds = [];
+
 			if (!test) {
 				// Bypass cross-origin remote server access linmitation using anyorigin.com - can set up a proxy web server instead
 				var dataSource = "http://www.miamidade.gov/transit/WebServices/Buses/?BusID=";
@@ -162,7 +165,8 @@
 							for (i = 0; i < tripRouteShapeRef.length; i++) {
 								if (tripRouteShapeRef[i].tripId == thistripId) {
 									tripRouteShapeRef[i].shapeId = shapeId;
-									//console.log("Updated shape ID into global list for trip ID: "+tripRouteShapeRef[i].tripId);
+									//console.log("Updated shape ID into global list for trip ID: "+tripRouteShapeRef[i].tripId);									
+									break; // Can break since a separate request is sent for each trip ID
 								}
 							}
 							displayFromShapeId(shapeId);
@@ -188,7 +192,17 @@
 								break;
 							}
 						}
-						addRoutePoints('#'+color, $.parseXML(data.contents));
+
+						if (displayedShapeIds.length == 0) { // Display the first shape ID
+							addRoutePoints('#'+color, $.parseXML(data.contents));
+							displayedShapeIds[0] = thisshapeId;
+						} else { // Check for any duplicate shape ID and not display
+							for (displayed in displayedShapeIds) {
+								if (displayed == thisshapeId) break;
+								addRoutePoints('#'+color, $.parseXML(data.contents));
+								displayedShapeIds[displayedShapeIds.length] = thisshapeId; // Track which shape ID has already been displayed
+							}
+						}
 			          };
 			       }(shapeId))
 			    );
