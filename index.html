@@ -178,6 +178,7 @@
 				}
 			}
 
+			// Retrieve lat/long list for each route's shape ID
 			function displayFromShapeId(shapeId) {
 				var source = 'http://www.miamidade.gov/transit/WebServices/BusRouteShape/?ShapeID='+shapeId;
 				$.getJSON(
@@ -194,13 +195,12 @@
 							}
 						}
 						addRoutePoints('#'+color, $.parseXML(data.contents));
-			             // create a new closure on the parameter thisshapeId
-			             // which will hold the correct value at invocation time
 			          };
-			       }(shapeId)) // calling the function with the current value
+			       }(shapeId))
 			    );
 			}
 
+			// Add all the route lines and colors to the map for each shape point list
 			function addRoutePoints(routeColor, xmlDoc) {
 				var latList = xmlDoc.getElementsByTagName("Latitude");
 				var lonList = xmlDoc.getElementsByTagName("Longitude");
