@@ -13,16 +13,23 @@
 
 		<div id="map" style="height: 480px"></div>
 
-		<p>Data retrieved from <a href="http://www.miamidade.gov/transit/WebServices/Buses/?BusID=">http://www.miamidade.gov/transit/WebServices/Buses/?BusID=</a>.<br />When data is unavailable (night-time), sample data is shown. </p>
+		<p>
+			Data retrieved from 
+			<a href="http://www.miamidade.gov/transit/WebServices/Buses/?BusID=">
+				http://www.miamidade.gov/transit/WebServices/Buses/?BusID=</a>.
+			<br />
+			When data is unavailable (night-time), sample data is shown.
+		</p>
 
 		<script>
 
-			/* This page is made to be one page to make it easier for new users to understand the code. Separate the scripts and css when it is too big. */
+			/* This page is made to be one page to make it easier for new users to understand the code. 
+			   Separate the scripts and css to separate files when project gets too big.
+			 */
 			
 			// Initialize map
 			var map = L.map('map').setView([25.80, -80.20], 8);
-			var dataSource = "http://www.miamidade.gov/transit/WebServices/Buses/?BusID=";
-			var production = true;
+			var test = false; // Whether in test mode or online
 
 			// Load MapBox map
 			var accessToken = 'pk.eyJ1IjoicXRyYW5kZXYiLCJhIjoiSDF2cGNjZyJ9.D1ybOKe77AQDPHkxCCEpJQ';
@@ -33,58 +40,49 @@
 					'Imagery © <a href="http://mapbox.com">Mapbox</a>'
 			}).addTo(map);
 
-			//Intialize bus icon
+			// Intialize bus icon
 			var myIcon = L.icon({
 			    iconUrl: 'mapIcon-Bus-Stop.png',
 			    iconSize: [32, 32],
 			    iconAnchor: [16, 32]
 			});
 
-			var myIcon2 = L.icon({
-			    iconUrl: 'rail_logo.gif',
-			    iconSize: [40, 40],
-			    iconAnchor: [20, 40]
-			});
-
-			var routeInfos = []; // Hold all route information such as descriptions and colors
 			// Keep track of each route ID, trip ID, and its shape ID.
-			var tripRouteShapeRef = []; // Format is {tripId: "", routeId: "", shapeId: ""}
-			var currentRoute = 1;
+			var tripRouteShapeRef = []; // Format is {tripId: "", routeId: "", shapeId: "", color: ""}
 
-			if (production) {
+			if (!test) {
 				// Bypass cross-origin remote server access linmitation using anyorigin.com - can set up a proxy web server instead
+				var dataSource = "http://www.miamidade.gov/transit/WebServices/Buses/?BusID=";
 				$.getJSON('http://anyorigin.com/dev/get?url='+dataSource+'&callback=?',
 					function(data){
-						getXML($.parseXML(data.contents));
+						var xmlData = $.parseXML(data.contents);
+						if (xmlData.getElementsByTagName("BusID").length > 0) {
+							loadOnlineData(xmlData);
+						} else {
+							loadLocalData();
+						}
 					});
 			} else {
-				dataSource = "Buses.xml";
-				xmlhttp=new XMLHttpRequest();
-				xmlhttp.open("GET",dataSource,false);
-				xmlhttp.send();
-				xmlData=xmlhttp.responseXML;
-				generateBusList(xmlData, "SAMPLE"); // Load bus list
+				loadLocalData();
+			}
+
+			// Run when data is available from the transit website
+			function loadOnlineData(xmlData) {
+				generateBusList(xmlData, "REAL-TIME");
 				loadRouteColors(); // Bus list must be loaded first
-				//displayRoutes();
 				displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
 			}
 
-			// Load XML file
-			function getXML(xmlData) {
-				// Load sample data if data is unvailable
-				if (xmlData.getElementsByTagName("BusID").length > 0) {
-					generateBusList(xmlData, "REAL-TIME");
-					loadRouteColors(); // Bus list must be loaded first
-					displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
-				} else {
-					dataSource = "Buses.xml";
-					xmlhttp=new XMLHttpRequest();
-					xmlhttp.open("GET",dataSource,false);
-					xmlhttp.send();
-					xmlData=xmlhttp.responseXML;
-					generateBusList(xmlData, "SAMPLE");
-					loadRouteColors(); // Bus list must be loaded first
-					displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
+			// Load local data from Buses.xml file for local testing or when online data is unavailable
+			function loadLocalData() {
+				var xmlhttp=new XMLHttpRequest();
+				xmlhttp.open("GET","Buses.xml",false);
+				xmlhttp.send();
+				xmlData=xmlhttp.responseXML;
+				generateBusList(xmlData, "SAMPLE");
+				loadRouteColors(); // Bus list must be loaded first
+				displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
+				if (!test) {
 					alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
 				}
 			}
@@ -101,7 +99,7 @@
 				var routeList = xmlDoc.getElementsByTagName("RouteID");
 				for (i = 0; i < idList.length; i++) {
 					// Add each bus to the map
-					addMarker(
+					addBusMarker(
 						latList[i].childNodes[0].nodeValue,
 						lonList[i].childNodes[0].nodeValue,
 						nameList[i].childNodes[0].nodeValue,
@@ -110,7 +108,8 @@
 						timeList[i].childNodes[0].nodeValue,
 						realText
 					);
-					console.log("Adding Trip ID to list: "+tripList[i].childNodes[0].nodeValue+" Trip list size = "+tripRouteShapeRef.length);
+					// Add to the global trip-route-shape list
+					//console.log("Adding Trip ID to list: "+tripList[i].childNodes[0].nodeValue+" Trip list size = "+tripRouteShapeRef.length);
 					tripRouteShapeRef[tripRouteShapeRef.length] = {
 						tripId: tripList[i].childNodes[0].nodeValue, 
 						routeId: routeList[i].childNodes[0].nodeValue, 
@@ -119,15 +118,8 @@
 				}
 			}
 
-			function addMarker(lat, lon, name, desc, id, time, realText) {
-				L.marker([lat, lon], {icon: myIcon}).addTo(map).bindPopup(
-			    	realText+' ('+name+') Bus # '+desc+
-			    	' (ID: '+id+') <br /> Location Updated: '+time,
-			    	{ offset: new L.Point(0, -16) });
-			}		
-
 			function loadRouteColors() {
-				xmlhttp=new XMLHttpRequest();
+				var xmlhttp=new XMLHttpRequest();
 				xmlhttp.open("GET","BusRoutes.xml",false);
 				xmlhttp.send();
 				xmlData=xmlhttp.responseXML;
@@ -137,38 +129,27 @@
 				var colorList = xmlData.getElementsByTagName("RouteColor");
 				for (i = 0; i < routeIdList.length; i++) {
 					// Add to global ref list
-					// Data format is {tripId: "", routeId: "", shapeId: ""}
+					// Data format is {tripId: "", routeId: "", shapeId: "", color: ""}
+					var route = routeIdList[i].childNodes[0].nodeValue;
 					for (j = 0; j < tripRouteShapeRef.length; j++) {
-						if (tripRouteShapeRef[j].routeId == routeIdList[i].childNodes[0].nodeValue) {
+						if (tripRouteShapeRef[j].routeId == route) {
 							tripRouteShapeRef[j].color = colorList[i].childNodes[0].nodeValue;
-							break;
 						}
 					}
 				}
-				
 			}
 
-			function displayRoutes() {
-				var routes = [
-					{route:"1" , shapeId: "128407"},
-					{route:"2" , shapeId: "128412"},
-					{route:"3" , shapeId: "128415"}
-				];
-				for (i = 0; i < routes.length; i++) {
-					//console.log("Route:"+route.route);
-					currentRoute = routes[i].route;
-					var source = 'http://www.miamidade.gov/transit/WebServices/BusRouteShape/?ShapeID='+routes[i].shapeId;
-					$.getJSON('http://anyorigin.com/dev/get?url='+source+'&callback=?',
-					function(data){
-						addRoutePoints('#FF0044', $.parseXML(data.contents));
-					});
-				}
+			function addBusMarker(lat, lon, name, desc, id, time, realText) {
+				L.marker([lat, lon], {icon: myIcon}).addTo(map).bindPopup(
+			    	realText+' ('+name+') Bus # '+desc+
+			    	' (ID: '+id+') <br /> Location Updated: '+time,
+			    	{ offset: new L.Point(0, -16) });
 			}
 
 			function displayRoutesFromTripId(tripRefs) {				
 				for (i = 0; i < tripRefs.length; i++) {
 					// Get shapeId for each trip
-					console.log("Trip ID retrieved: "+tripRefs[i].tripId);
+					//console.log("Trip ID retrieved: "+tripRefs[i].tripId);
 					var source = 'http://www.miamidade.gov/transit/WebServices/BusRouteShapesByTrip/?TripID='+tripRefs[i].tripId;
 					$.getJSON('http://anyorigin.com/dev/get?url='+source+'&callback=?',
 					function(data){
