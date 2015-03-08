@@ -47,7 +47,7 @@
 			    iconAnchor: [16, 32]
 			});
 
-			// Keep track of each route ID, trip ID, and its shape ID.
+			// Keep track of each route ID, trip ID and its shape ID, and color of the route.
 			var tripRouteShapeRef = []; // Format is {tripId: "", routeId: "", shapeId: "", color: ""}
 
 			if (!test) {
@@ -148,15 +148,9 @@
 
 			function displayRoutesFromTripId(tripRefs) {				
 				for (i = 0; i < tripRefs.length; i++) {
-					// Get shapeId for each trip
-					//console.log("Trip ID retrieved: "+tripRefs[i].tripId);
+					// Send the request to get the shape ID for each trip ID
+					//console.log("Sending request for shape ID with trip ID: "+tripRefs[i].tripId);
 					var source = 'http://www.miamidade.gov/transit/WebServices/BusRouteShapesByTrip/?TripID='+tripRefs[i].tripId;
-					$.getJSON('http://anyorigin.com/dev/get?url='+source+'&callback=?',
-					function(data){
-						var shapeId = $.parseXML(data.contents).getElementsByTagName("ShapeID")[0].childNodes[0].nodeValue;
-						//console.log("Shape ID retrieved: "+shapeId);
-						displayFromShapeId(shapeId);
-					});
 					$.getJSON(
 				       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
 				       (function(thistripId) {
@@ -164,7 +158,7 @@
 				            var shapeId = $.parseXML(data.contents).getElementsByTagName("ShapeID")[0].childNodes[0].nodeValue;
 							//console.log("Shape ID retrieved: "+shapeId);
 							// Add shape ID into global trip reference list
-							// Data format is {tripId: "", routeId: "", shapeId: ""}
+							// Data format is {tripId: "", routeId: "", shapeId: "", color: ""}
 							for (i = 0; i < tripRouteShapeRef.length; i++) {
 								if (tripRouteShapeRef[i].tripId == thistripId) {
 									tripRouteShapeRef[i].shapeId = shapeId;
@@ -185,7 +179,7 @@
 			       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
 			       (function(thisshapeId) {
 			          return function(data) {
-			            console.log("Data received. Displaying route from the Shape ID: "+thisshapeId);
+			            //console.log("Data received. Displaying route from the Shape ID: "+thisshapeId);
 			            // Find the color for the route
 						var color = "";
 						for (i = 0; i < tripRouteShapeRef.length; i++) {
