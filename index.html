@@ -2,23 +2,40 @@
 <html data-ng-app="demoApp">
 
 	<head>
-		<title>Miami Dade Transit</title>
+		<title>Miami-Dade Transit</title>
 		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
 		<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+		<style>
+			h1 {
+			    color: #007AC2;
+			    font-family:  Verdana, Geneva, sans-serif;
+			    font-size: 32px;
+			    text-align: center;
+			    text-shadow: 2px 4px 3px rgba(0,0,0,0.3);
+			} 
+
+			p {
+				font-family:  Verdana, Geneva, sans-serif;
+				color: #4F8636;
+			}
+		</style>
 	</head>
 
 	<body >
-		<h1>Miami Dade Transit Leaflet Demo</h1>
+		<h1>Miami-Dade Transit Live</h1>
 
 		<div id="map" style="height: 480px"></div>
 
 		<p>
-			Data retrieved from 
-			<a href="http://www.miamidade.gov/transit/WebServices/Buses/?BusID=">
-				http://www.miamidade.gov/transit/WebServices/Buses/?BusID=</a>.
+			Data retrieved from: <a href="http://www.miamidade.gov/transit/WebServices/Buses/?BusID=">
+				http://www.miamidade.gov/transit/WebServices/Buses/?BusID=</a>
 			<br />
 			When data is unavailable (night-time), sample data is shown.
+			<br />
+			Source code: <a href="https://github.com/qtrandev/LeafletTransit">
+				https://github.com/qtrandev/LeafletTransit</a>
 		</p>
 
 		<script>
@@ -38,7 +55,7 @@
 				maxZoom: 18,
 				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
 					'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-					'Imagery © <a href="http://mapbox.com">Mapbox</a>'
+					'Imagery &copy; <a href="http://mapbox.com">Mapbox</a>'
 			}).addTo(map);
 
 			// Intialize bus icon
