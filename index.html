@@ -48,6 +48,12 @@
 			    iconAnchor: [16, 32]
 			});
 
+			var poiIcon = L.icon({
+			    iconUrl: 'poi.png',
+			    iconSize: [16, 16],
+			    iconAnchor: [8, 16]
+			});
+
 			// Keep track of each route ID, trip ID and its shape ID, and color of the route.
 			var tripRouteShapeRef = []; // Format is {tripId: "", routeId: "", shapeId: "", color: ""}
 
@@ -78,6 +84,7 @@
 				generateBusList(xmlData, "REAL-TIME");
 				loadRouteColors(); // Bus list must be loaded first
 				displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
+				showPOIs();
 			}
 
 			// Load local data from Buses.xml file for local testing or when online data is unavailable
@@ -199,7 +206,7 @@
 							for (i = 0; i < tripRouteShapeRef.length; i++) {
 								if (tripRouteShapeRef[i].tripId == thistripId) {
 									tripRouteShapeRef[i].shapeId = shapeId;
-									if (debug) console.log("Updated shape ID into global list for trip ID: "+tripRouteShapeRef[i].tripId);									
+									//if (debug) console.log("Updated shape ID into global list for trip ID: "+tripRouteShapeRef[i].tripId);									
 									break; // Can break since a separate request is sent for each trip ID
 								}
 							}
@@ -266,7 +273,7 @@
 			// Track which shape ID has already been displayed
 			function addDisplayedShapeId(shapeId) {
 				displayedShapeIds[displayedShapeIds.length] = shapeId;
-				//requestBusStops(shapeId);
+				requestBusStops(shapeId);
 			}
 
 			function requestBusStops(shapeId) {
@@ -276,14 +283,14 @@
 				for (i = 0; i < tripRouteShapeRef.length; i++) {
 					//if (debug) console.log("Inspecting item shape ID: "+tripRouteShapeRef[i].shapeId+" trip ID: "+tripRouteShapeRef[i].tripId);
 					if (shapeId == tripRouteShapeRef[i].shapeId) {
-						if (debug) console.log("Shape ID matched "+shapeId);
+						if (debug) console.log("Shape ID matched tripRouteShapeRef "+shapeId+" at index "+i+" of "+tripRouteShapeRef.length);
 						if (debug) console.log("routeDirections.length = "+routeDirections.length);
 						var j = 0;
 						for (j = 0; j < routeDirections.length; j++) {
 							var route = routeDirections[j].routeId;
 							if (debug) console.log("Comparing routeDirections list route "+route+" against trip Ref list route: "+tripRouteShapeRef[i].routeId);
-							if (route = tripRouteShapeRef[i].routeId) { // Just grab the first route and dir - must handle 2nd one in future
-								if (debug) console.log("Route ID found "+route);
+							if (route === tripRouteShapeRef[i].routeId) { 
+								if (debug) console.log("Route ID found "+route+ " at index "+j+" of "+routeDirections.length);
 								sendBusStopRequest(route, routeDirections[j].direction);
 								break;
 							}
@@ -294,24 +301,43 @@
 				
 			}
 
+			var displayedBusStops = [];
+
 			function sendBusStopRequest(route, direction) {
 				if (debug) console.log("Requesting data for "+route+" and "+direction);
-				var source = "http://www.miamidade.gov/transit/WebServices/BusRouteStops/?RouteID=123&Dir=Clockwise"; // HARDCODE
+
+				// Ignore requested routes and directions
+				if (displayedBusStops.indexOf(route+""+direction) > -1) {
+					if (debug) console.log("Ignore "+route+" "+direction+" since it has already been requested.");
+					return;
+				}
+				displayedBusStops[displayedBusStops.length] = route+""+direction;
+
+				var source = "http://www.miamidade.gov/transit/WebServices/BusRouteStops/?RouteID="+route+"&Dir="+direction; 
+				//var source = "http://www.miamidade.gov/transit/WebServices/BusRouteStops/?RouteID=123&Dir=Clockwise"; // HARDCODE
 				$.getJSON(
 			       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-			       (function(thisRoute) {
+			       (function(thisRoute, thisDirection) {
 			          return function(data) {
 			            if (debug) console.log("Data received. Displaying route bus stops for: "+thisRoute);
 
-			            //var xmlDoc = $.parseXML(data.contents)
-			            var xmlhttp=new XMLHttpRequest();
-						xmlhttp.open("GET","BusRouteStops.xml",false);
-						xmlhttp.send();
-						xmlDoc=xmlhttp.responseXML;
+			            var xmlDoc = $.parseXML(data.contents)
+			            if (xmlDoc.getElementsByTagName("Latitude").length == 0) {
+			            	if (debug) console.log("No data on bus stops received for "+thisRoute+" "+thisDirection+". Getting local cached data.");
+			            	var xmlhttp=new XMLHttpRequest();
+							xmlhttp.open("GET","./localdata/"+thisRoute+thisDirection+".xml",false);
+							xmlhttp.send();
+							if (xmlhttp.status!=200) {
+								console.log("No local file exists for "+thisRoute+" "+thisDirection+". Not displaying bus stops.");
+								return;
+							}
+							xmlDoc=xmlhttp.responseXML;
+			            }
+
 			            var latList = xmlDoc.getElementsByTagName("Latitude");
 						var lonList = xmlDoc.getElementsByTagName("Longitude");
 						var nameList = xmlDoc.getElementsByTagName("StopName");
-						if (debug) console.log("nameList.length = "+ nameList.length);
+						if (debug) console.log("latList.length = "+ nameList.length);
 						var i = 0;
 						for (i = 0; i < latList.length; i++) {
 							// Add each bus stop to the map
@@ -324,7 +350,7 @@
 							);
 						}
 			          };
-			       }(route))
+			       }(route, direction))
 			    );
 			}
 
@@ -337,6 +363,46 @@
 			    	'Bus Stop: '+name+' Route: '+ route,
 			    	{ offset: new L.Point(0, -20) });
 				// */
+			}
+
+			function showPOIs() {
+				var source = 'http://www.miamidade.gov/transit/WebServices/PointsOfInterest/?PointID=';
+				$.getJSON(
+			       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
+			       (function(input) {
+			          return function(data) {
+
+			            if (debug) console.log("POI Data received.");
+
+			            var xmlDoc = $.parseXML(data.contents);
+
+			            var latList = xmlDoc.getElementsByTagName("Latitude");
+						var lonList = xmlDoc.getElementsByTagName("Longitude");
+						var nameList = xmlDoc.getElementsByTagName("PointName");
+						if (debug) console.log("latList.length = "+ nameList.length);
+						var i = 0;
+						for (i = 0; i < latList.length; i++) {
+							// Add each bus stop to the map
+							//if (debug) console.log("Add stop: "+nameList[i].childNodes[0].nodeValue);
+							addPOIMarker(
+								latList[i].childNodes[0].nodeValue,
+								lonList[i].childNodes[0].nodeValue,
+								nameList[i].childNodes[0].nodeValue
+								
+							);
+						}
+			          };
+			       }("POI"))
+			    );
+			}
+
+			function addPOIMarker(lat, lon, name) {
+				L.circleMarker(L.latLng(lat, lon), {color: 'aqua', radius: 5}).addTo(map);
+				L.marker([lat, lon], {icon: poiIcon}).addTo(map).bindPopup(
+			    	name,
+			    	{ offset: new L.Point(0, -8) });
+
+				
 			}
 
 		</script>
