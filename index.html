@@ -112,7 +112,8 @@
 				xmlData=xmlhttp.responseXML;
 				generateBusList(xmlData, "SAMPLE");
 				loadRouteColors(); // Bus list must be loaded first
-				//displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
+				displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
+				showPOIs();
 				if (!test) {
 					alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
 				}
