@@ -40,11 +40,15 @@ var displayedBusStops = [];
 // Keep track of scope to refresh the page after data is received
 var scope;
 
+// Keep track of current bus user selected
+var routeDir = "123 Clockwise";
+
 if (!test) {
   // Bypass cross-origin remote server access linmitation using anyorigin.com - can set up a proxy web server instead
   angular.module('transitApp', []).controller('transitController', ['$scope', function($scope) {
     scope = $scope;
     $scope.tripRouteShapeRef = tripRouteShapeRef;
+    $scope.routeDir = routeDir;
     }
   ]);
   var dataSource = "http://www.miamidade.gov/transit/WebServices/Buses/?BusID="; // Add x as the bus ID to create the error test
@@ -317,6 +321,8 @@ function sendBusStopRequest(route, direction) {
           return;
         }
         xmlDoc=xmlhttp.responseXML;
+        storeBusStop(scope, xmlDoc, thisRoute+" "+thisDirection);
+        scope.$apply();
             }
 
             var latList = xmlDoc.getElementsByTagName("Latitude");
@@ -358,24 +364,24 @@ function showPOIs() {
           return function(data) {
 
             if (debug) console.log("POI Data received.");
-
             var xmlDoc = $.parseXML(data.contents);
+            storePOIs(scope, xmlDoc);
+            scope.$apply();
 
             var latList = xmlDoc.getElementsByTagName("Latitude");
-      var lonList = xmlDoc.getElementsByTagName("Longitude");
-      var nameList = xmlDoc.getElementsByTagName("PointName");
-      if (debug) console.log("latList.length = "+ nameList.length);
-      var i = 0;
-      for (i = 0; i < latList.length; i++) {
-        // Add each bus stop to the map
-        //if (debug) console.log("Add stop: "+nameList[i].childNodes[0].nodeValue);
-        addPOIMarker(
-          latList[i].childNodes[0].nodeValue,
-          lonList[i].childNodes[0].nodeValue,
-          nameList[i].childNodes[0].nodeValue
-
-        );
-      }
+            var lonList = xmlDoc.getElementsByTagName("Longitude");
+            var nameList = xmlDoc.getElementsByTagName("PointName");
+            if (debug) console.log("latList.length = "+ nameList.length);
+            var i = 0;
+            for (i = 0; i < latList.length; i++) {
+              // Add each bus stop to the map
+              //if (debug) console.log("Add stop: "+nameList[i].childNodes[0].nodeValue);
+              addPOIMarker(
+                latList[i].childNodes[0].nodeValue,
+                lonList[i].childNodes[0].nodeValue,
+                nameList[i].childNodes[0].nodeValue
+              );
+            }
           };
        }("POI"))
     );

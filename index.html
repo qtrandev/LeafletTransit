@@ -51,18 +51,26 @@
 		    <div class="tab-content">
 		        <div id="livebuses" class="tab-pane fade in active">
 		            <h3>Live Buses</h3>
-								Buses: {{buses.length}}
+								Live Buses: {{buses.length}}
 								<div id="busTable">
 			            <table>
 										<tr>
+											<th>Bus ID</th>
 											<th>Trip ID</th>
 									    <th>Route ID</th>
-									    <th>Color</th>
+											<th>Service Direction</th>
+											<th>Description</th>
+											<!--<th>Route Color</th>-->
+											<th>Last Updated</th>
 									  </tr>
 									  <tr data-ng-repeat="x in buses">
+											<td>{{x.BusID}}</td>
 									    <td>{{x.TripID}}</td>
 									    <td>{{x.RouteID}}</td>
-									    <td style="background-color: #{{x.color}}">{{x.color}}</td>
+											<td>{{x.ServiceDirection}}</td>
+											<td>{{x.TripHeadsign}}</td>
+									    <!--<td style="background-color: #{{x.color}}">{{x.color}}</td>-->
+											<td>{{x.LocationUpdated}}</td>
 										</tr>
 									</table>
 								</div>
@@ -70,7 +78,7 @@
 		        <div id="busroutes" class="tab-pane fade">
 		            <h3>Bus Routes</h3>
 								Bus Routes: {{routes.length}}
-								<div id="busTable">
+								<div id="busroutesTable">
 			            <table>
 										<tr>
 											<th>Route ID</th>
@@ -89,17 +97,55 @@
 		        </div>
 						<div id="busstops" class="tab-pane fade">
 		            <h3>Bus Stops</h3>
-		            <p>Vestibulum nec erat eu nulla rhoncus fringilla ut non neque. Vivamus nibh urna, ornare id gravida ut, mollis a magna. Aliquam porttitor condimentum nisi, eu viverra ipsum porta ut. Nam hendrerit bibendum turpis, sed molestie mi fermentum id. Aenean volutpat velit sem. Sed consequat ante in rutrum convallis. Nunc facilisis leo at faucibus adipiscing.</p>
+								Stops: {{busStops[routeDir].length}} </br>
+								Route:
+								<select onchange="routeChanged(this.value)">
+									<option data-ng-repeat="x in buses"
+										value="{{x.RouteID}} {{x.ServiceDirection}}">{{x.RouteID}} {{x.ServiceDirection}}</option>
+								</select>
+								<div id="busStopTable">
+			            <table>
+										<tr>
+											<th>Stop ID</th>
+											<th>Stop Name</th>
+									    <th>Sequence</th>
+									  </tr>
+									  <tr data-ng-repeat="x in busStops[routeDir]">
+									    <td>{{x.StopID}}</td>
+											<td>{{x.StopName}}</td>
+									    <td>{{x.Sequence}}</td>
+										</tr>
+									</table>
+								</div>
 		        </div>
 						<div id="POIs" class="tab-pane fade">
 		            <h3>Points of Interest</h3>
-		            <p>Vestibulum nec erat eu nulla rhoncus fringilla ut non neque. Vivamus nibh urna, ornare id gravida ut, mollis a magna. Aliquam porttitor condimentum nisi, eu viverra ipsum porta ut. Nam hendrerit bibendum turpis, sed molestie mi fermentum id. Aenean volutpat velit sem. Sed consequat ante in rutrum convallis. Nunc facilisis leo at faucibus adipiscing.</p>
+								<div id="POIsTable">
+			            <table>
+										<tr>
+											<th>POI ID</th>
+											<th>Category</th>
+									    <th>Category Name</th>
+											<th>Name</th>
+											<th>Address</th>
+											<th>svHeading</th>
+									  </tr>
+									  <tr data-ng-repeat="x in POIs">
+									    <td>{{x.PointID}}</td>
+											<td>{{x.CategoryID}}</td>
+									    <td>{{x.CategoryName}}</td>
+											<td>{{x.PointName}}</td>
+											<td>{{x.Address}}, {{x.City}}, {{x.State}} {{x.Zip}}</td>
+											<td>{{x.svHeading}}</td>
+										</tr>
+									</table>
+								</div>
 		        </div>
 
 		    </div>
 		</div>
 
-		<div class="bottom" style="margin-left: auto; margin-right: auto; width: 50%; padding: 30px 0px 0px 0px">
+		<div class="bottom" style="margin-left: auto; margin-right: auto; width: 50%; padding: 20px 0px 0px 0px">
 			<p>
 				Data retrieved from: <a href="http://www.miamidade.gov/transit/WebServices/Buses/?BusID=">
 					http://www.miamidade.gov/transit/WebServices/Buses/?BusID=</a>
@@ -111,20 +157,18 @@
 			</p>
 		</div>
 
+		<!-- All Javascript code to display the buses on the map -->
 		<script src="index.js"></script>
+		<!-- All Javascript code to store the XML data for the tables-->
 		<script src="data.js"></script>
+
 		<script>
-		/**
-			var transitApp = angular.module('transitApp', []);
-			var controllers = {};
-			controllers.transitController = ['$scope',
-				function($scope) {
-				    $scope.firstName= "John";
-				    $scope.tripRouteShapeRef = tripRouteShapeRef;
-				}
-			];
-			transitApp.controller(controllers);
-			**/
+
+		function routeChanged(rd) {
+			scope.routeDir = rd;
+			scope.$apply();
+		}
+
 		</script>
 	</body>
 
