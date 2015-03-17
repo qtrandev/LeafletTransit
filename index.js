@@ -283,7 +283,7 @@ function requestBusStops(shapeId) {
         if (route === tripRouteShapeRef[i].routeId) {
           if (debug) console.log("Route ID found "+route+ " at index "+j+" of "+routeDirections.length);
           sendBusStopRequest(route, routeDirections[j].direction);
-          break;
+          // break; Keep looking for Eastbound/Southbound and Clockwise/CntrClockwise
         }
       }
       break;

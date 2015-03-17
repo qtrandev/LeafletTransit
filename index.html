@@ -106,14 +106,15 @@
 								<div id="busStopTable">
 			            <table>
 										<tr>
+											<th>Sequence</th>
 											<th>Stop ID</th>
 											<th>Stop Name</th>
-									    <th>Sequence</th>
+
 									  </tr>
 									  <tr data-ng-repeat="x in busStops[routeDir]">
+											<td>{{x.Sequence}}</td>
 									    <td>{{x.StopID}}</td>
 											<td>{{x.StopName}}</td>
-									    <td>{{x.Sequence}}</td>
 										</tr>
 									</table>
 								</div>
