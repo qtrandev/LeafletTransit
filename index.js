@@ -19,6 +19,13 @@ var myIcon = L.icon({
     iconAnchor: [16, 32]
 });
 
+// Trolley icon
+var trolleyIcon = L.icon({
+    iconUrl: 'trolley.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32]
+});
+
 var poiIcon = L.icon({
     iconUrl: 'poi.png',
     iconSize: [16, 16],
