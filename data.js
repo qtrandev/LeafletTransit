@@ -68,19 +68,19 @@ function storePOIs(scope, xmlDoc) {
   for (i = 0; i < count; i++) {
     // Add each POI to the array in the scope
     POIs[i] = {
-      PointID : $PointID[i].innerHTML,
-      CategoryID : $CategoryID[i].innerHTML,
-      CategoryName : $CategoryName[i].innerHTML,
-      PointName : $PointName[i].innerHTML,
-      Address : $Address[i].innerHTML,
-      City : $City[i].innerHTML,
-      State : $State[i].innerHTML,
-      Zip : $Zip[i].innerHTML,
-      Latitude : $Latitude[i].innerHTML,
-      Longitude : $Longitude[i].innerHTML,
-      svLatitude : $svLatitude[i].innerHTML,
-      svLongitude : $svLongitude[i].innerHTML,
-      svHeading : $svHeading[i].innerHTML
+      PointID : $PointID[i].textContent,
+      CategoryID : $CategoryID[i].textContent,
+      CategoryName : $CategoryName[i].textContent,
+      PointName : $PointName[i].textContent,
+      Address : $Address[i].textContent,
+      City : $City[i].textContent,
+      State : $State[i].textContent,
+      Zip : $Zip[i].textContent,
+      Latitude : $Latitude[i].textContent,
+      Longitude : $Longitude[i].textContent,
+      svLatitude : $svLatitude[i].textContent,
+      svLongitude : $svLongitude[i].textContent,
+      svHeading : $svHeading[i].textContent
     };
   }
   scope.POIs = POIs;
@@ -89,14 +89,19 @@ function storePOIs(scope, xmlDoc) {
 function storeBusStop(scope, xmlDoc, routeDir) {
 
   if (!scope.busStops) scope.busStops = [];
-  var count = xmlDoc.getElementsByTagName("StopID").length;
+
+  $xml = $( xmlDoc );
+  $StopID = $xml.find("StopID");
+  $StopName = $xml.find("StopName");
+  $Sequence = $xml.find("Sequence");
+  var count = $StopID.length;
   var stops = [];
   for (i = 0; i < count; i++) {
     // Add each POI to the array in the scope
     stops[i] = {
-      StopID : xmlDoc.getElementsByTagName("StopID")[i].childNodes[0].nodeValue,
-      StopName : xmlDoc.getElementsByTagName("StopName")[i].childNodes[0].nodeValue,
-      Sequence : xmlDoc.getElementsByTagName("Sequence")[i].childNodes[0].nodeValue
+      StopID : $StopID[i].textContent,
+      StopName : $StopName[i].textContent,
+      Sequence : $Sequence[i].textContent
     };
   }
   scope.busStops[routeDir] = stops;
