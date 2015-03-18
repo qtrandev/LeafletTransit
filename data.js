@@ -86,3 +86,36 @@ function storeBusStop(scope, xmlDoc, routeDir) {
   }
   scope.busStops[routeDir] = stops;
 }
+
+function getTrolleyData(scope) {
+  var source = "http://miami.etaspot.net/service.php?service=get_vehicles";
+  $.getJSON(
+       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
+       (function(thisScope) {
+          return function(data) {
+            //if (debug) console.log("Data received. Displaying route from the Shape ID: "+thisshapeId);
+            // Find the color for the route
+            var trolleys = data.contents.get_vehicles;
+            var count = trolleys.length;
+            for (i = 0; i < count; i++) {
+              addTrolleyMarker(
+                trolleys[i].lat,
+                trolleys[i].lng,
+                trolleys[i].equipmentID,
+                trolleys[i].routeID,
+                trolleys[i].receiveTime
+              );
+            }
+            scope.trolleys = trolleys;
+          };
+       }(scope))
+    );
+}
+
+function addTrolleyMarker(lat, lng, equipmentID, routeID, receiveTime) {
+  L.marker([lat, lng], {icon: myIcon}).addTo(map).bindPopup(
+      'Trolley # '+equipmentID+
+      '<br />Route: '+routeID+
+      '<br />Received Time: '+receiveTime,
+      { offset: new L.Point(0, -16) });
+}

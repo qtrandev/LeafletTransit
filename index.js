@@ -67,6 +67,7 @@ function loadOnlineData(xmlData) {
   loadRouteColors(); // Bus list must be loaded first
   displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
   showPOIs();
+  getTrolleyData(scope);
 }
 
 // Load local data from Buses.xml file for local testing or when online data is unavailable
