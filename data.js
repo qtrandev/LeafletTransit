@@ -2,37 +2,23 @@
 
 function storeLiveBuses(scope, xmlDoc) {
 
-  var idList = xmlDoc.getElementsByTagName("BusID");
-  var nameList = xmlDoc.getElementsByTagName("BusName");
-  var latList = xmlDoc.getElementsByTagName("Latitude");
-  var lonList = xmlDoc.getElementsByTagName("Longitude");
-  var routeList = xmlDoc.getElementsByTagName("RouteID");
-  var tripList = xmlDoc.getElementsByTagName("TripID");
-  var directionList = xmlDoc.getElementsByTagName("Direction");
-  var serviceDirectionList = xmlDoc.getElementsByTagName("ServiceDirection");
-  var serviceList = xmlDoc.getElementsByTagName("Service");
-  var serviceNameList = xmlDoc.getElementsByTagName("ServiceName");
-  var descList = xmlDoc.getElementsByTagName("TripHeadsign");
-  var timeList = xmlDoc.getElementsByTagName("LocationUpdated");
-
-  if (debug) console.log("idList length = "+idList.length);
-  var i = 0;
+  var count = xmlDoc.getElementsByTagName("BusID").length;
   var buses = [];
-  for (i = 0; i < idList.length; i++) {
+  for (i = 0; i < count; i++) {
     // Add each bus to the list
     buses[i] = {
-      BusID : idList[i].childNodes[0].nodeValue,
-      BusName : nameList[i].childNodes[0].nodeValue,
-      Latitude : latList[i].childNodes[0].nodeValue,
-      Longitude : lonList[i].childNodes[0].nodeValue,
-      RouteID : routeList[i].childNodes[0].nodeValue,
-      TripID : tripList[i].childNodes[0].nodeValue,
-      //Direction : directionList[i].childNodes[0].nodeValue,
-      ServiceDirection : serviceDirectionList[i].childNodes[0].nodeValue,
-      Service : serviceList[i].childNodes[0].nodeValue,
-      ServiceName : serviceNameList[i].childNodes[0].nodeValue,
-      TripHeadsign : descList[i].childNodes[0].nodeValue,
-      LocationUpdated : timeList[i].childNodes[0].nodeValue
+      BusID : xmlDoc.getElementsByTagName("BusID")[i].childNodes[0].nodeValue,
+      BusName : xmlDoc.getElementsByTagName("BusName")[i].childNodes[0].nodeValue,
+      Latitude : xmlDoc.getElementsByTagName("Latitude")[i].childNodes[0].nodeValue,
+      Longitude : xmlDoc.getElementsByTagName("Longitude")[i].childNodes[0].nodeValue,
+      RouteID : xmlDoc.getElementsByTagName("RouteID")[i].childNodes[0].nodeValue,
+      TripID : xmlDoc.getElementsByTagName("TripID")[i].childNodes[0].nodeValue,
+      //Direction : xmlDoc.getElementsByTagName("Direction")[i].childNodes[0].nodeValue,
+      ServiceDirection : xmlDoc.getElementsByTagName("ServiceDirection")[i].childNodes[0].nodeValue,
+      Service : xmlDoc.getElementsByTagName("Service")[i].childNodes[0].nodeValue,
+      ServiceName : xmlDoc.getElementsByTagName("ServiceName")[i].childNodes[0].nodeValue,
+      TripHeadsign : xmlDoc.getElementsByTagName("TripHeadsign")[i].childNodes[0].nodeValue,
+      LocationUpdated : xmlDoc.getElementsByTagName("LocationUpdated")[i].childNodes[0].nodeValue
     };
   }
   scope.buses = buses;
@@ -40,33 +26,21 @@ function storeLiveBuses(scope, xmlDoc) {
 
 function storeBusRoutes(scope, xmlDoc) {
 
-  var routeList = xmlDoc.getElementsByTagName("RouteID");
-  var aliasList = xmlDoc.getElementsByTagName("RouteAlias");
-  var aliasLongList = xmlDoc.getElementsByTagName("RouteAliasLong");
-  var routeDescList = xmlDoc.getElementsByTagName("RouteDescription");
-  var colorList = xmlDoc.getElementsByTagName("RouteColor");
-  var bikeList = xmlDoc.getElementsByTagName("Bike");
-  var wheelchairList = xmlDoc.getElementsByTagName("Wheelchair");
-  var metrorailList = xmlDoc.getElementsByTagName("Metrorail");
-  var airportList = xmlDoc.getElementsByTagName("Airport");
-  var sortList = xmlDoc.getElementsByTagName("SortOrder");
-
-  if (debug) console.log("routeList length = "+routeList.length);
-  var i = 0;
+  var count = xmlDoc.getElementsByTagName("RouteID").length;
   var routes = [];
-  for (i = 0; i < routeList.length; i++) {
-    // Add each bus to the list
+  for (i = 0; i < count; i++) {
+    // Add each bus route to the scope
     routes[i] = {
-      RouteID : routeList[i].childNodes[0].nodeValue,
-      RouteAlias : aliasList[i].childNodes[0].nodeValue,
-      RouteAliasLong : aliasLongList[i].childNodes[0].nodeValue,
-      RouteDescription : routeDescList[i].childNodes[0].nodeValue,
-      RouteColor : colorList[i].childNodes[0].nodeValue,
-      Bike : bikeList[i].childNodes[0].nodeValue,
-      Wheelchair : wheelchairList[i].childNodes[0].nodeValue,
-      Metrorail : metrorailList[i].childNodes[0].nodeValue,
-      Airport : airportList[i].childNodes[0].nodeValue,
-      SortOrder : sortList[i].childNodes[0].nodeValue
+      RouteID : xmlDoc.getElementsByTagName("RouteID")[i].childNodes[0].nodeValue,
+      RouteAlias : xmlDoc.getElementsByTagName("RouteAlias")[i].childNodes[0].nodeValue,
+      RouteAliasLong : xmlDoc.getElementsByTagName("RouteAliasLong")[i].childNodes[0].nodeValue,
+      RouteDescription : xmlDoc.getElementsByTagName("RouteDescription")[i].childNodes[0].nodeValue,
+      RouteColor : xmlDoc.getElementsByTagName("RouteColor")[i].childNodes[0].nodeValue,
+      Bike : xmlDoc.getElementsByTagName("Bike")[i].childNodes[0].nodeValue,
+      Wheelchair : xmlDoc.getElementsByTagName("Wheelchair")[i].childNodes[0].nodeValue,
+      Metrorail : xmlDoc.getElementsByTagName("Metrorail")[i].childNodes[0].nodeValue,
+      Airport : xmlDoc.getElementsByTagName("Airport")[i].childNodes[0].nodeValue,
+      SortOrder : xmlDoc.getElementsByTagName("SortOrder")[i].childNodes[0].nodeValue
     };
   }
   scope.routes = routes;
@@ -74,8 +48,9 @@ function storeBusRoutes(scope, xmlDoc) {
 
 function storePOIs(scope, xmlDoc) {
 
+  var count = xmlDoc.getElementsByTagName("PointID").length;
   var POIs = [];
-  for (i = 0; i < xmlDoc.getElementsByTagName("PointID").length; i++) {
+  for (i = 0; i < count; i++) {
     // Add each POI to the array in the scope
     POIs[i] = {
       PointID : xmlDoc.getElementsByTagName("PointID")[i].childNodes[0].nodeValue,
@@ -99,8 +74,9 @@ function storePOIs(scope, xmlDoc) {
 function storeBusStop(scope, xmlDoc, routeDir) {
 
   if (!scope.busStops) scope.busStops = [];
+  var count = xmlDoc.getElementsByTagName("StopID").length;
   var stops = [];
-  for (i = 0; i < xmlDoc.getElementsByTagName("StopID").length; i++) {
+  for (i = 0; i < count; i++) {
     // Add each POI to the array in the scope
     stops[i] = {
       StopID : xmlDoc.getElementsByTagName("StopID")[i].childNodes[0].nodeValue,
