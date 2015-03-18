@@ -48,24 +48,39 @@ function storeBusRoutes(scope, xmlDoc) {
 
 function storePOIs(scope, xmlDoc) {
 
-  var count = xmlDoc.getElementsByTagName("PointID").length;
+  $xml = $( xmlDoc );
+  $PointID = $xml.find("PointID");
+  $CategoryID = $xml.find("CategoryID");
+  $CategoryName = $xml.find("CategoryName");
+  $PointName = $xml.find("PointName");
+  $Address = $xml.find("Address");
+  $City = $xml.find("City");
+  $State = $xml.find("State");
+  $Zip = $xml.find("Zip");
+  $Latitude = $xml.find("Latitude");
+  $Longitude = $xml.find("Longitude");
+  $svLatitude = $xml.find("svLatitude");
+  $svLongitude = $xml.find("svLongitude");
+  $svHeading = $xml.find("svHeading");
+
+  var count = $PointID.length;
   var POIs = [];
   for (i = 0; i < count; i++) {
     // Add each POI to the array in the scope
     POIs[i] = {
-      PointID : xmlDoc.getElementsByTagName("PointID")[i].childNodes[0].nodeValue,
-      CategoryID : xmlDoc.getElementsByTagName("CategoryID")[i].childNodes[0].nodeValue,
-      CategoryName : xmlDoc.getElementsByTagName("CategoryName")[i].childNodes[0].nodeValue,
-      PointName : xmlDoc.getElementsByTagName("PointName")[i].childNodes[0].nodeValue,
-      Address : xmlDoc.getElementsByTagName("Address")[i].childNodes[0].nodeValue,
-      City : xmlDoc.getElementsByTagName("City")[i].childNodes[0].nodeValue,
-      State : xmlDoc.getElementsByTagName("State")[i].childNodes[0].nodeValue,
-      Zip : xmlDoc.getElementsByTagName("Zip")[i].childNodes[0].nodeValue,
-      Latitude : xmlDoc.getElementsByTagName("Latitude")[i].childNodes[0].nodeValue,
-      Longitude : xmlDoc.getElementsByTagName("Longitude")[i].childNodes[0].nodeValue,
-      svLatitude : xmlDoc.getElementsByTagName("svLatitude")[i].childNodes[0].nodeValue,
-      svLongitude : xmlDoc.getElementsByTagName("svLongitude")[i].childNodes[0].nodeValue,
-      svHeading : xmlDoc.getElementsByTagName("svHeading")[i].childNodes[0].nodeValue
+      PointID : $PointID[i].innerHTML,
+      CategoryID : $CategoryID[i].innerHTML,
+      CategoryName : $CategoryName[i].innerHTML,
+      PointName : $PointName[i].innerHTML,
+      Address : $Address[i].innerHTML,
+      City : $City[i].innerHTML,
+      State : $State[i].innerHTML,
+      Zip : $Zip[i].innerHTML,
+      Latitude : $Latitude[i].innerHTML,
+      Longitude : $Longitude[i].innerHTML,
+      svLatitude : $svLatitude[i].innerHTML,
+      svLongitude : $svLongitude[i].innerHTML,
+      svHeading : $svHeading[i].innerHTML
     };
   }
   scope.POIs = POIs;
