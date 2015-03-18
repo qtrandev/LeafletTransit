@@ -40,15 +40,11 @@ var displayedBusStops = [];
 // Keep track of scope to refresh the page after data is received
 var scope;
 
-// Keep track of current bus user selected
-var routeDir = "123 Clockwise";
-
 if (!test) {
   // Bypass cross-origin remote server access linmitation using anyorigin.com - can set up a proxy web server instead
   angular.module('transitApp', []).controller('transitController', ['$scope', function($scope) {
     scope = $scope;
     $scope.tripRouteShapeRef = tripRouteShapeRef;
-    $scope.routeDir = routeDir;
     }
   ]);
   var dataSource = "http://www.miamidade.gov/transit/WebServices/Buses/?BusID="; // Add x as the bus ID to create the error test
@@ -143,6 +139,7 @@ function addRouteDirection(route, serviceDirection) {
     }
   } else {
     routeDirections[0] = {routeId: route, direction: serviceDirection};
+    scope.routeDir = route+' '+serviceDirection; // Set the first bus stop route-direction to show
     if (debug) console.log("Added route: "+route+" and direction: "+serviceDirection);
   }
 }
