@@ -2,23 +2,37 @@
 
 function storeLiveBuses(scope, xmlDoc) {
 
-  var count = xmlDoc.getElementsByTagName("BusID").length;
+  $xml = $( xmlDoc );
+  $BusID = $xml.find("BusID");
+  $BusName = $xml.find("BusName");
+  $Latitude = $xml.find("Latitude");
+  $Longitude = $xml.find("Longitude");
+  $RouteID = $xml.find("RouteID");
+  $TripID = $xml.find("TripID");
+  //$Direction = $xml.find("Direction");
+  $ServiceDirection = $xml.find("ServiceDirection");
+  $Service = $xml.find("Service");
+  $ServiceName = $xml.find("ServiceName");
+  $TripHeadsign = $xml.find("TripHeadsign");
+  $LocationUpdated = $xml.find("LocationUpdated");
+
+  var count = $BusID.length;
   var buses = [];
   for (i = 0; i < count; i++) {
     // Add each bus to the list
     buses[i] = {
-      BusID : xmlDoc.getElementsByTagName("BusID")[i].childNodes[0].nodeValue,
-      BusName : xmlDoc.getElementsByTagName("BusName")[i].childNodes[0].nodeValue,
-      Latitude : xmlDoc.getElementsByTagName("Latitude")[i].childNodes[0].nodeValue,
-      Longitude : xmlDoc.getElementsByTagName("Longitude")[i].childNodes[0].nodeValue,
-      RouteID : xmlDoc.getElementsByTagName("RouteID")[i].childNodes[0].nodeValue,
-      TripID : xmlDoc.getElementsByTagName("TripID")[i].childNodes[0].nodeValue,
-      //Direction : xmlDoc.getElementsByTagName("Direction")[i].childNodes[0].nodeValue,
-      ServiceDirection : xmlDoc.getElementsByTagName("ServiceDirection")[i].childNodes[0].nodeValue,
-      Service : xmlDoc.getElementsByTagName("Service")[i].childNodes[0].nodeValue,
-      ServiceName : xmlDoc.getElementsByTagName("ServiceName")[i].childNodes[0].nodeValue,
-      TripHeadsign : xmlDoc.getElementsByTagName("TripHeadsign")[i].childNodes[0].nodeValue,
-      LocationUpdated : xmlDoc.getElementsByTagName("LocationUpdated")[i].childNodes[0].nodeValue
+      BusID : $BusID[i].textContent,
+      BusName : $BusName[i].textContent,
+      Latitude : $Latitude[i].textContent,
+      Longitude : $Longitude[i].textContent,
+      RouteID : $RouteID[i].textContent,
+      TripID : $TripID[i].textContent,
+      //Direction : $Direction[i].textContent,
+      ServiceDirection : $ServiceDirection[i].textContent,
+      Service : $Service[i].textContent,
+      ServiceName : $ServiceName[i].textContent,
+      TripHeadsign : $TripHeadsign[i].textContent,
+      LocationUpdated : $LocationUpdated[i].textContent
     };
   }
   scope.buses = buses;
@@ -26,21 +40,32 @@ function storeLiveBuses(scope, xmlDoc) {
 
 function storeBusRoutes(scope, xmlDoc) {
 
-  var count = xmlDoc.getElementsByTagName("RouteID").length;
+  $xml = $( xmlDoc );
+  $RouteID = $xml.find("RouteID");
+  $RouteAlias = $xml.find("RouteAlias");
+  $RouteAliasLong = $xml.find("RouteAliasLong");
+  $RouteDescription = $xml.find("RouteDescription");
+  $RouteColor = $xml.find("RouteColor");
+  $Bike = $xml.find("Bike");
+  $Wheelchair = $xml.find("Wheelchair");
+  $Metrorail = $xml.find("Metrorail");
+  $Airport = $xml.find("Airport");
+  $SortOrder = $xml.find("SortOrder");
+  var count = $RouteID.length;
   var routes = [];
   for (i = 0; i < count; i++) {
     // Add each bus route to the scope
     routes[i] = {
-      RouteID : xmlDoc.getElementsByTagName("RouteID")[i].childNodes[0].nodeValue,
-      RouteAlias : xmlDoc.getElementsByTagName("RouteAlias")[i].childNodes[0].nodeValue,
-      RouteAliasLong : xmlDoc.getElementsByTagName("RouteAliasLong")[i].childNodes[0].nodeValue,
-      RouteDescription : xmlDoc.getElementsByTagName("RouteDescription")[i].childNodes[0].nodeValue,
-      RouteColor : xmlDoc.getElementsByTagName("RouteColor")[i].childNodes[0].nodeValue,
-      Bike : xmlDoc.getElementsByTagName("Bike")[i].childNodes[0].nodeValue,
-      Wheelchair : xmlDoc.getElementsByTagName("Wheelchair")[i].childNodes[0].nodeValue,
-      Metrorail : xmlDoc.getElementsByTagName("Metrorail")[i].childNodes[0].nodeValue,
-      Airport : xmlDoc.getElementsByTagName("Airport")[i].childNodes[0].nodeValue,
-      SortOrder : xmlDoc.getElementsByTagName("SortOrder")[i].childNodes[0].nodeValue
+      RouteID : $RouteID[i].textContent,
+      RouteAlias : $RouteAlias[i].textContent,
+      RouteAliasLong : $RouteAliasLong[i].textContent,
+      RouteDescription : $RouteDescription[i].textContent,
+      RouteColor : $RouteColor[i].textContent,
+      Bike : $Bike[i].textContent,
+      Wheelchair : $Wheelchair[i].textContent,
+      Metrorail : $Metrorail[i].textContent,
+      Airport : $Airport[i].textContent,
+      SortOrder : $SortOrder[i].textContent
     };
   }
   scope.routes = routes;
