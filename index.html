@@ -47,6 +47,7 @@
 		        <li><a data-toggle="tab" href="#busroutes">Bus Routes</a></li>
 						<li><a data-toggle="tab" href="#busstops">Bus Stops</a></li>
 						<li><a data-toggle="tab" href="#POIs">POIs</a></li>
+						<li><a data-toggle="tab" href="#trolleys">Trolleys</a></li>
 		    </ul>
 		    <div class="tab-content">
 		        <div id="livebuses" class="tab-pane fade in active">
@@ -121,6 +122,7 @@
 		        </div>
 						<div id="POIs" class="tab-pane fade">
 		            <h3>Points of Interest</h3>
+								POIs: {{POIs.length}} </br>
 								<div id="POIsTable">
 			            <table>
 										<tr>
@@ -138,6 +140,24 @@
 											<td>{{x.PointName}}</td>
 											<td>{{x.Address}}, {{x.City}}, {{x.State}} {{x.Zip}}</td>
 											<td>{{x.svHeading}}</td>
+										</tr>
+									</table>
+								</div>
+		        </div>
+						<div id="trolleys" class="tab-pane fade">
+		            <h3>Trolleys</h3>
+								City of Miami Trolleys: {{trolleys.length}} </br>
+								<div id="trolleysTable">
+			            <table>
+										<tr>
+											<th>Trolley ID</th>, ,
+											<th>Route ID</th>
+									    <th>Receive Time</th>
+									  </tr>
+									  <tr data-ng-repeat="x in trolleys">
+									    <td>{{x.equipmentID}}</td>
+											<td>{{x.routeID}}</td>
+									    <td>{{x.receiveTime}}</td>
 										</tr>
 									</table>
 								</div>
