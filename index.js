@@ -75,6 +75,7 @@ function loadOnlineData(xmlData) {
   displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
   showPOIs();
   getTrolleyData(scope);
+  loadTrolleyRoutes();
 }
 
 // Load local data from Buses.xml file for local testing or when online data is unavailable
@@ -88,6 +89,7 @@ function loadLocalData() {
   displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
   showPOIs();
   getTrolleyData(scope);
+  loadTrolleyRoutes();
   if (!test) {
     alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
   }

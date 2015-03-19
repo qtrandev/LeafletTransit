@@ -165,3 +165,23 @@ function addTrolleyMarker(lat, lng, equipmentID, routeID, receiveTime) {
       '<br />Received Time: '+receiveTime,
       { offset: new L.Point(0, -16) });
 }
+
+function loadTrolleyRoutes() {
+  $.getJSON('routeCoords.json',
+  function(data) {
+    var i = 1;
+    for (i = 1; i < 8; i++) {
+      var color = data[i].color.normal;
+      displayTrolleyRouteColors(color, data[i].coords);
+    }
+  });
+}
+
+function displayTrolleyRouteColors(color, coords) {
+  var latlngs = [];
+  for (i = 0; i < coords.length; i++) {
+    latlngs.push(L.latLng(coords[i][1], coords[i][0]));
+  }
+
+  L.polyline(latlngs, {color: '#'+color}).addTo(map);
+}
