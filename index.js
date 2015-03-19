@@ -76,6 +76,7 @@ function loadOnlineData(xmlData) {
   showPOIs();
   getTrolleyData(scope);
   loadTrolleyRoutes();
+  getTrolleyStops(scope);
 }
 
 // Load local data from Buses.xml file for local testing or when online data is unavailable
@@ -90,6 +91,7 @@ function loadLocalData() {
   showPOIs();
   getTrolleyData(scope);
   loadTrolleyRoutes();
+  getTrolleyStops(scope);
   if (!test) {
     alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
   }
@@ -354,7 +356,7 @@ function sendBusStopRequest(route, direction) {
 }
 
 function addBusStopMarker(lat, lon, name, route) {
-  L.circleMarker(L.latLng(lat, lon), {color: 'green', radius: 10}).addTo(map).bindPopup(
+  L.circleMarker(L.latLng(lat, lon), {color: 'green', radius: 8}).addTo(map).bindPopup(
       'Route: '+route+' Bus Stop: '+name,
       { offset: new L.Point(0, 0) });;
   /*

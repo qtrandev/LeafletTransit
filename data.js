@@ -138,8 +138,6 @@ function getTrolleyData(scope) {
        'http://anyorigin.com/dev/get?url='+source+'&callback=?',
        (function(thisScope) {
           return function(data) {
-            //if (debug) console.log("Data received. Displaying route from the Shape ID: "+thisshapeId);
-            // Find the color for the route
             var trolleys = data.contents.get_vehicles;
             var count = trolleys.length;
             for (i = 0; i < count; i++) {
@@ -184,4 +182,32 @@ function displayTrolleyRouteColors(color, coords) {
   }
 
   L.polyline(latlngs, {color: '#'+color}).addTo(map);
+}
+
+function getTrolleyStops(scope) {
+  var source = "http://miami.etaspot.net/service.php?service=get_stops&includeETAData=1&orderedETAArray=1&token=TESTING";
+  $.getJSON(
+       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
+       (function(thisScope) {
+          return function(data) {
+            var stops = data.contents.get_stops;
+            var count = stops.length;
+            for (i = 0; i < count; i++) {
+              addTrolleyStopMarker(
+                stops[i].lat,
+                stops[i].lng,
+                stops[i].name,
+                stops[i].id
+              );
+            }
+            scope.stops = stops;
+          };
+       }(scope))
+    );
+}
+
+function addTrolleyStopMarker(lat, lon, name, id) {
+  L.circleMarker(L.latLng(lat, lon), {color: 'blue', radius: 8}).addTo(map).bindPopup(
+      'Stop ID: '+id+'<br />Stop Name: '+name,
+      { offset: new L.Point(0, 0) });;
 }
