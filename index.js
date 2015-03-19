@@ -1,5 +1,5 @@
 // Initialize map
-var map = L.map('map').setView([25.80, -80.20], 8);
+var map = L.map('map').setView([25.721637,-80.2792843], 10);
 var test = false; // Whether in test mode or online
 var debug = false; // Enable console debug messages
 
