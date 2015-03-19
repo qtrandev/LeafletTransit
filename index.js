@@ -1,5 +1,5 @@
 // Initialize map
-var map = L.map('map').setView([25.721637,-80.2792843], 10);
+var map = L.map('map').setView([25.795865,-80.287046], 11);
 var test = false; // Whether in test mode or online
 var debug = false; // Enable console debug messages
 
@@ -354,7 +354,7 @@ function sendBusStopRequest(route, direction) {
 }
 
 function addBusStopMarker(lat, lon, name, route) {
-  L.circleMarker(L.latLng(lat, lon), {color: 'green', radius: 5}).addTo(map).bindPopup(
+  L.circleMarker(L.latLng(lat, lon), {color: 'green', radius: 10}).addTo(map).bindPopup(
       'Route: '+route+' Bus Stop: '+name,
       { offset: new L.Point(0, 0) });;
   /*
@@ -396,7 +396,8 @@ function showPOIs() {
 }
 
 function addPOIMarker(lat, lon, name) {
-  L.circleMarker(L.latLng(lat, lon), {color: 'aqua', radius: 5}).addTo(map);
+  var marker = L.circleMarker(L.latLng(lat, lon), {color: 'aqua', radius: 10})
+  marker.addTo(map).bindPopup(name);
   L.marker([lat, lon], {icon: poiIcon}).addTo(map).bindPopup(
       name,
       { offset: new L.Point(0, -8) });
