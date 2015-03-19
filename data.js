@@ -133,7 +133,7 @@ function storeBusStop(scope, xmlDoc, routeDir) {
 }
 
 function getTrolleyData(scope) {
-  var source = "http://miami.etaspot.net/service.php?service=get_vehicles";
+  var source = "http://miami.etaspot.net/service.php?service=get_vehicles&includeETAData=1&orderedETAArray=1&token=TESTING";
   $.getJSON(
        'http://anyorigin.com/dev/get?url='+source+'&callback=?',
        (function(thisScope) {
@@ -143,6 +143,7 @@ function getTrolleyData(scope) {
             var trolleys = data.contents.get_vehicles;
             var count = trolleys.length;
             for (i = 0; i < count; i++) {
+              trolleys[i].receiveTime = (new Date(trolleys[i].receiveTime)).toLocaleString();
               addTrolleyMarker(
                 trolleys[i].lat,
                 trolleys[i].lng,

@@ -152,11 +152,17 @@
 										<tr>
 											<th>Trolley ID</th>
 											<th>Route ID</th>
+											<th>In Service</th>
+											<th>Next Stop ID</th>
+											<th>Schedule Number</th>
 									    <th>Receive Time</th>
 									  </tr>
 									  <tr data-ng-repeat="x in trolleys">
 									    <td>{{x.equipmentID}}</td>
 											<td>{{x.routeID}}</td>
+											<td>{{x.inService}}</td>
+											<td>{{x.nextStopID}}</td>
+											<td>{{x.scheduleNumber}}</td>
 									    <td>{{x.receiveTime}}</td>
 										</tr>
 									</table>
