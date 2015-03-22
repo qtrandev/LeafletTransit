@@ -166,17 +166,17 @@ function loadRouteColors() {
   xmlData=xmlhttp.responseXML;
 
   storeBusRoutes(scope, xmlData);
-  var routeIdList = xmlData.getElementsByTagName("RouteID");
-  //var descList = xmlData.getElementsByTagName("RouteDescription");
-  var colorList = xmlData.getElementsByTagName("RouteColor");
+  $xml = $( xmlData );
+  $RouteID = $xml.find("RouteID");
+  $RouteColor = $xml.find("RouteColor");
   var i = 0;
-  for (i = 0; i < routeIdList.length; i++) {
+  for (i = 0; i < $RouteID.length; i++) {
     // Add to global ref list
     // Data format is {tripId: "", routeId: "", shapeId: "", color: ""}
-    var route = routeIdList[i].childNodes[0].nodeValue;
+    var route = $RouteID[i].textContent;
     for (j = 0; j < tripRouteShapeRef.length; j++) {
       if (tripRouteShapeRef[j].routeId == route) {
-        tripRouteShapeRef[j].color = colorList[i].childNodes[0].nodeValue;
+        tripRouteShapeRef[j].color = $RouteColor[i].textContent;
       }
     }
   }
