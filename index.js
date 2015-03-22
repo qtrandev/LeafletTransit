@@ -100,36 +100,37 @@ function loadLocalData() {
 // Create buses list from Miami Transit XML file
 function generateBusList(xmlDoc, realText) {
   storeLiveBuses(scope, xmlDoc);
-  var idList = xmlDoc.getElementsByTagName("BusID");
-  var nameList = xmlDoc.getElementsByTagName("BusName");
-  var latList = xmlDoc.getElementsByTagName("Latitude");
-  var lonList = xmlDoc.getElementsByTagName("Longitude");
-  var descList = xmlDoc.getElementsByTagName("TripHeadsign");
-  var timeList = xmlDoc.getElementsByTagName("LocationUpdated");
-  var tripList = xmlDoc.getElementsByTagName("TripID");
-  var routeList = xmlDoc.getElementsByTagName("RouteID");
-  var directionList = xmlDoc.getElementsByTagName("ServiceDirection");
-  if (debug) console.log("idList length = "+idList.length);
+  $xml = $( xmlDoc );
+  $BusID = $xml.find("BusID");
+  $BusName = $xml.find("BusName");
+  $Latitude = $xml.find("Latitude");
+  $Longitude = $xml.find("Longitude");
+  $TripHeadsign = $xml.find("TripHeadsign");
+  $LocationUpdated = $xml.find("LocationUpdated");
+  $TripID = $xml.find("TripID");
+  $RouteID = $xml.find("RouteID");
+  $ServiceDirection = $xml.find("ServiceDirection");
+  if (debug) console.log("BusID List length = "+$BusID.length);
   var i = 0;
-  for (i = 0; i < idList.length; i++) {
+  for (i = 0; i < $BusID.length; i++) {
     // Add each bus to the map
     addBusMarker(
-      latList[i].childNodes[0].nodeValue,
-      lonList[i].childNodes[0].nodeValue,
-      nameList[i].childNodes[0].nodeValue,
-      descList[i].childNodes[0].nodeValue,
-      idList[i].childNodes[0].nodeValue,
-      timeList[i].childNodes[0].nodeValue,
+      $Latitude[i].textContent,
+      $Longitude[i].textContent,
+      $BusName[i].textContent,
+      $TripHeadsign[i].textContent,
+      $BusID[i].textContent,
+      $LocationUpdated[i].textContent,
       realText
     );
     // Add to the global trip-route-shape list
     //console.log("Adding Trip ID to list: "+tripList[i].childNodes[0].nodeValue+" Trip list size = "+tripRouteShapeRef.length);
     tripRouteShapeRef[tripRouteShapeRef.length] = {
-      tripId: tripList[i].childNodes[0].nodeValue,
-      routeId: routeList[i].childNodes[0].nodeValue,
+      tripId: $TripID[i].textContent,
+      routeId: $RouteID[i].textContent,
       shapeId: ""
     };
-    addRouteDirection(routeList[i].childNodes[0].nodeValue,directionList[i].childNodes[0].nodeValue);
+    addRouteDirection($RouteID[i].textContent,$ServiceDirection[i].textContent);
   }
   scope.$apply();
 }
