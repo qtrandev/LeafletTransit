@@ -101,7 +101,7 @@
 								Stops: {{busStops[routeDir].length}} </br>
 								Route:
 								<select onchange="routeChanged(this.value)">
-									<option data-ng-repeat="x in buses"
+									<option data-ng-repeat="x in uniqueBusRoutes"
 										value="{{x.RouteID}} {{x.ServiceDirection}}">{{x.RouteID}} {{x.ServiceDirection}}</option>
 								</select>
 								<div id="busStopTable">

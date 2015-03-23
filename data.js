@@ -18,6 +18,7 @@ function storeLiveBuses(scope, xmlDoc) {
 
   var count = $BusID.length;
   var buses = [];
+  var uniqueBusRoutes = [];
   for (i = 0; i < count; i++) {
     // Add each bus to the list
     buses[i] = {
@@ -34,8 +35,30 @@ function storeLiveBuses(scope, xmlDoc) {
       TripHeadsign : $TripHeadsign[i].textContent,
       LocationUpdated : $LocationUpdated[i].textContent
     };
+
+    // Filter out unique buses to display in bus stops table dropdown
+    var routeId = $RouteID[i].textContent;
+    var serviceDirection = $ServiceDirection[i].textContent;
+    var unique = true;
+    if (uniqueBusRoutes.length > 0) {
+      var j =0;
+      for (j = 0; j < uniqueBusRoutes.length; j++) {
+        if ((uniqueBusRoutes[j].RouteID === routeId) && (uniqueBusRoutes[j].ServiceDirection === serviceDirection)) {
+          // Found duplicate, don't add
+          unique = false;
+          break;
+        }
+      }
+    }
+    if (unique) {
+      uniqueBusRoutes.push({
+        RouteID : routeId,
+        ServiceDirection : serviceDirection
+      });
+    }
   }
   scope.buses = buses;
+  scope.uniqueBusRoutes = uniqueBusRoutes;
 }
 
 function storeBusRoutes(scope, xmlDoc) {
