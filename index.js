@@ -11,6 +11,13 @@ L.tileLayer('https://{s}.tiles.mapbox.com/v4/qtrandev.lc0i743k/{z}/{x}/{y}.png?a
     '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
     'Imagery &copy; <a href="http://mapbox.com">Mapbox</a>'
 }).addTo(map);
+// Set up layers to allow user to control map display
+var poiLayer = new L.LayerGroup();
+var trolleyLayer = new L.LayerGroup();
+L.control.layers({},{
+    'Points of Interest': poiLayer,
+    'Miami Trolleys': trolleyLayer
+}).addTo(map);
 
 // Intialize bus icon
 var myIcon = L.icon({
@@ -388,22 +395,24 @@ function showPOIs() {
               // Add each bus stop to the map
               //if (debug) console.log("Add stop: "+nameList[i].childNodes[0].nodeValue);
               addPOIMarker(
+                poiLayer,
                 latList[i].childNodes[0].nodeValue,
                 lonList[i].childNodes[0].nodeValue,
                 nameList[i].childNodes[0].nodeValue
               );
             }
+            poiLayer.addTo(map);
           };
        }("POI"))
     );
 }
 
-function addPOIMarker(lat, lon, name) {
+function addPOIMarker(layer, lat, lon, name) {
   var marker = L.circleMarker(L.latLng(lat, lon), {color: 'aqua', radius: 10})
-  marker.addTo(map).bindPopup(name);
-  L.marker([lat, lon], {icon: poiIcon}).addTo(map).bindPopup(
+  marker.bindPopup(name);
+  var marker2 = L.marker([lat, lon], {icon: poiIcon}).bindPopup(
       name,
       { offset: new L.Point(0, -8) });
-
-
+  layer.addLayer(marker);
+  layer.addLayer(marker2);
 }

@@ -143,6 +143,7 @@ function getTrolleyData(scope) {
             for (i = 0; i < count; i++) {
               trolleys[i].receiveTime = (new Date(trolleys[i].receiveTime)).toLocaleString();
               addTrolleyMarker(
+                trolleyLayer,
                 trolleys[i].lat,
                 trolleys[i].lng,
                 trolleys[i].equipmentID,
@@ -156,12 +157,13 @@ function getTrolleyData(scope) {
     );
 }
 
-function addTrolleyMarker(lat, lng, equipmentID, routeID, receiveTime) {
-  L.marker([lat, lng], {icon: trolleyIcon}).addTo(map).bindPopup(
+function addTrolleyMarker(layer, lat, lng, equipmentID, routeID, receiveTime) {
+  var marker = L.marker([lat, lng], {icon: trolleyIcon}).addTo(map).bindPopup(
       'Trolley # '+equipmentID+
       '<br />Route: '+routeID+
       '<br />Received Time: '+receiveTime,
       { offset: new L.Point(0, -16) });
+  marker.addTo(layer);
 }
 
 function loadTrolleyRoutes() {
@@ -170,18 +172,19 @@ function loadTrolleyRoutes() {
     var i = 1;
     for (i = 1; i < 8; i++) {
       var color = data[i].color.normal;
-      displayTrolleyRouteColors(color, data[i].coords);
+      displayTrolleyRouteColors(trolleyLayer, color, data[i].coords);
     }
   });
 }
 
-function displayTrolleyRouteColors(color, coords) {
+function displayTrolleyRouteColors(layer, color, coords) {
   var latlngs = [];
   for (i = 0; i < coords.length; i++) {
     latlngs.push(L.latLng(coords[i][1], coords[i][0]));
   }
 
-  L.polyline(latlngs, {color: '#'+color}).addTo(map);
+  var lineMarker = L.polyline(latlngs, {color: '#'+color});
+  lineMarker.addTo(layer);
 }
 
 function getTrolleyStops(scope) {
@@ -194,20 +197,23 @@ function getTrolleyStops(scope) {
             var count = stops.length;
             for (i = 0; i < count; i++) {
               addTrolleyStopMarker(
+                trolleyLayer,
                 stops[i].lat,
                 stops[i].lng,
                 stops[i].name,
                 stops[i].id
               );
             }
+            trolleyLayer.addTo(map);
             scope.stops = stops;
           };
        }(scope))
     );
 }
 
-function addTrolleyStopMarker(lat, lon, name, id) {
-  L.circleMarker(L.latLng(lat, lon), {color: 'blue', radius: 8}).addTo(map).bindPopup(
+function addTrolleyStopMarker(layer, lat, lon, name, id) {
+  var marker = L.circleMarker(L.latLng(lat, lon), {color: 'blue', radius: 8}).bindPopup(
       'Stop ID: '+id+'<br />Stop Name: '+name,
       { offset: new L.Point(0, 0) });;
+  marker.addTo(layer);
 }
