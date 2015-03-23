@@ -60,6 +60,8 @@ var displayedBusStops = [];
 // Keep track of scope to refresh the page after data is received
 var scope;
 
+var polylineMapping = [];
+
 if (!test) {
   // Bypass cross-origin remote server access linmitation using anyorigin.com - can set up a proxy web server instead
   angular.module('transitApp', []).controller('transitController', ['$scope', function($scope) {
@@ -219,16 +221,18 @@ function displayRoutesFromTripId(tripRefs) {
             return function(data) {
               var shapeId = $.parseXML(data.contents).getElementsByTagName("ShapeID")[0].childNodes[0].nodeValue;
         //if (debug) console.log("Shape ID retrieved: "+shapeId);
+        var routeId;
         // Add shape ID into global trip reference list
         // Data format is {tripId: "", routeId: "", shapeId: "", color: ""}
         for (i = 0; i < tripRouteShapeRef.length; i++) {
           if (tripRouteShapeRef[i].tripId == thistripId) {
             tripRouteShapeRef[i].shapeId = shapeId;
+            routeId = tripRouteShapeRef[i].routeId;
             //if (debug) console.log("Updated shape ID into global list for trip ID: "+tripRouteShapeRef[i].tripId);
             break; // Can break since a separate request is sent for each trip ID
           }
         }
-        displayFromShapeId(shapeId);
+        displayFromShapeId(shapeId, routeId);
             };
          }(tripRefs[i].tripId))
       );
@@ -236,11 +240,11 @@ function displayRoutesFromTripId(tripRefs) {
 }
 
 // Retrieve lat/long list for each route's shape ID
-function displayFromShapeId(shapeId) {
+function displayFromShapeId(shapeId, routeId) {
   var source = 'http://www.miamidade.gov/transit/WebServices/BusRouteShape/?ShapeID='+shapeId;
   $.getJSON(
        'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-       (function(thisshapeId) {
+       (function(thisshapeId, thisRouteId) {
           return function(data) {
             //if (debug) console.log("Data received. Displaying route from the Shape ID: "+thisshapeId);
             // Find the color for the route
@@ -253,12 +257,12 @@ function displayFromShapeId(shapeId) {
       }
 
       if (displayedShapeIds.length == 0) { // Display the first shape ID
-        addRoutePoints(busLayer, '#'+color, $.parseXML(data.contents));
+        addRoutePoints(busLayer, '#'+color, $.parseXML(data.contents), thisRouteId);
         addDisplayedShapeId(thisshapeId);
       } else { // Check for any duplicate shape ID and not display
         for (displayed in displayedShapeIds) {
           if (displayed == thisshapeId) break;
-          addRoutePoints(busLayer, '#'+color, $.parseXML(data.contents));
+          addRoutePoints(busLayer, '#'+color, $.parseXML(data.contents), thisRouteId);
           addDisplayedShapeId(thisshapeId);
           break;
           //if (debug) console.log("Added new shapeId: "+thisshapeId);
@@ -267,12 +271,12 @@ function displayFromShapeId(shapeId) {
       if (debug) console.log("tripRouteShapeRef length = "+tripRouteShapeRef.length);
       if (debug) console.log("displayedShapeIds length = "+displayedShapeIds.length);
           };
-       }(shapeId))
+       }(shapeId, routeId))
     );
 }
 
 // Add all the route lines and colors to the map for each shape point list
-function addRoutePoints(layer, routeColor, xmlDoc) {
+function addRoutePoints(layer, routeColor, xmlDoc, routeId) {
   //if (debug) console.log("Added route points to map with color: "+routeColor);
   var latList = xmlDoc.getElementsByTagName("Latitude");
   var lonList = xmlDoc.getElementsByTagName("Longitude");
@@ -287,6 +291,7 @@ function addRoutePoints(layer, routeColor, xmlDoc) {
 
   var markerLine = L.polyline(latlngs, {color: routeColor}).addTo(map);
   markerLine.addTo(layer);
+  polylineMapping[routeId] = markerLine;
 }
 
 // Track which shape ID has already been displayed

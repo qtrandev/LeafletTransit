@@ -194,6 +194,8 @@
 		function routeChanged(rd) {
 			scope.routeDir = rd;
 			scope.$apply();
+			var routeId = rd.split(" ")[0];
+			map.fitBounds(polylineMapping[routeId].getBounds());
 		}
 
 		</script>
