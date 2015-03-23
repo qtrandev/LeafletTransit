@@ -12,9 +12,11 @@ L.tileLayer('https://{s}.tiles.mapbox.com/v4/qtrandev.lc0i743k/{z}/{x}/{y}.png?a
     'Imagery &copy; <a href="http://mapbox.com">Mapbox</a>'
 }).addTo(map);
 // Set up layers to allow user to control map display
+var busLayer = new L.LayerGroup();
 var poiLayer = new L.LayerGroup();
 var trolleyLayer = new L.LayerGroup();
 L.control.layers({},{
+    'Miami-Dade Transit Live Buses': busLayer,
     'Points of Interest': poiLayer,
     'Miami Trolleys': trolleyLayer
 }).addTo(map);
@@ -122,6 +124,7 @@ function generateBusList(xmlDoc, realText) {
   for (i = 0; i < $BusID.length; i++) {
     // Add each bus to the map
     addBusMarker(
+      busLayer,
       $Latitude[i].textContent,
       $Longitude[i].textContent,
       $BusName[i].textContent,
@@ -190,11 +193,12 @@ function loadRouteColors() {
   scope.$apply();
 }
 
-function addBusMarker(lat, lon, name, desc, id, time, realText) {
-  L.marker([lat, lon], {icon: myIcon}).addTo(map).bindPopup(
+function addBusMarker(layer, lat, lon, name, desc, id, time, realText) {
+  var marker = L.marker([lat, lon], {icon: myIcon}).addTo(map).bindPopup(
       realText+' ('+name+') Bus # '+desc+
       ' (ID: '+id+') <br /> Location Updated: '+time,
       { offset: new L.Point(0, -16) });
+  marker.addTo(layer);
 }
 
 function displayRoutesFromTripId(tripRefs) {
@@ -244,12 +248,12 @@ function displayFromShapeId(shapeId) {
       }
 
       if (displayedShapeIds.length == 0) { // Display the first shape ID
-        addRoutePoints('#'+color, $.parseXML(data.contents));
+        addRoutePoints(busLayer, '#'+color, $.parseXML(data.contents));
         addDisplayedShapeId(thisshapeId);
       } else { // Check for any duplicate shape ID and not display
         for (displayed in displayedShapeIds) {
           if (displayed == thisshapeId) break;
-          addRoutePoints('#'+color, $.parseXML(data.contents));
+          addRoutePoints(busLayer, '#'+color, $.parseXML(data.contents));
           addDisplayedShapeId(thisshapeId);
           break;
           //if (debug) console.log("Added new shapeId: "+thisshapeId);
@@ -263,7 +267,7 @@ function displayFromShapeId(shapeId) {
 }
 
 // Add all the route lines and colors to the map for each shape point list
-function addRoutePoints(routeColor, xmlDoc) {
+function addRoutePoints(layer, routeColor, xmlDoc) {
   //if (debug) console.log("Added route points to map with color: "+routeColor);
   var latList = xmlDoc.getElementsByTagName("Latitude");
   var lonList = xmlDoc.getElementsByTagName("Longitude");
@@ -276,7 +280,8 @@ function addRoutePoints(routeColor, xmlDoc) {
     latlngs[latlngs.length] = (L.latLng(latList[i].childNodes[0].nodeValue, lonList[i].childNodes[0].nodeValue));
   }
 
-  L.polyline(latlngs, {color: routeColor}).addTo(map);
+  var markerLine = L.polyline(latlngs, {color: routeColor}).addTo(map);
+  markerLine.addTo(layer);
 }
 
 // Track which shape ID has already been displayed
@@ -352,21 +357,24 @@ function sendBusStopRequest(route, direction) {
         // Add each bus stop to the map
         //if (debug) console.log("Add stop: "+nameList[i].childNodes[0].nodeValue);
         addBusStopMarker(
+          busLayer,
           latList[i].childNodes[0].nodeValue,
           lonList[i].childNodes[0].nodeValue,
           nameList[i].childNodes[0].nodeValue,
           thisRoute
         );
       }
+      busLayer.addTo(map);
           };
        }(route, direction))
     );
 }
 
-function addBusStopMarker(lat, lon, name, route) {
-  L.circleMarker(L.latLng(lat, lon), {color: 'green', radius: 8}).addTo(map).bindPopup(
+function addBusStopMarker(layer, lat, lon, name, route) {
+  var marker = L.circleMarker(L.latLng(lat, lon), {color: 'green', radius: 8}).addTo(map).bindPopup(
       'Route: '+route+' Bus Stop: '+name,
-      { offset: new L.Point(0, 0) });;
+      { offset: new L.Point(0, 0) });
+  marker.addTo(layer);
   /*
   L.marker([lat, lon], {icon: myIcon2}).addTo(map).bindPopup(
       'Bus Stop: '+name+' Route: '+ route,
