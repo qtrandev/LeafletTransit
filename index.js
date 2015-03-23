@@ -13,12 +13,16 @@ L.tileLayer('https://{s}.tiles.mapbox.com/v4/qtrandev.lc0i743k/{z}/{x}/{y}.png?a
 }).addTo(map);
 // Set up layers to allow user to control map display
 var busLayer = new L.LayerGroup();
+var busStopsLayer = new L.LayerGroup();
 var poiLayer = new L.LayerGroup();
 var trolleyLayer = new L.LayerGroup();
+var trolleyStopsLayer = new L.LayerGroup();
 L.control.layers({},{
     'Miami-Dade Transit Live Buses': busLayer,
+    'Miami-Dade Transit Bus Stops': busStopsLayer,
     'Points of Interest': poiLayer,
-    'Miami Trolleys': trolleyLayer
+    'Miami Trolleys': trolleyLayer,
+    'Miami Trolley Stops': trolleyStopsLayer
 }).addTo(map);
 
 // Intialize bus icon
@@ -142,6 +146,7 @@ function generateBusList(xmlDoc, realText) {
     };
     addRouteDirection($RouteID[i].textContent,$ServiceDirection[i].textContent);
   }
+  busLayer.addTo(map);
   scope.$apply();
 }
 
@@ -357,14 +362,14 @@ function sendBusStopRequest(route, direction) {
         // Add each bus stop to the map
         //if (debug) console.log("Add stop: "+nameList[i].childNodes[0].nodeValue);
         addBusStopMarker(
-          busLayer,
+          busStopsLayer,
           latList[i].childNodes[0].nodeValue,
           lonList[i].childNodes[0].nodeValue,
           nameList[i].childNodes[0].nodeValue,
           thisRoute
         );
       }
-      busLayer.addTo(map);
+      busStopsLayer.addTo(map);
           };
        }(route, direction))
     );
