@@ -69,16 +69,20 @@ if (!test) {
     $scope.tripRouteShapeRef = tripRouteShapeRef;
     }
   ]);
-  var dataSource = "http://www.miamidade.gov/transit/WebServices/Buses/?BusID="; // Add x as the bus ID to create the error test
-  $.getJSON('http://anyorigin.com/dev/get?url='+dataSource+'&callback=?',
+  setTimeout(
     function(data){
-      var xmlData = $.parseXML(data.contents);
-      if (xmlData.getElementsByTagName("BusID").length > 0) {
+      var dataSource = "http://198.74.52.26/bus/livebus.php";
+      var xmlhttp=new XMLHttpRequest();
+      xmlhttp.open("GET",dataSource,false);
+      xmlhttp.send();
+      xmlData=xmlhttp.responseText;
+      $xml = $(xmlData)
+      if ($xml.find("BusID").length > 0) {
         loadOnlineData(xmlData);
       } else {
         loadLocalData();
       }
-    });
+    }, 0);
 } else {
   loadLocalData();
 }
