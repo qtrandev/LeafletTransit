@@ -137,7 +137,7 @@
 									    <td>{{x.PointID}}</td>
 											<td>{{x.CategoryID}}</td>
 									    <td>{{x.CategoryName}}</td>
-											<td>{{x.PointName}}</td>
+											<td><button class="btn btn-primary" id="{{x.PointID}}" onclick=focusPOI(this.id)>{{x.PointName}}</button></td>
 											<td>{{x.Address}}, {{x.City}}, {{x.State}} {{x.Zip}}</td>
 											<td>{{x.svHeading}}</td>
 										</tr>
@@ -196,6 +196,12 @@
 			scope.$apply();
 			var routeId = rd.split(" ")[0];
 			map.fitBounds(polylineMapping[routeId].getBounds());
+			window.scrollTo(0, 0);
+		}
+
+		function focusPOI(poiId) {
+			map.fitBounds(poiMapping[poiId].getBounds());
+			window.scrollTo(0, 0);
 		}
 
 		</script>

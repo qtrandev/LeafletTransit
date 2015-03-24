@@ -64,7 +64,11 @@ var displayedBusStops = [];
 // Keep track of scope to refresh the page after data is received
 var scope;
 
+// Hold bus routes in array map to zoom when selecting route in bus stops table
 var polylineMapping = [];
+
+// Hold POIs in array map to allow zoom to a specifc POI
+var poiMapping = [];
 
 if (!test) {
   // Bypass cross-origin remote server access linmitation using anyorigin.com - can set up a proxy web server instead
@@ -413,6 +417,7 @@ function showPOIs() {
             var latList = xmlDoc.getElementsByTagName("Latitude");
             var lonList = xmlDoc.getElementsByTagName("Longitude");
             var nameList = xmlDoc.getElementsByTagName("PointName");
+            var idList = xmlDoc.getElementsByTagName("PointID");
             if (debug) console.log("latList.length = "+ nameList.length);
             var i = 0;
             for (i = 0; i < latList.length; i++) {
@@ -422,7 +427,8 @@ function showPOIs() {
                 poiLayer,
                 latList[i].childNodes[0].nodeValue,
                 lonList[i].childNodes[0].nodeValue,
-                nameList[i].childNodes[0].nodeValue
+                nameList[i].childNodes[0].nodeValue,
+                idList[i].childNodes[0].nodeValue
               );
             }
           };
@@ -430,7 +436,7 @@ function showPOIs() {
     );
 }
 
-function addPOIMarker(layer, lat, lon, name) {
+function addPOIMarker(layer, lat, lon, name, poiId) {
   var marker = L.circleMarker(L.latLng(lat, lon), {color: 'aqua', radius: 10})
   marker.bindPopup(name);
   var marker2 = L.marker([lat, lon], {icon: poiIcon}).bindPopup(
@@ -438,4 +444,5 @@ function addPOIMarker(layer, lat, lon, name) {
       { offset: new L.Point(0, -8) });
   layer.addLayer(marker);
   layer.addLayer(marker2);
+  poiMapping[poiId] = marker;
 }
