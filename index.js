@@ -24,6 +24,10 @@ L.control.layers({},{
     'Miami Trolleys': trolleyLayer,
     'Miami Trolley Stops': trolleyStopsLayer
 }).addTo(map);
+// Add certain layers as default to be shown
+busLayer.addTo(map);
+poiLayer.addTo(map);
+trolleyLayer.addTo(map);
 
 // Intialize bus icon
 var myIcon = L.icon({
@@ -152,7 +156,6 @@ function generateBusList(xmlDoc, realText) {
     };
     addRouteDirection($RouteID[i].textContent,$ServiceDirection[i].textContent);
   }
-  busLayer.addTo(map);
   scope.$apply();
 }
 
@@ -378,7 +381,6 @@ function sendBusStopRequest(route, direction) {
           thisRoute
         );
       }
-      busStopsLayer.addTo(map);
           };
        }(route, direction))
     );
@@ -423,7 +425,6 @@ function showPOIs() {
                 nameList[i].childNodes[0].nodeValue
               );
             }
-            poiLayer.addTo(map);
           };
        }("POI"))
     );

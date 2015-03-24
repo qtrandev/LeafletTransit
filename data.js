@@ -197,7 +197,6 @@ function loadTrolleyRoutes() {
       var color = data[i].color.normal;
       displayTrolleyRouteColors(trolleyLayer, color, data[i].coords);
     }
-    trolleyLayer.addTo(map);
   });
 }
 
@@ -228,7 +227,6 @@ function getTrolleyStops(scope) {
                 stops[i].id
               );
             }
-            trolleyStopsLayer.addTo(map);
             scope.stops = stops;
           };
        }(scope))
