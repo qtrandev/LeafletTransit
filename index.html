@@ -201,6 +201,7 @@
 
 		function focusPOI(poiId) {
 			map.fitBounds(poiMapping[poiId].getBounds());
+			poiMapping[poiId].openPopup();
 			window.scrollTo(0, 0);
 		}
 
