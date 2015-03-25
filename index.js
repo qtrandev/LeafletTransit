@@ -30,10 +30,10 @@ poiLayer.addTo(map);
 trolleyLayer.addTo(map);
 
 // Intialize bus icon
-var myIcon = L.icon({
-    iconUrl: 'mapIcon-Bus-Stop.png',
-    iconSize: [32, 32],
-    iconAnchor: [16, 32]
+var busIcon = L.icon({
+    iconUrl: 'icons/icon-Bus-Tracker.png',
+    iconSize: [44, 44],
+    iconAnchor: [22, 22]
 });
 
 // Trolley icon
@@ -209,10 +209,10 @@ function loadRouteColors() {
 }
 
 function addBusMarker(layer, lat, lon, name, desc, id, time, realText) {
-  var marker = L.marker([lat, lon], {icon: myIcon}).bindPopup(
+  var marker = L.marker([lat, lon], {icon: busIcon}).bindPopup(
       realText+' ('+name+') Bus # '+desc+
       ' (ID: '+id+') <br /> Location Updated: '+time,
-      { offset: new L.Point(0, -16) });
+      { offset: new L.Point(0, 0) });
   marker.addTo(layer);
   busMapping[id] = marker;
 }
