@@ -36,6 +36,13 @@ var busIcon = L.icon({
     iconAnchor: [22, 22]
 });
 
+// Intialize bus stop icon
+var busStopIcon = L.icon({
+    iconUrl: 'icons/icon-Bus-Stop.png',
+    iconSize: [33, 33],
+    iconAnchor: [16, 33]
+});
+
 // Trolley icon
 var trolleyIcon = L.icon({
     iconUrl: 'trolley.png',
@@ -389,15 +396,14 @@ function sendBusStopRequest(route, direction) {
 }
 
 function addBusStopMarker(layer, lat, lon, name, route) {
-  var marker = L.circleMarker(L.latLng(lat, lon), {color: 'green', radius: 8}).bindPopup(
-      'Route: '+route+' Bus Stop: '+name,
-      { offset: new L.Point(0, 0) });
+  // var marker = L.circleMarker(L.latLng(lat, lon), {color: 'green', radius: 8}).bindPopup(
+  //    'Route: '+route+' Bus Stop: '+name,
+  //    { offset: new L.Point(0, 0) });
+
+  var marker = L.marker([lat, lon], {icon: busStopIcon, zIndexOffset: -100}).bindPopup(
+    'Route: '+route+' Bus Stop: '+name,
+    { offset: new L.Point(0, -16) });
   marker.addTo(layer);
-  /*
-  L.marker([lat, lon], {icon: myIcon2}).addTo(map).bindPopup(
-      'Bus Stop: '+name+' Route: '+ route,
-      { offset: new L.Point(0, -20) });
-  // */
 }
 
 function showPOIs() {
