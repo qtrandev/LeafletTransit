@@ -50,6 +50,13 @@ var trolleyIcon = L.icon({
     iconAnchor: [16, 32]
 });
 
+// Trolley stop icon
+var trolleyStopIcon = L.icon({
+    iconUrl: 'icons/icon-Trolley-Stop.png',
+    iconSize: [33, 33],
+    iconAnchor: [16, 33]
+});
+
 // Keep track of each route ID, trip ID and its shape ID, and color of the route.
 var tripRouteShapeRef = []; // Format is {tripId: "", routeId: "", shapeId: "", color: ""}
 

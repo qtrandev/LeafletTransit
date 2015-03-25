@@ -234,8 +234,8 @@ function getTrolleyStops(scope) {
 }
 
 function addTrolleyStopMarker(layer, lat, lon, name, id) {
-  var marker = L.circleMarker(L.latLng(lat, lon), {color: 'blue', radius: 8}).bindPopup(
-      'Stop ID: '+id+'<br />Stop Name: '+name,
-      { offset: new L.Point(0, 0) });;
+  var marker = L.marker([lat, lon], {icon: trolleyStopIcon, zIndexOffset: -110}).bindPopup(
+    'Stop ID: '+id+'<br />Stop Name: '+name,
+    { offset: new L.Point(0, -16) });
   marker.addTo(layer);
 }
