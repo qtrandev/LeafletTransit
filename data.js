@@ -185,7 +185,7 @@ function addTrolleyMarker(layer, lat, lng, equipmentID, routeID, receiveTime) {
       'Trolley # '+equipmentID+
       '<br />Route: '+routeID+
       '<br />Received Time: '+receiveTime,
-      { offset: new L.Point(0, -16) });
+      { offset: new L.Point(0, -22) });
   marker.addTo(layer);
 }
 

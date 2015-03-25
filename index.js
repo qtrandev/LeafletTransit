@@ -45,9 +45,9 @@ var busStopIcon = L.icon({
 
 // Trolley icon
 var trolleyIcon = L.icon({
-    iconUrl: 'trolley.png',
-    iconSize: [32, 32],
-    iconAnchor: [16, 32]
+    iconUrl: 'icons/icon-Trolley-Tracker.png',
+    iconSize: [44, 44],
+    iconAnchor: [22, 44]
 });
 
 // Trolley stop icon
