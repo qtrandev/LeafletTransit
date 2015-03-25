@@ -69,7 +69,7 @@
 									    <td>{{x.TripID}}</td>
 									    <td><button class="btn btn-primary" onclick="focusRoute(this.innerHTML)">{{x.RouteID}}</button></td>
 											<td>{{x.ServiceDirection}}</td>
-											<td>{{x.TripHeadsign}}</td>
+											<td><button class="btn btn-primary" id="{{x.BusID}}" onclick="focusBus(this.id)">{{x.TripHeadsign}}</button></td>
 									    <!--<td style="background-color: #{{x.color}}">{{x.color}}</td>-->
 											<td>{{x.LocationUpdated}}</td>
 										</tr>
@@ -206,6 +206,12 @@
 
 		function focusRoute(routeId) {
 			map.fitBounds(polylineMapping[routeId].getBounds());
+			window.scrollTo(0, 0);
+		}
+
+		function focusBus(busId) {
+			map.fitBounds(L.latLngBounds([busMapping[busId].getLatLng()]));
+			busMapping[busId].openPopup();
 			window.scrollTo(0, 0);
 		}
 

@@ -70,6 +70,9 @@ var polylineMapping = [];
 // Hold POIs in array map to allow zoom to a specifc POI
 var poiMapping = [];
 
+// Hold buses in array map to allow zoom to a specific bus
+var busMapping = [];
+
 if (!test) {
   // Bypass cross-origin remote server access linmitation using anyorigin.com - can set up a proxy web server instead
   angular.module('transitApp', []).controller('transitController', ['$scope', function($scope) {
@@ -217,6 +220,7 @@ function addBusMarker(layer, lat, lon, name, desc, id, time, realText) {
       ' (ID: '+id+') <br /> Location Updated: '+time,
       { offset: new L.Point(0, -16) });
   marker.addTo(layer);
+  busMapping[id] = marker;
 }
 
 function displayRoutesFromTripId(tripRefs) {
