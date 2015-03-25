@@ -391,7 +391,7 @@ function sendBusStopRequest(route, direction) {
 }
 
 function addBusStopMarker(layer, lat, lon, name, route) {
-  var marker = L.circleMarker(L.latLng(lat, lon), {color: 'green', radius: 8}).addTo(map).bindPopup(
+  var marker = L.circleMarker(L.latLng(lat, lon), {color: 'green', radius: 8}).bindPopup(
       'Route: '+route+' Bus Stop: '+name,
       { offset: new L.Point(0, 0) });
   marker.addTo(layer);
