@@ -217,12 +217,10 @@
 
 		function getCitiBikes() {
 			var source = "http://citibikemiami.com/downtown-miami-locations.xml";
-			console.log(source);
 			$.getJSON(
 		       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
 		       (function(thisScope) {
 						return function(data) {
-							console.log(data.contents);
 							var xmlDoc = $.parseXML(data.contents);
 							$xml = $( xmlDoc );
 
