@@ -181,7 +181,7 @@ function getTrolleyData(scope) {
 }
 
 function addTrolleyMarker(layer, lat, lng, equipmentID, routeID, receiveTime) {
-  var marker = L.marker([lat, lng], {icon: trolleyIcon}).addTo(map).bindPopup(
+  var marker = L.marker([lat, lng], {icon: trolleyIcon}).bindPopup(
       'Trolley # '+equipmentID+
       '<br />Route: '+routeID+
       '<br />Received Time: '+receiveTime,

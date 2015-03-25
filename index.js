@@ -212,7 +212,7 @@ function loadRouteColors() {
 }
 
 function addBusMarker(layer, lat, lon, name, desc, id, time, realText) {
-  var marker = L.marker([lat, lon], {icon: myIcon}).addTo(map).bindPopup(
+  var marker = L.marker([lat, lon], {icon: myIcon}).bindPopup(
       realText+' ('+name+') Bus # '+desc+
       ' (ID: '+id+') <br /> Location Updated: '+time,
       { offset: new L.Point(0, -16) });
@@ -300,7 +300,7 @@ function addRoutePoints(layer, routeColor, xmlDoc, routeId) {
     latlngs[latlngs.length] = (L.latLng(latList[i].childNodes[0].nodeValue, lonList[i].childNodes[0].nodeValue));
   }
 
-  var markerLine = L.polyline(latlngs, {color: routeColor}).addTo(map);
+  var markerLine = L.polyline(latlngs, {color: routeColor});
   markerLine.addTo(layer);
   polylineMapping[routeId] = markerLine;
 }
