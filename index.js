@@ -429,13 +429,20 @@ function showPOIs() {
 
             var i = 0;
             for (i = 0; i < $Latitude.length; i++) {
+              var address =
+                $Address[i].textContent + '<br>' +
+                $City[i].textContent + ', ' +
+                $State[i].textContent + ' ' +
+                $Zip[i].textContent;
               addPOIMarker(
                 poiLayer,
                 $Latitude[i].textContent,
                 $Longitude[i].textContent,
                 $PointName[i].textContent,
                 $PointID[i].textContent,
-                $CategoryID[i].textContent
+                $CategoryID[i].textContent,
+                $CategoryName[i].textContent,
+                address
               );
             }
           };
@@ -443,14 +450,14 @@ function showPOIs() {
     );
 }
 
-function addPOIMarker(layer, lat, lon, name, poiId, catId) {
+function addPOIMarker(layer, lat, lon, name, poiId, catId, catName, address) {
   var poiIcon = L.icon({
       iconUrl: 'icons/icon-POI-'+catId+'.png',
       iconSize: [33, 33], // Normal size is 44x44
       iconAnchor: [16, 33]
   });
   var marker = L.marker([lat, lon], {icon: poiIcon, zIndexOffset: -1000}).bindPopup(
-      name,
+      '<strong>' + catName + '</strong><br><br>' + name + '<br>' +  address,
       { offset: new L.Point(0, -16) });
   layer.addLayer(marker);
   poiMapping[poiId] = marker;
