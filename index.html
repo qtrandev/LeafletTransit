@@ -199,7 +199,7 @@
 		}
 
 		function focusPOI(poiId) {
-			map.fitBounds(poiMapping[poiId].getBounds());
+			map.fitBounds(L.latLngBounds([poiMapping[poiId].getLatLng()]));
 			poiMapping[poiId].openPopup();
 			window.scrollTo(0, 0);
 		}

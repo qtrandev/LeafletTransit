@@ -43,12 +43,6 @@ var trolleyIcon = L.icon({
     iconAnchor: [16, 32]
 });
 
-var poiIcon = L.icon({
-    iconUrl: 'poi.png',
-    iconSize: [16, 16],
-    iconAnchor: [8, 16]
-});
-
 // Keep track of each route ID, trip ID and its shape ID, and color of the route.
 var tripRouteShapeRef = []; // Format is {tripId: "", routeId: "", shapeId: "", color: ""}
 
@@ -422,6 +416,7 @@ function showPOIs() {
             var lonList = xmlDoc.getElementsByTagName("Longitude");
             var nameList = xmlDoc.getElementsByTagName("PointName");
             var idList = xmlDoc.getElementsByTagName("PointID");
+            var catList = xmlDoc.getElementsByTagName("CategoryID");
             if (debug) console.log("latList.length = "+ nameList.length);
             var i = 0;
             for (i = 0; i < latList.length; i++) {
@@ -432,7 +427,8 @@ function showPOIs() {
                 latList[i].childNodes[0].nodeValue,
                 lonList[i].childNodes[0].nodeValue,
                 nameList[i].childNodes[0].nodeValue,
-                idList[i].childNodes[0].nodeValue
+                idList[i].childNodes[0].nodeValue,
+                catList[i].childNodes[0].nodeValue
               );
             }
           };
@@ -440,13 +436,15 @@ function showPOIs() {
     );
 }
 
-function addPOIMarker(layer, lat, lon, name, poiId) {
-  var marker = L.circleMarker(L.latLng(lat, lon), {color: 'aqua', radius: 10})
-  marker.bindPopup(name);
-  var marker2 = L.marker([lat, lon], {icon: poiIcon}).bindPopup(
+function addPOIMarker(layer, lat, lon, name, poiId, catId) {
+  var poiIcon = L.icon({
+      iconUrl: 'icons/icon-POI-'+catId+'.png',
+      iconSize: [33, 33], // Normal size is 44x44
+      iconAnchor: [16, 33]
+  });
+  var marker = L.marker([lat, lon], {icon: poiIcon, zIndexOffset: -1000}).bindPopup(
       name,
-      { offset: new L.Point(0, -8) });
+      { offset: new L.Point(0, -16) });
   layer.addLayer(marker);
-  layer.addLayer(marker2);
   poiMapping[poiId] = marker;
 }
