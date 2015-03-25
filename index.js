@@ -412,23 +412,30 @@ function showPOIs() {
             storePOIs(scope, xmlDoc);
             scope.$apply();
 
-            var latList = xmlDoc.getElementsByTagName("Latitude");
-            var lonList = xmlDoc.getElementsByTagName("Longitude");
-            var nameList = xmlDoc.getElementsByTagName("PointName");
-            var idList = xmlDoc.getElementsByTagName("PointID");
-            var catList = xmlDoc.getElementsByTagName("CategoryID");
-            if (debug) console.log("latList.length = "+ nameList.length);
+            $xml = $( xmlDoc );
+            $PointID = $xml.find("PointID");
+            $CategoryID = $xml.find("CategoryID");
+            $CategoryName = $xml.find("CategoryName");
+            $PointName = $xml.find("PointName");
+            $Address = $xml.find("Address");
+            $City = $xml.find("City");
+            $State = $xml.find("State");
+            $Zip = $xml.find("Zip");
+            $Latitude = $xml.find("Latitude");
+            $Longitude = $xml.find("Longitude");
+            $svLatitude = $xml.find("svLatitude");
+            $svLongitude = $xml.find("svLongitude");
+            $svHeading = $xml.find("svHeading");
+
             var i = 0;
-            for (i = 0; i < latList.length; i++) {
-              // Add each bus stop to the map
-              //if (debug) console.log("Add stop: "+nameList[i].childNodes[0].nodeValue);
+            for (i = 0; i < $Latitude.length; i++) {
               addPOIMarker(
                 poiLayer,
-                latList[i].childNodes[0].nodeValue,
-                lonList[i].childNodes[0].nodeValue,
-                nameList[i].childNodes[0].nodeValue,
-                idList[i].childNodes[0].nodeValue,
-                catList[i].childNodes[0].nodeValue
+                $Latitude[i].textContent,
+                $Longitude[i].textContent,
+                $PointName[i].textContent,
+                $PointID[i].textContent,
+                $CategoryID[i].textContent
               );
             }
           };
