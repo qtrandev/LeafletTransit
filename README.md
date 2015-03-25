@@ -1,9 +1,10 @@
 # LeafletTransit
-LeafletJS app showing Miami Transit buses. Live stable demo is at http://www.qtrandev.com/transit
+LeafletJS app showing Miami Transit buses. Live demo is at http://www.qtrandev.com/transit4
 
-Unstable demo is at http://www.qtrandev.com/transit2
-
-More unstable demo is at http://www.qtrandev.com/transit3
+More stable past demos are at:  
+http://www.qtrandev.com/transit  
+http://www.qtrandev.com/transit2  
+http://www.qtrandev.com/transit3  
 
 Reload the site often for the latest data to show. (Can use Shift + Reload button for full page refresh)
 
