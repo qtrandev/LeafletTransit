@@ -67,7 +67,7 @@
 									  <tr data-ng-repeat="x in buses">
 											<td>{{x.BusID}}</td>
 									    <td>{{x.TripID}}</td>
-									    <td>{{x.RouteID}}</td>
+									    <td><button class="btn btn-primary" onclick="focusRoute(this.innerHTML)">{{x.RouteID}}</button></td>
 											<td>{{x.ServiceDirection}}</td>
 											<td>{{x.TripHeadsign}}</td>
 									    <!--<td style="background-color: #{{x.color}}">{{x.color}}</td>-->
@@ -195,13 +195,17 @@
 			scope.routeDir = rd;
 			scope.$apply();
 			var routeId = rd.split(" ")[0];
-			map.fitBounds(polylineMapping[routeId].getBounds());
-			window.scrollTo(0, 0);
+			focusRoute(routeId);
 		}
 
 		function focusPOI(poiId) {
 			map.fitBounds(poiMapping[poiId].getBounds());
 			poiMapping[poiId].openPopup();
+			window.scrollTo(0, 0);
+		}
+
+		function focusRoute(routeId) {
+			map.fitBounds(polylineMapping[routeId].getBounds());
 			window.scrollTo(0, 0);
 		}
 
