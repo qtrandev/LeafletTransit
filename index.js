@@ -222,6 +222,9 @@ function addBusMarker(layer, lat, lon, name, desc, id, time, realText) {
       { offset: new L.Point(0, 0) });
   marker.addTo(layer);
   busMapping[id] = marker;
+
+  var marker2 = L.circleMarker(L.latLng(lat, lon), {color: 'aqua', radius: 23});
+  marker2.addTo(layer);
 }
 
 function displayRoutesFromTripId(tripRefs) {
