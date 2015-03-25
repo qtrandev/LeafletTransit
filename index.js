@@ -17,17 +17,20 @@ var busStopsLayer = new L.LayerGroup();
 var poiLayer = new L.LayerGroup();
 var trolleyLayer = new L.LayerGroup();
 var trolleyStopsLayer = new L.LayerGroup();
+var bikeLayer = new L.LayerGroup();
 L.control.layers({},{
     'Miami-Dade Transit Live Buses': busLayer,
     'Miami-Dade Transit Bus Stops': busStopsLayer,
     'Points of Interest': poiLayer,
     'Miami Trolleys': trolleyLayer,
-    'Miami Trolley Stops': trolleyStopsLayer
+    'Miami Trolley Stops': trolleyStopsLayer,
+    'Citi Bikes': bikeLayer
 }).addTo(map);
 // Add certain layers as default to be shown
 busLayer.addTo(map);
 poiLayer.addTo(map);
 trolleyLayer.addTo(map);
+bikeLayer.addTo(map);
 
 // Intialize bus icon
 var busIcon = L.icon({
@@ -55,6 +58,13 @@ var trolleyStopIcon = L.icon({
     iconUrl: 'icons/icon-Trolley-Stop.png',
     iconSize: [33, 33],
     iconAnchor: [16, 33]
+});
+
+// Citi bike icon
+var bikeIcon = L.icon({
+    iconUrl: 'icons/citibikepin.png',
+    iconSize: [33, 42],
+    iconAnchor: [16, 42]
 });
 
 // Keep track of each route ID, trip ID and its shape ID, and color of the route.
@@ -115,6 +125,7 @@ function loadOnlineData(xmlData) {
   getTrolleyData(scope);
   loadTrolleyRoutes();
   getTrolleyStops(scope);
+  getCitiBikes();
 }
 
 // Load local data from Buses.xml file for local testing or when online data is unavailable
@@ -130,6 +141,7 @@ function loadLocalData() {
   getTrolleyData(scope);
   loadTrolleyRoutes();
   getTrolleyStops(scope);
+  getCitiBikes();
   if (!test) {
     alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
   }

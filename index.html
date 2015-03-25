@@ -215,6 +215,48 @@
 			window.scrollTo(0, 0);
 		}
 
+		function getCitiBikes() {
+			var source = "http://citibikemiami.com/downtown-miami-locations.xml";
+			console.log(source);
+			$.getJSON(
+		       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
+		       (function(thisScope) {
+						return function(data) {
+							console.log(data.contents);
+							var xmlDoc = $.parseXML(data.contents);
+							$xml = $( xmlDoc );
+
+							$Id = $xml.find("Id");
+							$Address = $xml.find("Address");
+							$Distance = $xml.find("Distance");
+							$Latitude = $xml.find("Latitude");
+							$Longitude = $xml.find("Longitude");
+							$Bikes = $xml.find("Bikes");
+							$Dockings = $xml.find("Dockings");
+							var i = 0;
+	            for (i = 0; i < $Id.length; i++) {
+								addBikeMarker(
+									bikeLayer,
+									$Latitude[i].textContent,
+									$Longitude[i].textContent,
+									$Id[i].textContent,
+									$Address[i].textContent,
+									$Bikes[i].textContent,
+									$Dockings[i].textContent
+								);
+							}
+						}
+					}(scope))
+			);
+		}
+
+		function addBikeMarker(layer, lat, lng, id, address, bikes, dockings) {
+			var marker = L.marker([lat, lng], {icon: bikeIcon, zIndexOffset: -500}).bindPopup(
+		      '<strong>Citi Bike Station ID: ' + id + '</strong><br><br>Address: ' + address + '<br>Bikes: ' +  bikes + '<br>Dockings: ' +  dockings,
+		      { offset: new L.Point(0, -21) });
+		  layer.addLayer(marker);
+		}
+
 		</script>
 	</body>
 
