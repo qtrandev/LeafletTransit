@@ -6,7 +6,7 @@ var debug = false; // Enable console debug messages
 // Load MapBox map
 var accessToken = 'pk.eyJ1IjoicXRyYW5kZXYiLCJhIjoiSDF2cGNjZyJ9.D1ybOKe77AQDPHkxCCEpJQ';
 var osmLayer = L.tileLayer('https://{s}.tiles.mapbox.com/v4/qtrandev.lc0i743k/{z}/{x}/{y}.png?access_token=' + accessToken, {
-  maxZoom: 18,
+  maxZoom: 20,
   attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
     '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
     'Imagery &copy; <a href="http://mapbox.com">Mapbox</a>'
@@ -14,8 +14,8 @@ var osmLayer = L.tileLayer('https://{s}.tiles.mapbox.com/v4/qtrandev.lc0i743k/{z
 osmLayer.addTo(map);
 
 // Set up Google Maps layers
-var googleRoadmap = new L.Google('ROADMAP');
-var googleHybrid = new L.Google('HYBRID');
+var googleRoadmap = new L.Google('ROADMAP', { maxZoom: 20 });
+var googleHybrid = new L.Google('HYBRID', { maxZoom: 20 });
 
 // Set up layers to allow user to control map display
 var busLayer = new L.LayerGroup();
@@ -24,7 +24,7 @@ var poiLayer = new L.LayerGroup();
 var trolleyLayer = new L.LayerGroup();
 var trolleyStopsLayer = new L.LayerGroup();
 var bikeLayer = new L.LayerGroup();
-L.control.layers({'Open Street Map':osmLayer, 'Google':googleRoadmap, 'Google Satellite':googleHybrid},{
+L.control.layers({'Open Street Map':osmLayer, 'Google Map':googleRoadmap, 'Google Satellite':googleHybrid},{
     'Miami-Dade Transit Live Buses': busLayer,
     'Miami-Dade Transit Bus Stops': busStopsLayer,
     'Points of Interest': poiLayer,
