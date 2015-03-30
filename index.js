@@ -79,7 +79,7 @@ var bikeIcon = L.icon({
 var poiIcon = L.icon({
     iconUrl: 'icons/icon-POI.png',
     iconSize: [44, 44],
-    iconAnchor: [22, 44]
+    iconAnchor: [22, 38]
 });
 
 // Keep track of each route ID, trip ID and its shape ID, and color of the route.

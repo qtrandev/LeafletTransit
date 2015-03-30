@@ -267,6 +267,8 @@
 			//var source = "http://www.miamidade.gov/transit/WebServices/PointsOfInterestTransit/?PointID="+poiId;
 			console.log("POI ID: "+poiId);
 			console.log(source);
+			processCachedNearby(poiId, lat, lng); //temp
+			return; //temp
 			$.getJSON(
 				'http://anyorigin.com/dev/get?url='+source+'&callback=?',
 				(function(thisScope, thisPOI) {
@@ -280,14 +282,14 @@
 							console.log("Exit since we don't have code yet");
 							return;
 						} else {
-							processCachedNearby(thisPOI);
+							processCachedNearby(thisPOI, lat, lng);
 						}
 					}
 				}(scope, poiId))
 			);
 		}
 
-		function processCachedNearby(poiId) {
+		function processCachedNearby(poiId, lat, lng) {
 			if (nearbyCache.length > 0) {
 				var i = 0;
 				for (i = 0; i < nearbyCache.length; i++) {
@@ -323,23 +325,32 @@
 					$Descr[i].textContent,
 					$Distance[i].textContent,
 					$Latitude[i].textContent,
-					$Longitude[i].textContent
+					$Longitude[i].textContent,
+					lat,
+					lng
 				);
 				bounds[i] = [$Latitude[i].textContent,$Longitude[i].textContent];
 			}
 			map.fitBounds(bounds);
 		}
 
-		function addNearByMarker(layer, NearbyID, NearbyName, NearbyType, Descr, Distance, Latitude, Longitude) {
+		function addNearByMarker(layer, NearbyID, NearbyName, NearbyType, Descr, Distance, Latitude, Longitude, sourceLat, sourceLng) {
 			var marker = L.marker([Latitude, Longitude], {icon: poiIcon, zIndexOffset: 10}).bindPopup(
-		    'Nearby ID: '+NearbyID+
-				'<br />Nearby Name: '+NearbyName+
-				'<br />Nearby Type: '+NearbyType+
+				'<strong>'+NearbyType+'</strong><br /><br />'+
+				'Name: '+NearbyName+
 				'<br />Description: '+Descr+
-				'<br />Distance: '+Distance,
-		    { offset: new L.Point(0, -16) });
-		  marker.addTo(layer);
+				'<br />Distance: <strong>'+Distance+'</strong>'+
+				'<br />Nearby ID: '+NearbyID,
+		    { offset: new L.Point(0, -22) });
+			marker.on('mouseover', function (e) {
+				this.openPopup();
+			});
+			marker.addTo(layer);
 			nearbyCache.push(marker);
+			var latlngs = [L.latLng(Latitude, Longitude), L.latLng(sourceLat, sourceLng)];
+			var markerLine = L.polyline(latlngs, {color: 'aqua'});
+			markerLine.addTo(layer);
+			nearbyCache.push(markerLine);
 		}
 
 		</script>
