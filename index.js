@@ -24,6 +24,7 @@ var poiLayer = new L.LayerGroup();
 var trolleyLayer = new L.LayerGroup();
 var trolleyStopsLayer = new L.LayerGroup();
 var bikeLayer = new L.LayerGroup();
+var nearbyLayer = new L.LayerGroup();
 L.control.layers({'Open Street Map':osmLayer, 'Google Map':googleRoadmap, 'Google Satellite':googleHybrid},{
     'Miami-Dade Transit Live Buses': busLayer,
     'Miami-Dade Transit Bus Stops': busStopsLayer,
@@ -37,6 +38,7 @@ busLayer.addTo(map);
 poiLayer.addTo(map);
 trolleyLayer.addTo(map);
 bikeLayer.addTo(map);
+nearbyLayer.addTo(map);
 
 // Intialize bus icon
 var busIcon = L.icon({
@@ -73,6 +75,13 @@ var bikeIcon = L.icon({
     iconAnchor: [16, 42]
 });
 
+// POI icon
+var poiIcon = L.icon({
+    iconUrl: 'icons/icon-POI.png',
+    iconSize: [44, 44],
+    iconAnchor: [22, 44]
+});
+
 // Keep track of each route ID, trip ID and its shape ID, and color of the route.
 var tripRouteShapeRef = []; // Format is {tripId: "", routeId: "", shapeId: "", color: ""}
 
@@ -96,6 +105,9 @@ var poiMapping = [];
 
 // Hold buses in array map to allow zoom to a specific bus
 var busMapping = [];
+
+// Cache nearby markers to remove later
+var nearbyCache = [];
 
 if (!test) {
   // Bypass cross-origin remote server access linmitation using anyorigin.com - can set up a proxy web server instead

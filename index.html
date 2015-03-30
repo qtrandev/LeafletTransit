@@ -139,7 +139,7 @@
 									    <td>{{x.PointID}}</td>
 											<td><img src="icons/icon-POI-{{x.CategoryID}}.png" width="33" height="33">{{x.CategoryID}}</td>
 									    <td>{{x.CategoryName}}</td>
-											<td><button class="btn btn-primary" id="{{x.PointID}}" onclick=focusPOI(this.id)>{{x.PointName}}</button></td>
+											<td><button class="btn btn-primary" id="{{x.PointID}},{{x.Latitude}},{{x.Longitude}}" onclick="focusPOI(this.id)">{{x.PointName}}</button></td>
 											<td>{{x.Address}}, {{x.City}}, {{x.State}} {{x.Zip}}</td>
 											<td>{{x.svHeading}}</td>
 										</tr>
@@ -200,10 +200,15 @@
 			focusRoute(routeId);
 		}
 
-		function focusPOI(poiId) {
+		function focusPOI(poiIdLatLng) {
+			var array = poiIdLatLng.split(",");
+			var poiId = array[0];
+			var lat = array[1];
+			var lng = array[2];
 			map.fitBounds(L.latLngBounds([poiMapping[poiId].getLatLng()]));
 			poiMapping[poiId].openPopup();
 			window.scrollTo(0, 0);
+			getNearBy(poiId,lat,lng);
 		}
 
 		function focusRoute(routeId) {
@@ -255,6 +260,86 @@
 		      '<strong>Citi Bike Station ID: ' + id + '</strong><br><br>Address: ' + address + '<br>Bikes: ' +  bikes + '<br>Dockings: ' +  dockings,
 		      { offset: new L.Point(0, -21) });
 		  layer.addLayer(marker);
+		}
+
+		function getNearBy(poiId, lat, lng) {
+			var source = "http://www.miamidade.gov/transit/WebServices/Nearby/?Lat="+lat+"&Long="+lng;
+			//var source = "http://www.miamidade.gov/transit/WebServices/PointsOfInterestTransit/?PointID="+poiId;
+			console.log("POI ID: "+poiId);
+			console.log(source);
+			$.getJSON(
+				'http://anyorigin.com/dev/get?url='+source+'&callback=?',
+				(function(thisScope, thisPOI) {
+					return function(data) {
+						console.log(data.contents);
+						var xmlDoc = $.parseXML(data.contents);
+						$xml = $( xmlDoc );
+
+						$NearbyID = $xml.find("NearbyID");
+						if ($NearbyID.length > 0) {
+							console.log("Exit since we don't have code yet");
+							return;
+						} else {
+							processCachedNearby(thisPOI);
+						}
+					}
+				}(scope, poiId))
+			);
+		}
+
+		function processCachedNearby(poiId) {
+			if (nearbyCache.length > 0) {
+				var i = 0;
+				for (i = 0; i < nearbyCache.length; i++) {
+					map.removeLayer(nearbyCache[i]);
+				}
+			}
+			var xmlhttp=new XMLHttpRequest();
+			xmlhttp.open("GET","./nearby/"+poiId+".xml",false);
+			xmlhttp.send();
+			if (xmlhttp.status!=200) {
+				console.log("No local file exists for POI ID "+poiId+". Not displaying POI info.");
+				return;
+			}
+			xmlDoc=xmlhttp.responseXML;
+			$xml = $( xmlDoc );
+
+			$NearbyID = $xml.find("NearbyID");
+			$NearbyName = $xml.find("NearbyName");
+			$NearbyType = $xml.find("NearbyType");
+			$Descr = $xml.find("Descr");
+			$Distance = $xml.find("Distance");
+			$Latitude = $xml.find("Latitude");
+			$Longitude = $xml.find("Longitude");
+			nearbyCache = [];
+			var bounds = [];
+			var i = 0;
+			for (i = 0; i < $NearbyID.length; i++) {
+				addNearByMarker(
+					nearbyLayer,
+					$NearbyID[i].textContent,
+					$NearbyName[i].textContent,
+					$NearbyType[i].textContent,
+					$Descr[i].textContent,
+					$Distance[i].textContent,
+					$Latitude[i].textContent,
+					$Longitude[i].textContent
+				);
+				bounds[i] = [$Latitude[i].textContent,$Longitude[i].textContent];
+			}
+			map.fitBounds(bounds);
+		}
+
+		function addNearByMarker(layer, NearbyID, NearbyName, NearbyType, Descr, Distance, Latitude, Longitude) {
+			var marker = L.marker([Latitude, Longitude], {icon: poiIcon, zIndexOffset: 10}).bindPopup(
+		    'Nearby ID: '+NearbyID+
+				'<br />Nearby Name: '+NearbyName+
+				'<br />Nearby Type: '+NearbyType+
+				'<br />Description: '+Descr+
+				'<br />Distance: '+Distance,
+		    { offset: new L.Point(0, -16) });
+		  marker.addTo(layer);
+			nearbyCache.push(marker);
 		}
 
 		</script>
