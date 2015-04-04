@@ -37,9 +37,9 @@ Shows where all the Miami transit options are.
 ## How
 #### Dependencies
 
-JQuery
-AngularJS
-Bootstrap
+JQuery  
+AngularJS  
+Bootstrap  
 
 #### Install
 
@@ -55,9 +55,9 @@ Use a Javascript debugger to debug.
 
 ## Contribute
 
-Pull requests are accepted.
-Add issues and features in issues list.
-Message qtrandev if you would like to directly commit.
+Pull requests are accepted.  
+Add issues and features in issues list.  
+Message qtrandev if you would like to directly commit.  
 
 ## License
 
@@ -65,9 +65,8 @@ Licensed through Code for America [LICENSE.md file](https://github.com/codeforam
 
 ## Attributions
 
-[Miami-Dade Transit](http://www.miamidade.gov/transit)
-[City of Miami Trolley](http://www.miamigov.com/trolley)
-[City of Doral Trolley](http://www.cityofdoral.com/index.php?option=com_content&view=article&id=149&Itemid=339)
-[Citi Bike Miami](http://citibikemiami.com)
-[Any Origin](http://anyorigin.com)
-
+[Miami-Dade Transit](http://www.miamidade.gov/transit)  
+[City of Miami Trolley](http://www.miamigov.com/trolley)  
+[City of Doral Trolley](http://www.cityofdoral.com/index.php?option=com_content&view=article&id=149&Itemid=339)  
+[Citi Bike Miami](http://citibikemiami.com)  
+[Any Origin](http://anyorigin.com)  
