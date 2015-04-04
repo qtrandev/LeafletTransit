@@ -85,11 +85,18 @@ var poiIcon = L.icon({
     iconAnchor: [22, 38]
 });
 
-// Doral trolley  icon
+// Doral trolley icon
 var doralTrolleyIcon = L.icon({
     iconUrl: 'icons/doral-bus.png',
     iconSize: [28, 45],
     iconAnchor: [14, 22]
+});
+
+// Doral trolley route icon
+var doralTrolleyrouteIcon = L.icon({
+    iconUrl: 'icons/doral-bus-stop.png',
+    iconSize: [15, 15],
+    iconAnchor: [7, 7]
 });
 
 // Keep track of each route ID, trip ID and its shape ID, and color of the route.
@@ -155,6 +162,7 @@ function loadOnlineData(xmlData) {
   getTrolleyStops(scope);
   getCitiBikes();
   addDoralTrolleys();
+  addDoralTrolleyRoutes();
 }
 
 // Load local data from Buses.xml file for local testing or when online data is unavailable
@@ -172,6 +180,7 @@ function loadLocalData() {
   getTrolleyStops(scope);
   getCitiBikes();
   addDoralTrolleys();
+  addDoralTrolleyRoutes();
   if (!test) {
     alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
   }
@@ -522,20 +531,21 @@ function addPOIMarker(layer, lat, lon, name, poiId, catId, catName, address) {
 }
 
 function addDoralTrolleys() {
+  var api = 'http://rest.tsoapi.com/';
+  var controller = 'MappingController';
+  var methodName = 'GetUnitFromRouteAntibunching';
+
   var data = [];
   data[0] = { tkn: '582EB861-9C13-4C89-B491-15F0AFBF9F47', geofencesid: '35929', lan: 'en' };
   data[1] = { tkn: '582EB861-9C13-4C89-B491-15F0AFBF9F47', geofencesid: '36257', lan: 'en' };
   data[2] = { tkn: '582EB861-9C13-4C89-B491-15F0AFBF9F47', geofencesid: '36270', lan: 'en' };
 
-  sendDoralTrolleyRequest(data[0]);
-  sendDoralTrolleyRequest(data[1]);
-  sendDoralTrolleyRequest(data[2]);
+  sendDoralTrolleyRequest(api, controller, methodName, data[0], handleDoralTrolleyCallback);
+  sendDoralTrolleyRequest(api, controller, methodName, data[1], handleDoralTrolleyCallback);
+  sendDoralTrolleyRequest(api, controller, methodName, data[2], handleDoralTrolleyCallback);
 }
 
-function sendDoralTrolleyRequest(data) {
-  var api = 'http://rest.tsoapi.com/';
-  var controller = 'MappingController';
-  var methodName = 'GetUnitFromRouteAntibunching';
+function sendDoralTrolleyRequest(api, controller, methodName, data, callback) {
   $.ajax({
     url: api + "/" + controller + "/" + methodName,
     data: data,
@@ -543,21 +553,8 @@ function sendDoralTrolleyRequest(data) {
     contentType: "application/javascript",
     dataType: "jsonp",
     success: function (data, textStatus) {
-        console.log(data);
-        var obj = jQuery.parseJSON(data);
-        var trolleys = obj.Units;
-        var i = 0;
-        for (i = 0; i < trolleys.length; i++) {
-          addDoralTrolleyMarker(
-            doralTrolleyLayer,
-            trolleys[i].MarkerID,
-            trolleys[i].MarkerName,
-            trolleys[i].Latitude,
-            trolleys[i].Longitude,
-            trolleys[i].Direction,
-            trolleys[i].Heading
-          );
-        }
+        //console.log(data);
+        callback(data);
     },
     error: function (xhr, status, errorThrown) {
         console.log(xhr.statusText);
@@ -565,9 +562,140 @@ function sendDoralTrolleyRequest(data) {
   });
 }
 
+function handleDoralTrolleyCallback(data) {
+  var obj = jQuery.parseJSON(data);
+  var trolleys = obj.Units;
+  var i = 0;
+  for (i = 0; i < trolleys.length; i++) {
+    addDoralTrolleyMarker(
+      doralTrolleyLayer,
+      trolleys[i].MarkerID,
+      trolleys[i].MarkerName,
+      trolleys[i].Latitude,
+      trolleys[i].Longitude,
+      trolleys[i].Direction,
+      trolleys[i].Heading
+    );
+  }
+}
+
 function addDoralTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longitude, Direction, Heading) {
   var marker = L.marker([Latitude, Longitude], {icon: doralTrolleyIcon, zIndexOffset: 100}).bindPopup(
       '<strong>Doral Trolley ' + MarkerName + '</strong><br><br>ID: ' + MarkerID + '<br>Direction: ' +  Direction,
       { offset: new L.Point(0, -22) });
   layer.addLayer(marker);
+}
+
+function addDoralTrolleyRoutes() {
+  var api = 'http://rest.tsoapi.com/';
+  var controller = 'Routes';
+  var methodName = 'GetRouteFromToken';
+
+  var data = { tkn: '582EB861-9C13-4C89-B491-15F0AFBF9F47', routeId: '-1'};
+
+  sendDoralTrolleyRequest(api, controller, methodName, data, handleDoralRoutesCallback);
+}
+
+function handleDoralRoutesCallback(data) {
+  var obj = jQuery.parseJSON(data);
+
+  /** Example:
+  "ID": "662978",
+  "ContactID": "2047762",
+  "StopNumber": "3001",
+  "Street": "7701 Northwest 79th Avenue 7701 Northwest 79th Avenue",
+  "City": "Miami",
+  "State": "FL",
+  "PostalCode": "33166",
+  "CountryCode": "US",
+  "Sequence": "1",
+  "Latitude": "25.843700",
+  "Longitude": "-80.323900",
+  "Description": "Palmetto Metrorail Station, Transfers to Route 2, MDT MetroRail Green Line & Route 87",
+  "RouteId": "36270"
+  */
+  var stops = obj.stops;
+
+  /** Example:
+  "Name": "Doral Transportation",
+  "MapType": "MAP",
+  "MapImageURL": "MapImage_CityOfDoral.png",
+  "RouteId": "35929",
+  "ShowAutomatically": "True",
+  "Name1": "Public Doral Route #1",
+  "LineColor": "#3A77C7",
+  "RoutePath": "oxj|CnijiNF..."
+  */
+  var routes = obj.routes;
+
+  /** Example:
+  "Id": "166461",
+  "RouteId": "36257",
+  "Lat": "25.8443000000",
+  "Lng": "-80.3237000000",
+  "Direction": "W ",
+  "Angle": "-90.000000",
+  "StopA": "729094",
+  "StopB": "729095",
+  "Seq": "0",
+  "DesignerStopID": "729094",
+  "OriginalLat": "25.8443000000",
+  "OriginalLng": "-80.3237000000",
+  "AudioID": "156"
+  */
+  var points = obj.points;
+
+  var i = 0;
+  for (i = 0; i < stops.length; i++) {
+    addDoralTrolleyRouteStops(doralTrolleyLayer, stops[i], routes);
+  }
+
+  addDoralTrolleyRouteLines(doralTrolleyLayer, points, routes);
+}
+
+function addDoralTrolleyRouteStops(layer, stop, routes) {
+  // Match the stop with the route
+  var routeLineColor;
+  var routeName;
+  var i = 0;
+  for (i = 0; i < routes.length; i++) {
+    if (stop.RouteId == routes[i].RouteId) {
+      routeLineColor = routes[i].LineColor;
+      routeName = routes[i].Name1;
+      break;
+    }
+  }
+
+  var marker = L.marker([stop.Latitude, stop.Longitude], {icon: doralTrolleyrouteIcon, zIndexOffset: -100}).bindPopup(
+      '<strong>Doral Trolley Stop ' + stop.StopNumber + '</strong>' +
+      '<br><br>' + stop.Description +
+      '<br><br>' + stop.Street +
+      '<br>' + stop.City + ', ' + stop.State + ' ' + stop.PostalCode +
+      '<br><span style="color:'+ routeLineColor +'">Route ID: ' + stop.RouteId + "</span>" +
+      '<br><span style="color:'+ routeLineColor +'">Route Name: ' + routeName + "</span>" +
+      '<br>Sequence: ' + stop.Sequence +
+      '<br>ID: ' + stop.ID +
+      '<br>ContactID: ' + stop.ContactID,
+      { offset: new L.Point(0, -7) });
+  layer.addLayer(marker);
+}
+
+function addDoralTrolleyRouteLines(layer, points, routes) {
+  // Map the RouteId with the color for easy lookup
+  var routeColorMap = [];
+  var i = 0;
+  for (i = 0; i < routes.length; i++) {
+    routeColorMap[routes[i].RouteId] = {LineColor: routes[i].LineColor, Points: []};
+  }
+
+  // Separate points for each route
+  var i = 0;
+  for (i = 0; i < points.length; i++) {
+    routeColorMap[points[i].RouteId].Points.push(L.latLng(points[i].Lat, points[i].Lng));
+  }
+
+  for (routeId in routeColorMap) {
+    var markerLine = L.polyline(routeColorMap[routeId].Points, {color: routeColorMap[routeId].LineColor});
+    layer.addLayer(markerLine);
+  }
 }
