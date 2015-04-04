@@ -25,13 +25,15 @@ var trolleyLayer = new L.LayerGroup();
 var trolleyStopsLayer = new L.LayerGroup();
 var bikeLayer = new L.LayerGroup();
 var nearbyLayer = new L.LayerGroup();
+var doralTrolleyLayer = new L.LayerGroup();
 L.control.layers({'Open Street Map':osmLayer, 'Google Map':googleRoadmap, 'Google Satellite':googleHybrid},{
     'Miami-Dade Transit Live Buses': busLayer,
     'Miami-Dade Transit Bus Stops': busStopsLayer,
     'Points of Interest': poiLayer,
     'Miami Trolleys': trolleyLayer,
     'Miami Trolley Stops': trolleyStopsLayer,
-    'Citi Bikes': bikeLayer
+    'Doral Trolleys': doralTrolleyLayer,
+    'Citi Bikes': bikeLayer,
 }).addTo(map);
 // Add certain layers as default to be shown
 busLayer.addTo(map);
@@ -39,6 +41,7 @@ poiLayer.addTo(map);
 trolleyLayer.addTo(map);
 bikeLayer.addTo(map);
 nearbyLayer.addTo(map);
+doralTrolleyLayer.addTo(map);
 
 // Intialize bus icon
 var busIcon = L.icon({
@@ -80,6 +83,13 @@ var poiIcon = L.icon({
     iconUrl: 'icons/icon-POI.png',
     iconSize: [44, 44],
     iconAnchor: [22, 38]
+});
+
+// Doral trolley  icon
+var doralTrolleyIcon = L.icon({
+    iconUrl: 'icons/doral-bus.png',
+    iconSize: [28, 45],
+    iconAnchor: [14, 22]
 });
 
 // Keep track of each route ID, trip ID and its shape ID, and color of the route.
@@ -144,6 +154,7 @@ function loadOnlineData(xmlData) {
   loadTrolleyRoutes();
   getTrolleyStops(scope);
   getCitiBikes();
+  addDoralTrolleys();
 }
 
 // Load local data from Buses.xml file for local testing or when online data is unavailable
@@ -160,6 +171,7 @@ function loadLocalData() {
   loadTrolleyRoutes();
   getTrolleyStops(scope);
   getCitiBikes();
+  addDoralTrolleys();
   if (!test) {
     alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
   }
@@ -507,4 +519,55 @@ function addPOIMarker(layer, lat, lon, name, poiId, catId, catName, address) {
       { offset: new L.Point(0, -16) });
   layer.addLayer(marker);
   poiMapping[poiId] = marker;
+}
+
+function addDoralTrolleys() {
+  var data = [];
+  data[0] = { tkn: '582EB861-9C13-4C89-B491-15F0AFBF9F47', geofencesid: '35929', lan: 'en' };
+  data[1] = { tkn: '582EB861-9C13-4C89-B491-15F0AFBF9F47', geofencesid: '36257', lan: 'en' };
+  data[2] = { tkn: '582EB861-9C13-4C89-B491-15F0AFBF9F47', geofencesid: '36270', lan: 'en' };
+
+  sendDoralTrolleyRequest(data[0]);
+  sendDoralTrolleyRequest(data[1]);
+  sendDoralTrolleyRequest(data[2]);
+}
+
+function sendDoralTrolleyRequest(data) {
+  var api = 'http://rest.tsoapi.com/';
+  var controller = 'MappingController';
+  var methodName = 'GetUnitFromRouteAntibunching';
+  $.ajax({
+    url: api + "/" + controller + "/" + methodName,
+    data: data,
+    type: "POST",
+    contentType: "application/javascript",
+    dataType: "jsonp",
+    success: function (data, textStatus) {
+        console.log(data);
+        var obj = jQuery.parseJSON(data);
+        var trolleys = obj.Units;
+        var i = 0;
+        for (i = 0; i < trolleys.length; i++) {
+          addDoralTrolleyMarker(
+            doralTrolleyLayer,
+            trolleys[i].MarkerID,
+            trolleys[i].MarkerName,
+            trolleys[i].Latitude,
+            trolleys[i].Longitude,
+            trolleys[i].Direction,
+            trolleys[i].Heading
+          );
+        }
+    },
+    error: function (xhr, status, errorThrown) {
+        console.log(xhr.statusText);
+    }
+  });
+}
+
+function addDoralTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longitude, Direction, Heading) {
+  var marker = L.marker([Latitude, Longitude], {icon: doralTrolleyIcon, zIndexOffset: 100}).bindPopup(
+      '<strong>Doral Trolley ' + MarkerName + '</strong><br><br>ID: ' + MarkerID + '<br>Direction: ' +  Direction,
+      { offset: new L.Point(0, -22) });
+  layer.addLayer(marker);
 }
