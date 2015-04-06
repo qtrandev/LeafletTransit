@@ -32,7 +32,7 @@ Alpha. Still adding features from issues list.
 <img src="http://www.qtrandev.com/transit5/screenshots/screenshot4.png" alt="Screenshot 4" width="50%">
 <img src="http://www.qtrandev.com/transit5/screenshots/screenshot5.png" alt="Screenshot 5" width="50%">
 <img src="http://www.qtrandev.com/transit5/screenshots/screenshot6.png" alt="Screenshot 6" width="50%">
-<img src="http://www.qtrandev.com/transit5/screenshots/screenshot6.png" alt="Screenshot 7" width="50%">
+<img src="http://www.qtrandev.com/transit5/screenshots/screenshot7.png" alt="Screenshot 7" width="50%">
 
 ## Why
 Shows where all the Miami transit options are. Goal: Can you go to one website and see where your bus is or where the citibikes are or where to get off for the landmarks like the American Airlines Arena, etc?
