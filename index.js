@@ -140,7 +140,7 @@ if (!test) {
       xmlhttp.open("GET",dataSource,false);
       xmlhttp.send();
       xmlData=xmlhttp.responseText;
-      $xml = $(xmlData)
+      $xml = $(xmlData);
       if ($xml.find("BusID").length > 0) {
         loadOnlineData(xmlData);
       } else {
@@ -333,11 +333,11 @@ function displayFromShapeId(shapeId, routeId) {
         }
       }
 
-      if (displayedShapeIds.length == 0) { // Display the first shape ID
+      if (displayedShapeIds.length === 0) { // Display the first shape ID
         addRoutePoints(busLayer, '#'+color, $.parseXML(data.contents), thisRouteId);
         addDisplayedShapeId(thisshapeId);
       } else { // Check for any duplicate shape ID and not display
-        for (displayed in displayedShapeIds) {
+        for (var displayed in displayedShapeIds) {
           if (displayed == thisshapeId) break;
           addRoutePoints(busLayer, '#'+color, $.parseXML(data.contents), thisRouteId);
           addDisplayedShapeId(thisshapeId);
@@ -420,8 +420,8 @@ function sendBusStopRequest(route, direction) {
           return function(data) {
             if (debug) console.log("Data received. Displaying route bus stops for: "+thisRoute);
 
-            var xmlDoc = $.parseXML(data.contents)
-            if (xmlDoc.getElementsByTagName("Latitude").length == 0) {
+            var xmlDoc = $.parseXML(data.contents);
+            if (xmlDoc.getElementsByTagName("Latitude").length === 0) {
               if (debug) console.log("No data on bus stops received for "+thisRoute+" "+thisDirection+". Getting local cached data.");
               var xmlhttp=new XMLHttpRequest();
         xmlhttp.open("GET","./localdata/"+thisRoute+thisDirection+".xml",false);
@@ -689,12 +689,12 @@ function addDoralTrolleyRouteLines(layer, points, routes) {
   }
 
   // Separate points for each route
-  var i = 0;
+  i = 0;
   for (i = 0; i < points.length; i++) {
     routeColorMap[points[i].RouteId].Points.push(L.latLng(points[i].Lat, points[i].Lng));
   }
 
-  for (routeId in routeColorMap) {
+  for (var routeId in routeColorMap) {
     var markerLine = L.polyline(routeColorMap[routeId].Points, {color: routeColorMap[routeId].LineColor});
     layer.addLayer(markerLine);
   }
