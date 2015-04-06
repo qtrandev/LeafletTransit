@@ -138,12 +138,17 @@ if (!test) {
       var dataSource = "http://198.74.52.26/bus/livebus.php";
       var xmlhttp=new XMLHttpRequest();
       xmlhttp.open("GET",dataSource,false);
-      xmlhttp.send();
-      xmlData=xmlhttp.responseText;
-      $xml = $(xmlData);
-      if ($xml.find("BusID").length > 0) {
-        loadOnlineData(xmlData);
-      } else {
+      try {
+        xmlhttp.send();
+        xmlData=xmlhttp.responseText;
+        $xml = $(xmlData);
+        if ($xml.find("BusID").length > 0) {
+          loadOnlineData(xmlData);
+        } else {
+          loadLocalData();
+        }
+      }
+      catch(err) {
         loadLocalData();
       }
     }, 0);

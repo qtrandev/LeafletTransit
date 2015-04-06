@@ -342,11 +342,9 @@
 				'<br />Distance: <strong>'+Distance+'</strong>'+
 				'<br />Nearby ID: '+NearbyID,
 		    { offset: new L.Point(0, -22) });
-			/** Commented out to see if this code made the website unstable - blank map
 			marker.on('mouseover', function (e) {
 				this.openPopup();
 			});
-			**/
 			marker.addTo(layer);
 			nearbyCache.push(marker);
 			var latlngs = [L.latLng(Latitude, Longitude), L.latLng(sourceLat, sourceLng)];
