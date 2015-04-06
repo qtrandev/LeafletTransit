@@ -2,7 +2,7 @@
 
 ## What
 
-This is a LeafletJS-based prototype of a real time map for various transit systems, including Miami-Dade Transit and various trolley services. Goal: Can you go to one website and see where your bus is or where the citibikes are or where to get off for the landmarks like the American Airlines Arena, etc?
+This is a LeafletJS-based prototype of a real time map for various transit systems, including Miami-Dade Transit and various trolley services.
 
 Live demo is at http://www.qtrandev.com/transit5. More stable past demos are at:  
 * http://www.qtrandev.com/transit  
@@ -26,10 +26,16 @@ Data is retrieved directly from http://www.miamidade.gov/transit. During night-t
 Alpha. Still adding features from issues list.
 
 #### Screenshots
-
+<img src="http://www.qtrandev.com/transit5/screenshots/screenshot1.png" alt="Screenshot 1" width="50%">
+<img src="http://www.qtrandev.com/transit5/screenshots/screenshot2.png" alt="Screenshot 2" width="50%">
+<img src="http://www.qtrandev.com/transit5/screenshots/screenshot3.png" alt="Screenshot 3" width="50%">
+<img src="http://www.qtrandev.com/transit5/screenshots/screenshot4.png" alt="Screenshot 4" width="50%">
+<img src="http://www.qtrandev.com/transit5/screenshots/screenshot5.png" alt="Screenshot 5" width="50%">
+<img src="http://www.qtrandev.com/transit5/screenshots/screenshot6.png" alt="Screenshot 6" width="50%">
+<img src="http://www.qtrandev.com/transit5/screenshots/screenshot6.png" alt="Screenshot 7" width="50%">
 
 ## Why
-Shows where all the Miami transit options are.
+Shows where all the Miami transit options are. Goal: Can you go to one website and see where your bus is or where the citibikes are or where to get off for the landmarks like the American Airlines Arena, etc?
 
 ## Who
 
@@ -41,7 +47,7 @@ Shows where all the Miami transit options are.
 JQuery  
 AngularJS  
 Bootstrap  
-Leaftlet  
+LeafletJS  
 
 #### Install
 
@@ -59,7 +65,7 @@ Use a Javascript debugger to debug such as in Firefox or Chrome.
 
 Pull requests are accepted.  
 Add issues and features in issues list.
-Make the change yourself by editing the file on Github and let [qtrandev](https://github.com/qtrandev) know.
+Make the change yourself by editing the file on Github and let [qtrandev](https://github.com/qtrandev) know.  
 Message [qtrandev](https://github.com/qtrandev) if you would like to directly commit.  
 
 ## License
