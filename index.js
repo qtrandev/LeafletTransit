@@ -20,6 +20,7 @@ var googleHybrid = new L.Google('HYBRID', { maxZoom: 20 });
 // Set up layers to allow user to control map display
 var busLayer = new L.LayerGroup();
 var busStopsLayer = new L.LayerGroup();
+var metroRailLayer = new L.LayerGroup();
 var poiLayer = new L.LayerGroup();
 var trolleyLayer = new L.LayerGroup();
 var trolleyStopsLayer = new L.LayerGroup();
@@ -29,6 +30,7 @@ var doralTrolleyLayer = new L.LayerGroup();
 L.control.layers({'Open Street Map':osmLayer, 'Google Map':googleRoadmap, 'Google Satellite':googleHybrid},{
     'Miami-Dade Transit Live Buses': busLayer,
     'Miami-Dade Transit Bus Stops': busStopsLayer,
+    'Miami-Dade Transit Metro Rail': metroRailLayer,
     'Points of Interest': poiLayer,
     'Miami Trolleys': trolleyLayer,
     'Miami Trolley Stops': trolleyStopsLayer,
@@ -37,6 +39,7 @@ L.control.layers({'Open Street Map':osmLayer, 'Google Map':googleRoadmap, 'Googl
 }).addTo(map);
 // Add certain layers as default to be shown
 busLayer.addTo(map);
+metroRailLayer.addTo(map);
 poiLayer.addTo(map);
 trolleyLayer.addTo(map);
 bikeLayer.addTo(map);
@@ -55,6 +58,13 @@ var busStopIcon = L.icon({
     iconUrl: 'icons/icon-Bus-Stop.png',
     iconSize: [33, 33],
     iconAnchor: [16, 33]
+});
+
+// Intialize Metrorail icon
+var metroRailIcon = L.icon({
+    iconUrl: 'icons/icon-Rail.png',
+    iconSize: [44, 44],
+    iconAnchor: [22, 22]
 });
 
 // Trolley icon
@@ -168,6 +178,7 @@ function loadOnlineData(xmlData) {
   getCitiBikes();
   addDoralTrolleys();
   addDoralTrolleyRoutes();
+  addMetroRail();
 }
 
 // Load local data from Buses.xml file for local testing or when online data is unavailable
@@ -186,6 +197,7 @@ function loadLocalData() {
   getCitiBikes();
   addDoralTrolleys();
   addDoralTrolleyRoutes();
+  addMetroRail();
   if (!test) {
     alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
   }
@@ -1105,4 +1117,52 @@ function addDoralTrolleyRouteLines(layer, points, routes) {
     var markerLine = L.polyline(routeColorMap[routeId].Points, {color: routeColorMap[routeId].LineColor});
     layer.addLayer(markerLine);
   }
+}
+
+function addMetroRail() {
+  var source = "http://www.miamidade.gov/transit/WebServices/Trains/?TrainID=";
+  $.getJSON(
+       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
+       (function() {
+          return function(data) {
+            var xmlDoc = $.parseXML(data.contents);
+            $xml = $( xmlDoc );
+            $TrainID = $xml.find("TrainID");
+            $LineID = $xml.find("LineID");
+            $Cars = $xml.find("Cars");
+            $Latitude = $xml.find("Latitude");
+            $Longitude = $xml.find("Longitude");
+            $Direction = $xml.find("Direction");
+            $ServiceDirection = $xml.find("ServiceDirection");
+            $Service = $xml.find("Service");
+            $LocationUpdated = $xml.find("LocationUpdated");
+            var i = 0;
+            for (i = 0; i < $TrainID.length; i++) {
+              addMetroRailMarker(
+                metroRailLayer,
+                $Latitude[i].textContent,
+                $Longitude[i].textContent,
+                $TrainID[i].textContent,
+                $LineID[i].textContent,
+                $Cars[i].textContent,
+                $Direction[i].textContent,
+                $ServiceDirection[i].textContent,
+                $LocationUpdated[i].textContent
+                );
+            }
+          };
+       }())
+    );
+}
+
+function addMetroRailMarker(layer, Latitude, Longitude, TrainID, LineID, Cars, Direction, ServiceDirection, LocationUpdated) {
+  var marker = L.marker([Latitude, Longitude], {icon: metroRailIcon, zIndexOffset: 100}).bindPopup(
+      '<strong>Metro Rail Train ' + TrainID +
+      '<br>Line: ' + LineID +
+      '</strong><br><br>Cars: ' + Cars +
+      '<br>Direction: ' +  Direction +
+      '<br>Service Direction: ' + ServiceDirection +
+      '<br>Location Updated: ' + LocationUpdated,
+      { offset: new L.Point(0, -22) });
+  layer.addLayer(marker);
 }
