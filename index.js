@@ -16,6 +16,7 @@ osmLayer.addTo(map);
 // Set up Google Maps layers
 var googleRoadmap = new L.Google('ROADMAP', { maxZoom: 20 });
 var googleHybrid = new L.Google('HYBRID', { maxZoom: 20 });
+var googleTraffic = new L.GoogleTraffic('ROADMAP', { maxZoom: 20 });
 
 // Set up layers to allow user to control map display
 var busLayer = new L.LayerGroup();
@@ -27,7 +28,7 @@ var trolleyStopsLayer = new L.LayerGroup();
 var bikeLayer = new L.LayerGroup();
 var nearbyLayer = new L.LayerGroup();
 var doralTrolleyLayer = new L.LayerGroup();
-L.control.layers({'Open Street Map':osmLayer, 'Google Map':googleRoadmap, 'Google Satellite':googleHybrid},{
+L.control.layers({'Open Street Map':osmLayer, 'Google Maps':googleRoadmap, 'Google Maps Satellite':googleHybrid, 'Google Maps Traffic':googleTraffic},{
     'Miami-Dade Transit Live Buses': busLayer,
     'Miami-Dade Transit Bus Stops': busStopsLayer,
     'Miami-Dade Transit Metro Rail': metroRailLayer,
