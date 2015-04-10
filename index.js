@@ -180,6 +180,7 @@ function loadOnlineData(xmlData) {
   addDoralTrolleys();
   addDoralTrolleyRoutes();
   addMetroRail();
+  addMetroRailRoutes();
 }
 
 // Load local data from Buses.xml file for local testing or when online data is unavailable
@@ -199,6 +200,7 @@ function loadLocalData() {
   addDoralTrolleys();
   addDoralTrolleyRoutes();
   addMetroRail();
+  addMetroRailRoutes();
   if (!test) {
     alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
   }
@@ -1166,4 +1168,46 @@ function addMetroRailMarker(layer, Latitude, Longitude, TrainID, LineID, Cars, D
       '<br>Location Updated: ' + LocationUpdated,
       { offset: new L.Point(0, -22) });
   layer.addLayer(marker);
+}
+
+function addMetroRailRoutes() {
+  var source = "http://www.miamidade.gov/transit/WebServices/TrainMapShape/?LineID=";
+  $.getJSON(
+       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
+       (function() {
+          return function(data) {
+            var xmlDoc = $.parseXML(data.contents);
+            $xml = $( xmlDoc );
+            $LineID = $xml.find("LineID");
+            $OrderNum = $xml.find("OrderNum");
+            $Latitude = $xml.find("Latitude");
+            $Longitude = $xml.find("Longitude");
+            var greenLineLatLngs = [];
+            var orangeLineLatLngs = [];
+            var i = 0;
+            for (i = 0; i < $LineID.length; i++) {
+              if ($LineID[i].textContent === "GRN") {
+                greenLineLatLngs.push(L.latLng($Latitude[i].textContent, $Longitude[i].textContent));
+              } else {
+                orangeLineLatLngs.push(L.latLng($Latitude[i].textContent, $Longitude[i].textContent));
+              }
+            }
+            addMetroRailRouteColors(
+              metroRailLayer,
+              greenLineLatLngs,
+              "green"
+            );
+            addMetroRailRouteColors(
+              metroRailLayer,
+              orangeLineLatLngs,
+              "orange"
+            );
+          };
+       }())
+    );
+}
+
+function addMetroRailRouteColors(layer, latlngs, color) {
+  var lineMarker = L.polyline(latlngs, {color: color});
+  lineMarker.addTo(layer);
 }
