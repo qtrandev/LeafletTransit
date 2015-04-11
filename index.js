@@ -29,6 +29,7 @@ var bikeLayer = new L.LayerGroup();
 var nearbyLayer = new L.LayerGroup();
 var doralTrolleyLayer = new L.LayerGroup();
 var miamiBeachTrolleyLayer = new L.LayerGroup();
+var miamiTransitAPILayer = new L.LayerGroup();
 L.control.layers({'Open Street Map':osmLayer, 'Google Maps':googleRoadmap, 'Google Maps Satellite':googleHybrid, 'Google Maps Traffic':googleTraffic},{
     'Miami-Dade Transit Live Buses': busLayer,
     'Miami-Dade Transit Bus Stops': busStopsLayer,
@@ -39,6 +40,7 @@ L.control.layers({'Open Street Map':osmLayer, 'Google Maps':googleRoadmap, 'Goog
     'Miami Beach Trolleys': miamiBeachTrolleyLayer,
     'Doral Trolleys': doralTrolleyLayer,
     'Citi Bikes': bikeLayer,
+    'Miami Transit API Bus GPS': miamiTransitAPILayer,
 }).addTo(map);
 // Add certain layers as default to be shown
 busLayer.addTo(map);
@@ -49,10 +51,18 @@ bikeLayer.addTo(map);
 nearbyLayer.addTo(map);
 doralTrolleyLayer.addTo(map);
 miamiBeachTrolleyLayer.addTo(map);
+//miamiTransitAPILayer.addTo(map);
 
 // Intialize bus icon
 var busIcon = L.icon({
     iconUrl: 'icons/icon-Bus-Tracker.png',
+    iconSize: [44, 44],
+    iconAnchor: [22, 22]
+});
+
+// Intialize blue bus icon
+var busIconBlue = L.icon({
+    iconUrl: 'icons/icon-Bus-Tracker-blue.png',
     iconSize: [44, 44],
     iconAnchor: [22, 22]
 });
@@ -204,6 +214,7 @@ function loadOnlineData(xmlData) {
   addMetroRailStations();
   addMiamiBeachTrolleys();
   addMiamiBeachTrolleyRoutes();
+  loadBusTrackingGPSData();
 }
 
 // Load local data from Buses.xml file for local testing or when online data is unavailable
@@ -227,6 +238,7 @@ function loadLocalData() {
   addMetroRailStations();
   addMiamiBeachTrolleys();
   addMiamiBeachTrolleyRoutes();
+  loadBusTrackingGPSData();
   if (!test) {
     alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
   }
@@ -1381,4 +1393,26 @@ function addMiamiBeachTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longi
       '<strong>Miami Beach Trolley ' + MarkerName + '</strong><br><br>ID: ' + MarkerID + '<br>Direction: ' +  Direction,
       { offset: new L.Point(0, -22) });
   layer.addLayer(marker);
+}
+
+function loadBusTrackingGPSData() {
+  $.getJSON('https://sleepy-eyrie-8607.herokuapp.com/tracker.json',
+  function(data) {
+    var i = 0;
+    for (i = 0; i < data.features.length; i++) {
+      addBusTrackingGPSMarker(
+        miamiTransitAPILayer,
+        data.features[i].properties.lat,
+        data.features[i].properties.lon,
+        data.features[i].properties.bustime);
+    }
+  });
+}
+
+function addBusTrackingGPSMarker(layer, lat, lon, bustime) {
+  var marker = L.marker([lat, lon], {icon: busIconBlue}).bindPopup(
+      '<strong>Bus Tracking GPS</strong>'+
+      '<br /><br />Bus Time: '+bustime,
+      { offset: new L.Point(0, -22) });
+  marker.addTo(layer);
 }
