@@ -63,9 +63,16 @@ var busStopIcon = L.icon({
 
 // Intialize Metrorail icon
 var metroRailIcon = L.icon({
-    iconUrl: 'icons/icon-Rail.png',
+    iconUrl: 'icons/icon-Rail-Tracker.png',
     iconSize: [44, 44],
     iconAnchor: [22, 22]
+});
+
+// Intialize Metrorail station icon
+var metroRailStationIcon = L.icon({
+    iconUrl: 'icons/icon-Rail-Station.png',
+    iconSize: [22, 22],
+    iconAnchor: [11, 11]
 });
 
 // Trolley icon
@@ -181,6 +188,7 @@ function loadOnlineData(xmlData) {
   addDoralTrolleyRoutes();
   addMetroRail();
   addMetroRailRoutes();
+  addMetroRailStations();
 }
 
 // Load local data from Buses.xml file for local testing or when online data is unavailable
@@ -201,6 +209,7 @@ function loadLocalData() {
   addDoralTrolleyRoutes();
   addMetroRail();
   addMetroRailRoutes();
+  addMetroRailStations();
   if (!test) {
     alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
   }
@@ -1166,7 +1175,7 @@ function addMetroRailMarker(layer, Latitude, Longitude, TrainID, LineID, Cars, D
       '<br>Direction: ' +  Direction +
       '<br>Service Direction: ' + ServiceDirection +
       '<br>Location Updated: ' + LocationUpdated,
-      { offset: new L.Point(0, -22) });
+      { offset: new L.Point(0, 0) });
   layer.addLayer(marker);
 }
 
@@ -1210,4 +1219,91 @@ function addMetroRailRoutes() {
 function addMetroRailRouteColors(layer, latlngs, color) {
   var lineMarker = L.polyline(latlngs, {color: color});
   lineMarker.addTo(layer);
+}
+
+function addMetroRailStations() {
+  var source = "http://www.miamidade.gov/transit/WebServices/TrainStations/?StationID=";
+  $.getJSON(
+       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
+       (function() {
+          return function(data) {
+            var xmlDoc = $.parseXML(data.contents);
+            $xml = $( xmlDoc );
+            $StationID = $xml.find("StationID");
+            $StationIDshow = $xml.find("StationIDshow");
+            $Station = $xml.find("Station");
+            $SB_OrderNum = $xml.find("SB_OrderNum");
+            $NB_OrderNum = $xml.find("NB_OrderNum");
+            $Address = $xml.find("Address");
+            $City = $xml.find("City");
+            $State = $xml.find("State");
+            $Zip = $xml.find("Zip");
+            $Parking = $xml.find("Parking");
+            $ConnectingOther = $xml.find("ConnectingOther");
+            $PlacesOfInterest = $xml.find("PlacesOfInterest");
+            $Other = $xml.find("Other");
+            $Airport = $xml.find("Airport");
+            $TriRail = $xml.find("TriRail");
+            $LongTermParking = $xml.find("LongTermParking");
+            $Latitude = $xml.find("Latitude");
+            $Longitude = $xml.find("Longitude");
+            $svLatitude = $xml.find("svLatitude");
+            $svLongitude = $xml.find("svLongitude");
+            $svHeading = $xml.find("svHeading");
+            var i = 0;
+            for (i = 0; i < $StationID.length; i++) {
+              addMetroRailStationMarker(
+                metroRailLayer,
+                $Latitude[i].textContent,
+                $Longitude[i].textContent,
+                $StationIDshow[i].textContent,
+                $Station[i].textContent,
+                $Address[i].textContent + "<br>" + $City[i].textContent + ", " + $State[i].textContent + " " + $Zip[i].textContent,
+                $Parking[i].textContent,
+                $ConnectingOther[i].textContent,
+                $PlacesOfInterest[i].textContent,
+                $Other[i].textContent,
+                $Airport[i].textContent,
+                $TriRail[i].textContent,
+                $LongTermParking[i].textContent,
+                $svLatitude[i].textContent,
+                $svLongitude[i].textContent,
+                $svHeading[i].textContent
+                );
+            }
+          };
+       }())
+    );
+}
+
+function addMetroRailStationMarker(
+    layer,
+    Latitude,
+    Longitude,
+    StationIDshow,
+    Station,
+    Address,
+    Parking,
+    ConnectingOther,
+    PlacesOfInterest,
+    Other,
+    Airport,
+    TriRail,
+    LongTermParking,
+    svLatitude,
+    svLongitude,
+    svHeading) {
+  var marker = L.marker([Latitude, Longitude], {icon: metroRailStationIcon, zIndexOffset: -100}).bindPopup(
+      '<strong>' + StationIDshow +
+      '<br>' + Station +
+      '</strong><br><br>' + Address +
+      '<br><br>Parking: ' +  Parking +
+      '<br>Long-Term Parking: ' + LongTermParking +
+      '<br>Airport: ' + Airport +
+      '<br>TriRail: ' + TriRail +
+      '<br>Places of Interest: ' + PlacesOfInterest +
+      '<br>Other: ' + Other +
+      '<br>Connecting Other: ' + ConnectingOther,
+      { offset: new L.Point(0, 0) });
+  layer.addLayer(marker);
 }
