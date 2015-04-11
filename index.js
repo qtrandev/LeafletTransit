@@ -57,8 +57,8 @@ var busIcon = L.icon({
 // Intialize bus stop icon
 var busStopIcon = L.icon({
     iconUrl: 'icons/icon-Bus-Stop.png',
-    iconSize: [33, 33],
-    iconAnchor: [16, 33]
+    iconSize: [22, 22],
+    iconAnchor: [11, 22]
 });
 
 // Intialize Metrorail icon
@@ -85,8 +85,8 @@ var trolleyIcon = L.icon({
 // Trolley stop icon
 var trolleyStopIcon = L.icon({
     iconUrl: 'icons/icon-Trolley-Stop.png',
-    iconSize: [33, 33],
-    iconAnchor: [16, 33]
+    iconSize: [22, 22],
+    iconAnchor: [11, 22]
 });
 
 // Citi bike icon
@@ -492,7 +492,7 @@ function addBusStopMarker(layer, lat, lon, name, route) {
 
   var marker = L.marker([lat, lon], {icon: busStopIcon, zIndexOffset: -100}).bindPopup(
     'Route: '+route+' Bus Stop: '+name,
-    { offset: new L.Point(0, -16) });
+    { offset: new L.Point(0, 0) });
   marker.addTo(layer);
 }
 
@@ -797,7 +797,7 @@ function getTrolleyStops(scope) {
 function addTrolleyStopMarker(layer, lat, lon, name, id) {
   var marker = L.marker([lat, lon], {icon: trolleyStopIcon, zIndexOffset: -110}).bindPopup(
     'Stop ID: '+id+'<br />Stop Name: '+name,
-    { offset: new L.Point(0, -16) });
+    { offset: new L.Point(0, 0) });
   marker.addTo(layer);
 }
 
