@@ -28,6 +28,7 @@ var trolleyStopsLayer = new L.LayerGroup();
 var bikeLayer = new L.LayerGroup();
 var nearbyLayer = new L.LayerGroup();
 var doralTrolleyLayer = new L.LayerGroup();
+var miamiBeachTrolleyLayer = new L.LayerGroup();
 L.control.layers({'Open Street Map':osmLayer, 'Google Maps':googleRoadmap, 'Google Maps Satellite':googleHybrid, 'Google Maps Traffic':googleTraffic},{
     'Miami-Dade Transit Live Buses': busLayer,
     'Miami-Dade Transit Bus Stops': busStopsLayer,
@@ -35,6 +36,7 @@ L.control.layers({'Open Street Map':osmLayer, 'Google Maps':googleRoadmap, 'Goog
     'Points of Interest': poiLayer,
     'Miami Trolleys': trolleyLayer,
     'Miami Trolley Stops': trolleyStopsLayer,
+    'Miami Beach Trolleys': miamiBeachTrolleyLayer,
     'Doral Trolleys': doralTrolleyLayer,
     'Citi Bikes': bikeLayer,
 }).addTo(map);
@@ -46,6 +48,7 @@ trolleyLayer.addTo(map);
 bikeLayer.addTo(map);
 nearbyLayer.addTo(map);
 doralTrolleyLayer.addTo(map);
+miamiBeachTrolleyLayer.addTo(map);
 
 // Intialize bus icon
 var busIcon = L.icon({
@@ -107,7 +110,7 @@ var poiIcon = L.icon({
 var doralTrolleyIcon = L.icon({
     iconUrl: 'icons/doral-bus.png',
     iconSize: [28, 45],
-    iconAnchor: [14, 22]
+    iconAnchor: [14, 45]
 });
 
 // Doral trolley route icon
@@ -115,6 +118,13 @@ var doralTrolleyrouteIcon = L.icon({
     iconUrl: 'icons/doral-bus-stop.png',
     iconSize: [15, 15],
     iconAnchor: [7, 15]
+});
+
+// Miami Beach trolley icon
+var miamiBeachTrolleyIcon = L.icon({
+    iconUrl: 'icons/miamibeach-bus.png',
+    iconSize: [28, 45],
+    iconAnchor: [14, 45]
 });
 
 // Keep track of each route ID, trip ID and its shape ID, and color of the route.
@@ -189,6 +199,7 @@ function loadOnlineData(xmlData) {
   addMetroRail();
   addMetroRailRoutes();
   addMetroRailStations();
+  addMiamiBeachTrolleys();
 }
 
 // Load local data from Buses.xml file for local testing or when online data is unavailable
@@ -210,6 +221,7 @@ function loadLocalData() {
   addMetroRail();
   addMetroRailRoutes();
   addMetroRailStations();
+  addMiamiBeachTrolleys();
   if (!test) {
     alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
   }
@@ -967,16 +979,17 @@ function addDoralTrolleys() {
   var methodName = 'GetUnitFromRouteAntibunching';
 
   var data = [];
-  data[0] = { tkn: '582EB861-9C13-4C89-B491-15F0AFBF9F47', geofencesid: '35929', lan: 'en' };
-  data[1] = { tkn: '582EB861-9C13-4C89-B491-15F0AFBF9F47', geofencesid: '36257', lan: 'en' };
-  data[2] = { tkn: '582EB861-9C13-4C89-B491-15F0AFBF9F47', geofencesid: '36270', lan: 'en' };
+  var doraltkn = '582EB861-9C13-4C89-B491-15F0AFBF9F47';
+  data[0] = { tkn: doraltkn, geofencesid: '35929', lan: 'en' };
+  data[1] = { tkn: doraltkn, geofencesid: '36257', lan: 'en' };
+  data[2] = { tkn: doraltkn, geofencesid: '36270', lan: 'en' };
 
-  sendDoralTrolleyRequest(api, controller, methodName, data[0], handleDoralTrolleyCallback);
-  sendDoralTrolleyRequest(api, controller, methodName, data[1], handleDoralTrolleyCallback);
-  sendDoralTrolleyRequest(api, controller, methodName, data[2], handleDoralTrolleyCallback);
+  sendTSOTrolleyRequest(api, controller, methodName, data[0], handleDoralTrolleyCallback);
+  sendTSOTrolleyRequest(api, controller, methodName, data[1], handleDoralTrolleyCallback);
+  sendTSOTrolleyRequest(api, controller, methodName, data[2], handleDoralTrolleyCallback);
 }
 
-function sendDoralTrolleyRequest(api, controller, methodName, data, callback) {
+function sendTSOTrolleyRequest(api, controller, methodName, data, callback) {
   $.ajax({
     url: api + "/" + controller + "/" + methodName,
     data: data,
@@ -1013,7 +1026,7 @@ function handleDoralTrolleyCallback(data) {
 function addDoralTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longitude, Direction, Heading) {
   var marker = L.marker([Latitude, Longitude], {icon: doralTrolleyIcon, zIndexOffset: 100}).bindPopup(
       '<strong>Doral Trolley ' + MarkerName + '</strong><br><br>ID: ' + MarkerID + '<br>Direction: ' +  Direction,
-      { offset: new L.Point(0, 0) });
+      { offset: new L.Point(0, -22) });
   layer.addLayer(marker);
 }
 
@@ -1024,7 +1037,7 @@ function addDoralTrolleyRoutes() {
 
   var data = { tkn: '582EB861-9C13-4C89-B491-15F0AFBF9F47', routeId: '-1'};
 
-  sendDoralTrolleyRequest(api, controller, methodName, data, handleDoralRoutesCallback);
+  sendTSOTrolleyRequest(api, controller, methodName, data, handleDoralRoutesCallback);
 }
 
 function handleDoralRoutesCallback(data) {
@@ -1305,5 +1318,43 @@ function addMetroRailStationMarker(
       '<br>Other: ' + Other +
       '<br>Connecting Other: ' + ConnectingOther,
       { offset: new L.Point(0, 0) });
+  layer.addLayer(marker);
+}
+
+function addMiamiBeachTrolleys() {
+  var api = 'http://rest.tsoapi.com/';
+  var controller = 'MappingController';
+  var methodName = 'GetUnitFromRouteAntibunching';
+
+  var data = [];
+  var miamibeachtkn = '825894C5-2B5F-402D-A055-88F2297AF99A';
+  data[0] = { tkn: miamibeachtkn, geofencesid: '38836', lan: 'en' };
+  data[1] = { tkn: miamibeachtkn, geofencesid: '40756', lan: 'en' };
+
+  sendTSOTrolleyRequest(api, controller, methodName, data[0], handleMiamiBeachTrolleyCallback);
+  sendTSOTrolleyRequest(api, controller, methodName, data[1], handleMiamiBeachTrolleyCallback);
+}
+
+function handleMiamiBeachTrolleyCallback(data) {
+  var obj = jQuery.parseJSON(data);
+  var trolleys = obj.Units;
+  var i = 0;
+  for (i = 0; i < trolleys.length; i++) {
+    addMiamiBeachTrolleyMarker(
+      miamiBeachTrolleyLayer,
+      trolleys[i].MarkerID,
+      trolleys[i].MarkerName,
+      trolleys[i].Latitude,
+      trolleys[i].Longitude,
+      trolleys[i].Direction,
+      trolleys[i].Heading
+    );
+  }
+}
+
+function addMiamiBeachTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longitude, Direction, Heading) {
+  var marker = L.marker([Latitude, Longitude], {icon: miamiBeachTrolleyIcon, zIndexOffset: 100}).bindPopup(
+      '<strong>Miami Beach Trolley ' + MarkerName + '</strong><br><br>ID: ' + MarkerID + '<br>Direction: ' +  Direction,
+      { offset: new L.Point(0, -22) });
   layer.addLayer(marker);
 }
