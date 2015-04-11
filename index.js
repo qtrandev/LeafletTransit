@@ -114,7 +114,7 @@ var doralTrolleyIcon = L.icon({
 var doralTrolleyrouteIcon = L.icon({
     iconUrl: 'icons/doral-bus-stop.png',
     iconSize: [15, 15],
-    iconAnchor: [7, 7]
+    iconAnchor: [7, 15]
 });
 
 // Keep track of each route ID, trip ID and its shape ID, and color of the route.
@@ -1013,7 +1013,7 @@ function handleDoralTrolleyCallback(data) {
 function addDoralTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longitude, Direction, Heading) {
   var marker = L.marker([Latitude, Longitude], {icon: doralTrolleyIcon, zIndexOffset: 100}).bindPopup(
       '<strong>Doral Trolley ' + MarkerName + '</strong><br><br>ID: ' + MarkerID + '<br>Direction: ' +  Direction,
-      { offset: new L.Point(0, -22) });
+      { offset: new L.Point(0, 0) });
   layer.addLayer(marker);
 }
 
@@ -1107,7 +1107,7 @@ function addDoralTrolleyRouteStops(layer, stop, routes) {
       '<br>Sequence: ' + stop.Sequence +
       '<br>ID: ' + stop.ID +
       '<br>ContactID: ' + stop.ContactID,
-      { offset: new L.Point(0, -7) });
+      { offset: new L.Point(0, 0) });
   layer.addLayer(marker);
 }
 
