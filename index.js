@@ -114,7 +114,7 @@ var doralTrolleyIcon = L.icon({
 });
 
 // Doral trolley route icon
-var doralTrolleyrouteIcon = L.icon({
+var TSOTrolleyrouteIcon = L.icon({
     iconUrl: 'icons/doral-bus-stop.png',
     iconSize: [15, 15],
     iconAnchor: [7, 15]
@@ -153,6 +153,9 @@ var busMapping = [];
 
 // Cache nearby markers to remove later
 var nearbyCache = [];
+
+// Track the city to receive trolley information
+var cityTrolley = "";
 
 if (!test) {
   // Bypass cross-origin remote server access linmitation using anyorigin.com - can set up a proxy web server instead
@@ -200,6 +203,7 @@ function loadOnlineData(xmlData) {
   addMetroRailRoutes();
   addMetroRailStations();
   addMiamiBeachTrolleys();
+  addMiamiBeachTrolleyRoutes();
 }
 
 // Load local data from Buses.xml file for local testing or when online data is unavailable
@@ -222,6 +226,7 @@ function loadLocalData() {
   addMetroRailRoutes();
   addMetroRailStations();
   addMiamiBeachTrolleys();
+  addMiamiBeachTrolleyRoutes();
   if (!test) {
     alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
   }
@@ -1030,17 +1035,27 @@ function addDoralTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longitude,
   layer.addLayer(marker);
 }
 
+function addMiamiBeachTrolleyRoutes() {
+  cityTrolley = "Miami Beach";
+  addTSOTrolleyRoutes('825894C5-2B5F-402D-A055-88F2297AF99A');
+}
+
 function addDoralTrolleyRoutes() {
+  cityTrolley = "Doral";
+  addTSOTrolleyRoutes('582EB861-9C13-4C89-B491-15F0AFBF9F47');
+}
+
+function addTSOTrolleyRoutes(tkn) {
   var api = 'http://rest.tsoapi.com/';
   var controller = 'Routes';
   var methodName = 'GetRouteFromToken';
 
-  var data = { tkn: '582EB861-9C13-4C89-B491-15F0AFBF9F47', routeId: '-1'};
+  var data = { tkn: tkn, routeId: '-1'};
 
-  sendTSOTrolleyRequest(api, controller, methodName, data, handleDoralRoutesCallback);
+  sendTSOTrolleyRequest(api, controller, methodName, data, handleTSORoutesCallback);
 }
 
-function handleDoralRoutesCallback(data) {
+function handleTSORoutesCallback(data) {
   var obj = jQuery.parseJSON(data);
 
   /** Example:
@@ -1089,15 +1104,20 @@ function handleDoralRoutesCallback(data) {
   */
   var points = obj.points;
 
-  var i = 0;
-  for (i = 0; i < stops.length; i++) {
-    addDoralTrolleyRouteStops(doralTrolleyLayer, stops[i], routes);
+  var layer = doralTrolleyLayer;
+  if (cityTrolley === "Miami Beach") {
+    layer = miamiBeachTrolleyLayer;
   }
 
-  addDoralTrolleyRouteLines(doralTrolleyLayer, points, routes);
+  var i = 0;
+  for (i = 0; i < stops.length; i++) {
+    addTSOTrolleyRouteStops(layer, stops[i], routes);
+  }
+
+  addTSOTrolleyRouteLines(layer, points, routes);
 }
 
-function addDoralTrolleyRouteStops(layer, stop, routes) {
+function addTSOTrolleyRouteStops(layer, stop, routes) {
   // Match the stop with the route
   var routeLineColor;
   var routeName;
@@ -1110,8 +1130,8 @@ function addDoralTrolleyRouteStops(layer, stop, routes) {
     }
   }
 
-  var marker = L.marker([stop.Latitude, stop.Longitude], {icon: doralTrolleyrouteIcon, zIndexOffset: -100}).bindPopup(
-      '<strong>Doral Trolley Stop ' + stop.StopNumber + '</strong>' +
+  var marker = L.marker([stop.Latitude, stop.Longitude], {icon: TSOTrolleyrouteIcon, zIndexOffset: -100}).bindPopup(
+      '<strong>' + cityTrolley + ' Trolley Stop ' + stop.StopNumber + '</strong>' +
       '<br><br>' + stop.Description +
       '<br><br>' + stop.Street +
       '<br>' + stop.City + ', ' + stop.State + ' ' + stop.PostalCode +
@@ -1124,7 +1144,7 @@ function addDoralTrolleyRouteStops(layer, stop, routes) {
   layer.addLayer(marker);
 }
 
-function addDoralTrolleyRouteLines(layer, points, routes) {
+function addTSOTrolleyRouteLines(layer, points, routes) {
   // Map the RouteId with the color for easy lookup
   var routeColorMap = [];
   var i = 0;
