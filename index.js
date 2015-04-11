@@ -1036,8 +1036,12 @@ function addDoralTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longitude,
 }
 
 function addMiamiBeachTrolleyRoutes() {
-  cityTrolley = "Miami Beach";
-  addTSOTrolleyRoutes('825894C5-2B5F-402D-A055-88F2297AF99A');
+  // Add delay since there's a sharing bug with Doral route-getting code
+  setTimeout(
+    function(){
+      cityTrolley = "Miami Beach";
+      addTSOTrolleyRoutes('825894C5-2B5F-402D-A055-88F2297AF99A');
+    }, 2000);
 }
 
 function addDoralTrolleyRoutes() {
