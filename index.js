@@ -67,6 +67,13 @@ var busIconBlue = L.icon({
     iconAnchor: [22, 22]
 });
 
+// Intialize aqua bus icon
+var busIconAqua = L.icon({
+    iconUrl: 'icons/icon-Bus-Tracker-aqua.png',
+    iconSize: [44, 44],
+    iconAnchor: [22, 22]
+});
+
 // Intialize bus stop icon
 var busStopIcon = L.icon({
     iconUrl: 'icons/icon-Bus-Stop.png',
@@ -215,6 +222,7 @@ function loadOnlineData(xmlData) {
   addMiamiBeachTrolleys();
   addMiamiBeachTrolleyRoutes();
   loadBusTrackingGPSData();
+  loadMiamiTransitAPIBuses();
 }
 
 // Load local data from Buses.xml file for local testing or when online data is unavailable
@@ -239,6 +247,7 @@ function loadLocalData() {
   addMiamiBeachTrolleys();
   addMiamiBeachTrolleyRoutes();
   loadBusTrackingGPSData();
+  loadMiamiTransitAPIBuses();
   if (!test) {
     alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
   }
@@ -1413,6 +1422,46 @@ function addBusTrackingGPSMarker(layer, lat, lon, bustime) {
   var marker = L.marker([lat, lon], {icon: busIconBlue}).bindPopup(
       '<strong>Bus Tracking GPS</strong>'+
       '<br /><br />Bus Time: '+bustime,
+      { offset: new L.Point(0, -22) });
+  marker.addTo(layer);
+}
+
+function loadMiamiTransitAPIBuses() {
+  $.getJSON('https://sleepy-eyrie-8607.herokuapp.com/buses.json',
+  function(data) {
+    var i = 0;
+    for (i = 0; i < data.RecordSet.Record.length; i++) {
+      addMiamiTransitAPIBusesMarker(
+        miamiTransitAPILayer,
+        data.RecordSet.Record[i].BusID,
+        data.RecordSet.Record[i].BusName,
+        data.RecordSet.Record[i].Latitude,
+        data.RecordSet.Record[i].Longitude,
+        data.RecordSet.Record[i].RouteID,
+        data.RecordSet.Record[i].TripID,
+        data.RecordSet.Record[i].Direction,
+        data.RecordSet.Record[i].ServiceDirection,
+        data.RecordSet.Record[i].Service,
+        data.RecordSet.Record[i].ServiceName,
+        data.RecordSet.Record[i].TripHeadsign,
+        data.RecordSet.Record[i].LocationUpdated);
+    }
+  });
+}
+
+function addMiamiTransitAPIBusesMarker(
+  layer, BusID, BusName, Latitude, Longitude, RouteID, TripID, Direction,
+  ServiceDirection, Service, ServiceName, TripHeadsign, LocationUpdated) {
+  var marker = L.marker([Latitude, Longitude], {icon: busIconAqua}).bindPopup(
+      '<strong>Miami Transit API Bus</strong>' +
+      '<br/><br/>Bus ID: ' + BusID +
+      '<br/>Bus Name: ' + BusName +
+      '<br/>Trip ID: ' + TripID +
+      '<br/>Trip: ' + TripHeadsign +
+      '<br/>Service: ' + Service +
+      '<br/>Service Name: ' + ServiceName +
+      '<br/>Service Direction: ' + ServiceDirection +
+      '<br/>Location Updated: ' + LocationUpdated,
       { offset: new L.Point(0, -22) });
   marker.addTo(layer);
 }
