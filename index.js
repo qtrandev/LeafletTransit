@@ -174,11 +174,18 @@ var nearbyCache = [];
 // Track the city to receive trolley information
 var cityTrolley = "";
 
+// Refresh time for Miami Transit API
+var refreshTime = 5000;
+
+// Cache Miami Transit API markers
+var miamiTransitAPIMarkers = [];
+
 if (!test) {
   // Bypass cross-origin remote server access linmitation using anyorigin.com - can set up a proxy web server instead
   angular.module('transitApp', []).controller('transitController', ['$scope', function($scope) {
     scope = $scope;
     $scope.tripRouteShapeRef = tripRouteShapeRef;
+    $scope.refreshTime = refreshTime;
     }
   ]);
   setTimeout(
@@ -221,8 +228,10 @@ function loadOnlineData(xmlData) {
   addMetroRailStations();
   addMiamiBeachTrolleys();
   addMiamiBeachTrolleyRoutes();
-  loadBusTrackingGPSData();
-  loadMiamiTransitAPIBuses();
+  // Refresh Miami Transit API data every 5 seconds
+  setInterval(function() {
+    callMiamiTransitAPI();
+  }, refreshTime);
 }
 
 // Load local data from Buses.xml file for local testing or when online data is unavailable
@@ -246,11 +255,31 @@ function loadLocalData() {
   addMetroRailStations();
   addMiamiBeachTrolleys();
   addMiamiBeachTrolleyRoutes();
-  loadBusTrackingGPSData();
-  loadMiamiTransitAPIBuses();
+  // Refresh Miami Transit API data every 5 seconds
+  setInterval(function() {
+    callMiamiTransitAPI();
+  }, refreshTime);
   if (!test) {
     alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
   }
+}
+
+function callMiamiTransitAPI() {
+  console.log("callMiamiTransitAPI: Array size is: "+miamiTransitAPIMarkers.length);
+  if (miamiTransitAPIMarkers.length > 0) {
+    var i = 0;
+    for (i = 0; i < miamiTransitAPIMarkers.length; i++) {
+      map.removeLayer(miamiTransitAPIMarkers[i]);
+    }
+    miamiTransitAPIMarkers = [];
+    setTimeout(function(){
+      // Wait 1 second before adding back the markers on the map
+      console.log("Removed Miami Transit API markers");
+    },1500);
+  }
+  console.log("Loading new Miami Transit API markers");
+  loadBusTrackingGPSData();
+  loadMiamiTransitAPIBuses();
 }
 
 // Create buses list from Miami Transit XML file
@@ -1407,6 +1436,7 @@ function addMiamiBeachTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longi
 function loadBusTrackingGPSData() {
   $.getJSON('https://sleepy-eyrie-8607.herokuapp.com/tracker.json',
   function(data) {
+    console.log("Live Bus: Received items: "+data.features.length);
     var i = 0;
     for (i = 0; i < data.features.length; i++) {
       addBusTrackingGPSMarker(
@@ -1424,11 +1454,14 @@ function addBusTrackingGPSMarker(layer, lat, lon, bustime) {
       '<br /><br />Bus Time: '+bustime,
       { offset: new L.Point(0, -22) });
   marker.addTo(layer);
+  miamiTransitAPIMarkers.push(marker);
+  //console.log("Bus GPS: Array size is: "+miamiTransitAPIMarkers.length);
 }
 
 function loadMiamiTransitAPIBuses() {
   $.getJSON('https://sleepy-eyrie-8607.herokuapp.com/buses.json',
   function(data) {
+    console.log("Miami Transit Buses: Received items: "+data.RecordSet.Record.length);
     var i = 0;
     for (i = 0; i < data.RecordSet.Record.length; i++) {
       addMiamiTransitAPIBusesMarker(
@@ -1464,4 +1497,6 @@ function addMiamiTransitAPIBusesMarker(
       '<br/>Location Updated: ' + LocationUpdated,
       { offset: new L.Point(0, -22) });
   marker.addTo(layer);
+  miamiTransitAPIMarkers.push(marker);
+  //console.log("Live Bus: Array size is: "+miamiTransitAPIMarkers.length);
 }
