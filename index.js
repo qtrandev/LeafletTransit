@@ -265,21 +265,18 @@ function loadLocalData() {
 }
 
 function callMiamiTransitAPI() {
-  console.log("callMiamiTransitAPI: Array size is: "+miamiTransitAPIMarkers.length);
   if (miamiTransitAPIMarkers.length > 0) {
     var i = 0;
     for (i = 0; i < miamiTransitAPIMarkers.length; i++) {
       map.removeLayer(miamiTransitAPIMarkers[i]);
     }
-    miamiTransitAPIMarkers = [];
-    setTimeout(function(){
-      // Wait 1 second before adding back the markers on the map
-      console.log("Removed Miami Transit API markers");
-    },1500);
+    miamiTransitAPIMarkers.length = 0; // Clear array
   }
-  console.log("Loading new Miami Transit API markers");
-  loadBusTrackingGPSData();
-  loadMiamiTransitAPIBuses();
+  setTimeout(function(){
+    // Wait 1 second before adding back the markers on the map
+    loadBusTrackingGPSData();
+    loadMiamiTransitAPIBuses();
+  },1000);
 }
 
 // Create buses list from Miami Transit XML file
@@ -1436,7 +1433,6 @@ function addMiamiBeachTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longi
 function loadBusTrackingGPSData() {
   $.getJSON('https://sleepy-eyrie-8607.herokuapp.com/tracker.json',
   function(data) {
-    console.log("Live Bus: Received items: "+data.features.length);
     var i = 0;
     for (i = 0; i < data.features.length; i++) {
       addBusTrackingGPSMarker(
@@ -1449,19 +1445,21 @@ function loadBusTrackingGPSData() {
 }
 
 function addBusTrackingGPSMarker(layer, lat, lon, bustime) {
-  var marker = L.marker([lat, lon], {icon: busIconBlue}).bindPopup(
-      '<strong>Bus Tracking GPS</strong>'+
-      '<br /><br />Bus Time: '+bustime,
-      { offset: new L.Point(0, -22) });
-  marker.addTo(layer);
-  miamiTransitAPIMarkers.push(marker);
-  //console.log("Bus GPS: Array size is: "+miamiTransitAPIMarkers.length);
+  try {
+    var marker = L.marker([lat, lon], {icon: busIconBlue}).bindPopup(
+        '<strong>Bus Tracking GPS</strong>'+
+        '<br /><br />Bus Time: '+bustime,
+        { offset: new L.Point(0, -22) });
+    marker.addTo(layer);
+    miamiTransitAPIMarkers.push(marker);
+  } catch (e) {
+    console.log("Cannot add marker in addBusTrackingGPSMarker. Lat: "+lat+" Lon: "+lon+" Error: "+e);
+  }
 }
 
 function loadMiamiTransitAPIBuses() {
   $.getJSON('https://sleepy-eyrie-8607.herokuapp.com/buses.json',
   function(data) {
-    console.log("Miami Transit Buses: Received items: "+data.RecordSet.Record.length);
     var i = 0;
     for (i = 0; i < data.RecordSet.Record.length; i++) {
       addMiamiTransitAPIBusesMarker(
@@ -1498,5 +1496,4 @@ function addMiamiTransitAPIBusesMarker(
       { offset: new L.Point(0, -22) });
   marker.addTo(layer);
   miamiTransitAPIMarkers.push(marker);
-  //console.log("Live Bus: Array size is: "+miamiTransitAPIMarkers.length);
 }
