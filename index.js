@@ -180,6 +180,9 @@ var refreshTime = 5000;
 // Cache Miami Transit API markers
 var miamiTransitAPIMarkers = [];
 
+// Base URL for API server
+var apiURL = 'https://miami-transit-api.herokuapp.com/';
+
 if (!test) {
   // Bypass cross-origin remote server access linmitation using anyorigin.com - can set up a proxy web server instead
   angular.module('transitApp', []).controller('transitController', ['$scope', function($scope) {
@@ -1431,7 +1434,7 @@ function addMiamiBeachTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longi
 }
 
 function loadBusTrackingGPSData() {
-  $.getJSON('https://sleepy-eyrie-8607.herokuapp.com/tracker.json',
+  $.getJSON(apiURL+'tracker.json',
   function(data) {
     var i = 0;
     for (i = 0; i < data.features.length; i++) {
@@ -1458,7 +1461,7 @@ function addBusTrackingGPSMarker(layer, lat, lon, bustime) {
 }
 
 function loadMiamiTransitAPIBuses() {
-  $.getJSON('https://sleepy-eyrie-8607.herokuapp.com/buses.json',
+  $.getJSON(apiURL+'buses.json',
   function(data) {
     var i = 0;
     for (i = 0; i < data.RecordSet.Record.length; i++) {
