@@ -54,7 +54,7 @@ miamiBeachTrolleyLayer.addTo(map);
 //miamiTransitAPILayer.addTo(map);
 
 // Button to allow user to locate current position
-L.control.locate().addTo(map);
+L.control.locate({ locateOptions: { maxZoom: 15 }}).addTo(map);
 
 // Intialize bus icon
 var busIcon = L.icon({
