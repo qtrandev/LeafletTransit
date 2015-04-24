@@ -13,6 +13,13 @@
 		<script src="googlemaps/Google.js"></script>
 		<script src="googlemaps/GoogleTraffic.js"></script>
 
+		<!--Add button to locate the current user-->
+		<script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.24.0/L.Control.Locate.js'></script>
+		<link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.24.0/L.Control.Locate.css' rel='stylesheet' />
+		<!--[if lt IE 9]>
+		<link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.21.0/L.Control.Locate.ie.css' rel='stylesheet' />
+		<![endif]-->
+
 		<style>
 			h1 {
 			    color: #007AC2;
@@ -40,6 +47,17 @@
 			th,td {
 			    padding: 15px;
 			}
+
+			.leaflet-control-locate {
+				border:1px solid rgba(0,0,0,0.4);
+				}
+			.leaflet-control-locate a {
+				background-color:#fff;
+				background-position:-3px, -2px;
+				}
+			.leaflet-control-locate.active a {
+				background-position:-33px -2px;
+				}
 		</style>
 	</head>
 

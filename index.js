@@ -53,6 +53,9 @@ doralTrolleyLayer.addTo(map);
 miamiBeachTrolleyLayer.addTo(map);
 //miamiTransitAPILayer.addTo(map);
 
+// Button to allow user to locate current position
+L.control.locate().addTo(map);
+
 // Intialize bus icon
 var busIcon = L.icon({
     iconUrl: 'icons/icon-Bus-Tracker.png',
