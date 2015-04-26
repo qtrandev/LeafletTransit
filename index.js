@@ -196,7 +196,7 @@ if (!test) {
   ]);
   setTimeout(
     function(data){
-      var dataSource = "http://198.74.52.26/bus/livebus.php";
+      var dataSource = apiURL + 'bus/livebus.xml';
       var xmlhttp=new XMLHttpRequest();
       xmlhttp.open("GET",dataSource,false);
       try {
