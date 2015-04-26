@@ -196,7 +196,7 @@ if (!test) {
   ]);
   setTimeout(
     function(data){
-      var dataSource = apiURL + 'bus/livebus.xml';
+      var dataSource = apiURL + 'api/Buses.xml';
       var xmlhttp=new XMLHttpRequest();
       xmlhttp.open("GET",dataSource,false);
       try {
