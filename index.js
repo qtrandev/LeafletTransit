@@ -1222,39 +1222,24 @@ function addTSOTrolleyRouteLines(layer, points, routes) {
 }
 
 function addMetroRail() {
-  var source = apiURL + 'api/Trains.xml';
-  $.getJSON(
-       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-       (function() {
-          return function(data) {
-            var xmlDoc = $.parseXML(data.contents);
-            $xml = $( xmlDoc );
-            $TrainID = $xml.find("TrainID");
-            $LineID = $xml.find("LineID");
-            $Cars = $xml.find("Cars");
-            $Latitude = $xml.find("Latitude");
-            $Longitude = $xml.find("Longitude");
-            $Direction = $xml.find("Direction");
-            $ServiceDirection = $xml.find("ServiceDirection");
-            $Service = $xml.find("Service");
-            $LocationUpdated = $xml.find("LocationUpdated");
-            var i = 0;
-            for (i = 0; i < $TrainID.length; i++) {
-              addMetroRailMarker(
-                metroRailLayer,
-                $Latitude[i].textContent,
-                $Longitude[i].textContent,
-                $TrainID[i].textContent,
-                $LineID[i].textContent,
-                $Cars[i].textContent,
-                $Direction[i].textContent,
-                $ServiceDirection[i].textContent,
-                $LocationUpdated[i].textContent
-                );
-            }
-          };
-       }())
-    );
+  $.getJSON(apiURL + 'api/Trains.json',
+  function(data) {
+    var records = data.RecordSet.Record;
+    var i = 0;
+    for (i = 0; i < records.length; i++) {
+      addMetroRailMarker(
+        metroRailLayer,
+        records[i].Latitude,
+        records[i].Longitude,
+        records[i].TrainID,
+        records[i].LineID,
+        records[i].Cars,
+        records[i].Direction,
+        records[i].ServiceDirection,
+        records[i].LocationUpdated
+        );
+    }
+  });
 }
 
 function addMetroRailMarker(layer, Latitude, Longitude, TrainID, LineID, Cars, Direction, ServiceDirection, LocationUpdated) {
@@ -1270,40 +1255,30 @@ function addMetroRailMarker(layer, Latitude, Longitude, TrainID, LineID, Cars, D
 }
 
 function addMetroRailRoutes() {
-  var source = apiURL + 'api/TrainMapShape.xml';
-  $.getJSON(
-       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-       (function() {
-          return function(data) {
-            var xmlDoc = $.parseXML(data.contents);
-            $xml = $( xmlDoc );
-            $LineID = $xml.find("LineID");
-            $OrderNum = $xml.find("OrderNum");
-            $Latitude = $xml.find("Latitude");
-            $Longitude = $xml.find("Longitude");
-            var greenLineLatLngs = [];
-            var orangeLineLatLngs = [];
-            var i = 0;
-            for (i = 0; i < $LineID.length; i++) {
-              if ($LineID[i].textContent === "GRN") {
-                greenLineLatLngs.push(L.latLng($Latitude[i].textContent, $Longitude[i].textContent));
-              } else {
-                orangeLineLatLngs.push(L.latLng($Latitude[i].textContent, $Longitude[i].textContent));
-              }
-            }
-            addMetroRailRouteColors(
-              metroRailLayer,
-              greenLineLatLngs,
-              "green"
-            );
-            addMetroRailRouteColors(
-              metroRailLayer,
-              orangeLineLatLngs,
-              "orange"
-            );
-          };
-       }())
+  $.getJSON(apiURL + 'api/TrainMapShape.json',
+  function(data) {
+    var records = data.RecordSet.Record;
+    var greenLineLatLngs = [];
+    var orangeLineLatLngs = [];
+    var i = 0;
+    for (i = 0; i < records.length; i++) {
+      if (records[i].LineID === "GRN") {
+        greenLineLatLngs.push(L.latLng(records[i].Latitude, records[i].Longitude));
+      } else {
+        orangeLineLatLngs.push(L.latLng(records[i].Latitude, records[i].Longitude));
+      }
+    }
+    addMetroRailRouteColors(
+      metroRailLayer,
+      greenLineLatLngs,
+      "green"
     );
+    addMetroRailRouteColors(
+      metroRailLayer,
+      orangeLineLatLngs,
+      "orange"
+    );
+  });
 }
 
 function addMetroRailRouteColors(layer, latlngs, color) {
@@ -1312,58 +1287,31 @@ function addMetroRailRouteColors(layer, latlngs, color) {
 }
 
 function addMetroRailStations() {
-  var source = apiURL + 'api/TrainStations.xml';
-  $.getJSON(
-       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-       (function() {
-          return function(data) {
-            var xmlDoc = $.parseXML(data.contents);
-            $xml = $( xmlDoc );
-            $StationID = $xml.find("StationID");
-            $StationIDshow = $xml.find("StationIDshow");
-            $Station = $xml.find("Station");
-            $SB_OrderNum = $xml.find("SB_OrderNum");
-            $NB_OrderNum = $xml.find("NB_OrderNum");
-            $Address = $xml.find("Address");
-            $City = $xml.find("City");
-            $State = $xml.find("State");
-            $Zip = $xml.find("Zip");
-            $Parking = $xml.find("Parking");
-            $ConnectingOther = $xml.find("ConnectingOther");
-            $PlacesOfInterest = $xml.find("PlacesOfInterest");
-            $Other = $xml.find("Other");
-            $Airport = $xml.find("Airport");
-            $TriRail = $xml.find("TriRail");
-            $LongTermParking = $xml.find("LongTermParking");
-            $Latitude = $xml.find("Latitude");
-            $Longitude = $xml.find("Longitude");
-            $svLatitude = $xml.find("svLatitude");
-            $svLongitude = $xml.find("svLongitude");
-            $svHeading = $xml.find("svHeading");
-            var i = 0;
-            for (i = 0; i < $StationID.length; i++) {
-              addMetroRailStationMarker(
-                metroRailLayer,
-                $Latitude[i].textContent,
-                $Longitude[i].textContent,
-                $StationIDshow[i].textContent,
-                $Station[i].textContent,
-                $Address[i].textContent + "<br>" + $City[i].textContent + ", " + $State[i].textContent + " " + $Zip[i].textContent,
-                $Parking[i].textContent,
-                $ConnectingOther[i].textContent,
-                $PlacesOfInterest[i].textContent,
-                $Other[i].textContent,
-                $Airport[i].textContent,
-                $TriRail[i].textContent,
-                $LongTermParking[i].textContent,
-                $svLatitude[i].textContent,
-                $svLongitude[i].textContent,
-                $svHeading[i].textContent
-                );
-            }
-          };
-       }())
-    );
+  $.getJSON(apiURL + 'api/TrainStations.json',
+  function(data) {
+    var records = data.RecordSet.Record;
+    var i = 0;
+    for (i = 0; i < records.length; i++) {
+      addMetroRailStationMarker(
+        metroRailLayer,
+        records[i].Latitude,
+        records[i].Longitude,
+        records[i].StationIDshow,
+        records[i].Station,
+        records[i].Address + "<br>" + records[i].City + ", " + records[i].State + " " + records[i].Zip,
+        records[i].Parking,
+        records[i].ConnectingOther,
+        records[i].PlacesOfInterest,
+        records[i].Other,
+        records[i].Airport,
+        records[i].TriRail,
+        records[i].LongTermParking,
+        records[i].svLatitude,
+        records[i].svLongitude,
+        records[i].svHeading
+        );
+    }
+  });
 }
 
 function addMetroRailStationMarker(
