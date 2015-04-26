@@ -1222,7 +1222,7 @@ function addTSOTrolleyRouteLines(layer, points, routes) {
 }
 
 function addMetroRail() {
-  var source = "http://www.miamidade.gov/transit/WebServices/Trains/?TrainID=";
+  var source = apiURL + 'api/Trains.xml';
   $.getJSON(
        'http://anyorigin.com/dev/get?url='+source+'&callback=?',
        (function() {
@@ -1270,7 +1270,7 @@ function addMetroRailMarker(layer, Latitude, Longitude, TrainID, LineID, Cars, D
 }
 
 function addMetroRailRoutes() {
-  var source = "http://www.miamidade.gov/transit/WebServices/TrainMapShape/?LineID=";
+  var source = apiURL + 'api/TrainMapShape.xml';
   $.getJSON(
        'http://anyorigin.com/dev/get?url='+source+'&callback=?',
        (function() {
@@ -1312,7 +1312,7 @@ function addMetroRailRouteColors(layer, latlngs, color) {
 }
 
 function addMetroRailStations() {
-  var source = "http://www.miamidade.gov/transit/WebServices/TrainStations/?StationID=";
+  var source = apiURL + 'api/TrainStations.xml';
   $.getJSON(
        'http://anyorigin.com/dev/get?url='+source+'&callback=?',
        (function() {
