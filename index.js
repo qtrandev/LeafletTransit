@@ -1393,15 +1393,17 @@ function loadBusTrackingGPSData() {
         miamiTransitAPILayer,
         data.features[i].properties.lat,
         data.features[i].properties.lon,
+		data.features[i].properties.speed,
         data.features[i].properties.bustime);
     }
   });
 }
 
-function addBusTrackingGPSMarker(layer, lat, lon, bustime) {
+function addBusTrackingGPSMarker(layer, lat, lon, speed, bustime) {
   try {
     var marker = L.marker([lat, lon], {icon: busIconBlue}).bindPopup(
         '<strong>Bus Tracking GPS</strong>'+
+		'<br /><br />Speed: ' +speed,
         '<br /><br />Bus Time: '+bustime,
         { offset: new L.Point(0, -22) });
     marker.addTo(layer);
