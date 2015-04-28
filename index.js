@@ -178,7 +178,7 @@ var nearbyCache = [];
 var cityTrolley = "";
 
 // Refresh time for Miami Transit API
-var refreshTime = 5000;
+var refreshTime = 30000;
 
 // Cache Miami Transit API markers
 var miamiTransitAPIMarkers = [];
@@ -1393,7 +1393,7 @@ function loadBusTrackingGPSData() {
         miamiTransitAPILayer,
         data.features[i].properties.lat,
         data.features[i].properties.lon,
-		data.features[i].properties.speed,
+        data.features[i].properties.speed,
         data.features[i].properties.bustime);
     }
   });
@@ -1403,8 +1403,8 @@ function addBusTrackingGPSMarker(layer, lat, lon, speed, bustime) {
   try {
     var marker = L.marker([lat, lon], {icon: busIconBlue}).bindPopup(
         '<strong>Bus Tracking GPS</strong>'+
-		'<br /><br />Speed: ' +speed,
-        '<br /><br />Bus Time: '+bustime,
+		'<br /><br />Speed: ' +speed+ ' MPH'+
+        '<br />Bus Time: '+bustime,
         { offset: new L.Point(0, -22) });
     marker.addTo(layer);
     miamiTransitAPIMarkers.push(marker);
@@ -1412,7 +1412,6 @@ function addBusTrackingGPSMarker(layer, lat, lon, speed, bustime) {
     console.log("Cannot add marker in addBusTrackingGPSMarker. Lat: "+lat+" Lon: "+lon+" Error: "+e);
   }
 }
-
 function loadMiamiTransitAPIBuses() {
   $.getJSON(apiURL+'buses.json',
   function(data) {
