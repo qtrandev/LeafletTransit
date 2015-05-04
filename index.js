@@ -3,6 +3,7 @@ var map = L.map('map').setView([25.795865,-80.287046], 11);
 var test = false; // Whether in test mode or online
 var debug = false; // Enable console debug messages
 var enableRefresh = true;
+var showAllLayers = true;
 
 // Load MapBox map
 var accessToken = 'pk.eyJ1IjoicXRyYW5kZXYiLCJhIjoiSDF2cGNjZyJ9.D1ybOKe77AQDPHkxCCEpJQ';
@@ -1474,7 +1475,8 @@ function addControlPane() {
 
   info.update = function () {
     this._div.innerHTML = '<h4>Refresh Controls</h4>' +
-      '<br><button onclick="toggleRefresh()">Toggle Refresh</button>' +
+      '<br><button onclick="toggleLayers()">Toggle Layers</button>' +
+      '<br><br><button onclick="toggleRefresh()">Toggle Refresh</button>' +
       '<br><div id="slider"></div>';
   };
 
@@ -1485,7 +1487,37 @@ function toggleRefresh() {
   enableRefresh = !enableRefresh;
   if (enableRefresh) {
     $(".info").show();
+    map.addLayer(miamiTransitAPILayer);
   } else {
     $(".info").hide();
   }
+}
+
+function toggleLayers() {
+  if (showAllLayers) {
+    map.addLayer(busLayer);
+    map.addLayer(busStopsLayer);
+    map.addLayer(metroRailLayer);
+    map.addLayer(poiLayer);
+    map.addLayer(trolleyLayer);
+    map.addLayer(trolleyStopsLayer);
+    map.addLayer(bikeLayer);
+    map.addLayer(nearbyLayer);
+    map.addLayer(doralTrolleyLayer);
+    map.addLayer(miamiBeachTrolleyLayer);
+    map.addLayer(miamiTransitAPILayer);
+  } else {
+    map.removeLayer(busLayer);
+    map.removeLayer(busStopsLayer);
+    map.removeLayer(metroRailLayer);
+    map.removeLayer(poiLayer);
+    map.removeLayer(trolleyLayer);
+    map.removeLayer(trolleyStopsLayer);
+    map.removeLayer(bikeLayer);
+    map.removeLayer(nearbyLayer);
+    map.removeLayer(doralTrolleyLayer);
+    map.removeLayer(miamiBeachTrolleyLayer);
+    map.removeLayer(miamiTransitAPILayer);
+  }
+  showAllLayers = !showAllLayers;
 }
