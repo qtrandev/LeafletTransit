@@ -2,6 +2,7 @@
 var map = L.map('map').setView([25.795865,-80.287046], 11);
 var test = false; // Whether in test mode or online
 var debug = false; // Enable console debug messages
+var enableRefresh = true;
 
 // Load MapBox map
 var accessToken = 'pk.eyJ1IjoicXRyYW5kZXYiLCJhIjoiSDF2cGNjZyJ9.D1ybOKe77AQDPHkxCCEpJQ';
@@ -17,6 +18,9 @@ osmLayer.addTo(map);
 var googleRoadmap = new L.Google('ROADMAP', { maxZoom: 20 });
 var googleHybrid = new L.Google('HYBRID', { maxZoom: 20 });
 var googleTraffic = new L.GoogleTraffic('ROADMAP', { maxZoom: 20 });
+
+// Add Control Panel
+addControlPane();
 
 // Set up layers to allow user to control map display
 var busLayer = new L.LayerGroup();
@@ -178,7 +182,7 @@ var nearbyCache = [];
 var cityTrolley = "";
 
 // Refresh time for Miami Transit API
-var refreshTime = 30000;
+var refreshTime = 5000;
 
 // Cache Miami Transit API markers
 var miamiTransitAPIMarkers = [];
@@ -236,7 +240,7 @@ function loadOnlineData(xmlData) {
   addMiamiBeachTrolleyRoutes();
   // Refresh Miami Transit API data every 5 seconds
   setInterval(function() {
-    callMiamiTransitAPI();
+    if (enableRefresh) callMiamiTransitAPI();
   }, refreshTime);
 }
 
@@ -263,7 +267,7 @@ function loadLocalData() {
   addMiamiBeachTrolleyRoutes();
   // Refresh Miami Transit API data every 5 seconds
   setInterval(function() {
-    callMiamiTransitAPI();
+    if (enableRefresh) callMiamiTransitAPI();
   }, refreshTime);
   if (!test) {
     alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
@@ -1412,6 +1416,7 @@ function addBusTrackingGPSMarker(layer, lat, lon, speed, bustime) {
     console.log("Cannot add marker in addBusTrackingGPSMarker. Lat: "+lat+" Lon: "+lon+" Error: "+e);
   }
 }
+
 function loadMiamiTransitAPIBuses() {
   $.getJSON(apiURL+'buses.json',
   function(data) {
@@ -1451,4 +1456,36 @@ function addMiamiTransitAPIBusesMarker(
       { offset: new L.Point(0, -22) });
   marker.addTo(layer);
   miamiTransitAPIMarkers.push(marker);
+}
+
+$(document).ready(function(){
+  // Initial slider
+  //$( "#slider" ).slider();
+  toggleRefresh();
+});
+
+function addControlPane() {
+  var info = L.control();
+  info.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'control'); // create a div with a class "control"
+    this.update();
+    return this._div;
+  };
+
+  info.update = function () {
+    this._div.innerHTML = '<h4>Refresh Controls</h4>' +
+      '<br><button onclick="toggleRefresh()">Toggle Refresh</button>' +
+      '<br><div id="slider"></div>';
+  };
+
+  info.addTo(map);
+}
+
+function toggleRefresh() {
+  enableRefresh = !enableRefresh;
+  if (enableRefresh) {
+    $(".info").show();
+  } else {
+    $(".info").hide();
+  }
 }
