@@ -507,7 +507,6 @@ function requestBusStops(shapeId) {
 }
 
 function sendBusStopRequest(route, direction) {
-  if (debug) console.log("Requesting data for "+route+" and "+direction);
 
   // Ignore requested routes and directions
   if (displayedBusStops.indexOf(route+""+direction) > -1) {
@@ -516,48 +515,23 @@ function sendBusStopRequest(route, direction) {
   }
   displayedBusStops[displayedBusStops.length] = route+""+direction;
 
-  var source = "http://www.miamidade.gov/transit/WebServices/BusRouteStops/?RouteID="+route+"&Dir="+direction;
-  //var source = "http://www.miamidade.gov/transit/WebServices/BusRouteStops/?RouteID=123&Dir=Clockwise"; // HARDCODE
-  $.getJSON(
-       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-       (function(thisRoute, thisDirection) {
-          return function(data) {
-            if (debug) console.log("Data received. Displaying route bus stops for: "+thisRoute);
-
-            var xmlDoc = $.parseXML(data.contents);
-            if (xmlDoc.getElementsByTagName("Latitude").length === 0) {
-              if (debug) console.log("No data on bus stops received for "+thisRoute+" "+thisDirection+". Getting local cached data.");
-              var xmlhttp=new XMLHttpRequest();
-        xmlhttp.open("GET","./localdata/"+thisRoute+thisDirection+".xml",false);
-        xmlhttp.send();
-        if (xmlhttp.status!=200) {
-          console.log("No local file exists for "+thisRoute+" "+thisDirection+". Not displaying bus stops.");
-          return;
-        }
-        xmlDoc=xmlhttp.responseXML;
-        storeBusStop(scope, xmlDoc, thisRoute+" "+thisDirection);
-        scope.$apply();
-            }
-
-            var latList = xmlDoc.getElementsByTagName("Latitude");
-      var lonList = xmlDoc.getElementsByTagName("Longitude");
-      var nameList = xmlDoc.getElementsByTagName("StopName");
-      if (debug) console.log("latList.length = "+ nameList.length);
-      var i = 0;
-      for (i = 0; i < latList.length; i++) {
-        // Add each bus stop to the map
-        //if (debug) console.log("Add stop: "+nameList[i].childNodes[0].nodeValue);
-        addBusStopMarker(
-          busStopsLayer,
-          latList[i].childNodes[0].nodeValue,
-          lonList[i].childNodes[0].nodeValue,
-          nameList[i].childNodes[0].nodeValue,
-          thisRoute
-        );
-      }
-          };
-       }(route, direction))
-    );
+  $.getJSON(apiURL + 'api/BusRouteStops.json?RouteID='+route+'&Dir='+direction,
+  function(data) {
+    var records = data.RecordSet.Record;
+    if (!scope.busStops) scope.busStops = [];
+    scope.busStops[route+" "+direction] = records;
+    scope.$apply();
+    var i = 0;
+    for (i = 0; i < records.length; i++) {
+      addBusStopMarker(
+        busStopsLayer,
+        records[i].Latitude,
+        records[i].Longitude,
+        records[i].StopName,
+        route
+      );
+    }
+  });
 }
 
 function addBusStopMarker(layer, lat, lon, name, route) {
@@ -768,27 +742,6 @@ function storePOIs(scope, xmlDoc) {
     };
   }
   scope.POIs = POIs;
-}
-
-function storeBusStop(scope, xmlDoc, routeDir) {
-
-  if (!scope.busStops) scope.busStops = [];
-
-  $xml = $( xmlDoc );
-  $StopID = $xml.find("StopID");
-  $StopName = $xml.find("StopName");
-  $Sequence = $xml.find("Sequence");
-  var count = $StopID.length;
-  var stops = [];
-  for (i = 0; i < count; i++) {
-    // Add each POI to the array in the scope
-    stops[i] = {
-      StopID : $StopID[i].textContent,
-      StopName : $StopName[i].textContent,
-      Sequence : $Sequence[i].textContent
-    };
-  }
-  scope.busStops[routeDir] = stops;
 }
 
 function getTrolleyData(scope) {
