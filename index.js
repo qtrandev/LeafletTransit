@@ -542,53 +542,30 @@ function addBusStopMarker(layer, lat, lon, name, route) {
 }
 
 function showPOIs() {
-  var source = 'http://www.miamidade.gov/transit/WebServices/PointsOfInterest/?PointID=';
-  $.getJSON(
-       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-       (function(input) {
-          return function(data) {
-
-            if (debug) console.log("POI Data received.");
-            var xmlDoc = $.parseXML(data.contents);
-            storePOIs(scope, xmlDoc);
-            scope.$apply();
-
-            $xml = $( xmlDoc );
-            $PointID = $xml.find("PointID");
-            $CategoryID = $xml.find("CategoryID");
-            $CategoryName = $xml.find("CategoryName");
-            $PointName = $xml.find("PointName");
-            $Address = $xml.find("Address");
-            $City = $xml.find("City");
-            $State = $xml.find("State");
-            $Zip = $xml.find("Zip");
-            $Latitude = $xml.find("Latitude");
-            $Longitude = $xml.find("Longitude");
-            $svLatitude = $xml.find("svLatitude");
-            $svLongitude = $xml.find("svLongitude");
-            $svHeading = $xml.find("svHeading");
-
-            var i = 0;
-            for (i = 0; i < $Latitude.length; i++) {
-              var address =
-                $Address[i].textContent + '<br>' +
-                $City[i].textContent + ', ' +
-                $State[i].textContent + ' ' +
-                $Zip[i].textContent;
-              addPOIMarker(
-                poiLayer,
-                $Latitude[i].textContent,
-                $Longitude[i].textContent,
-                $PointName[i].textContent,
-                $PointID[i].textContent,
-                $CategoryID[i].textContent,
-                $CategoryName[i].textContent,
-                address
-              );
-            }
-          };
-       }("POI"))
-    );
+  $.getJSON(apiURL + 'api/PointsOfInterest.json',
+  function(data) {
+    var records = data.RecordSet.Record;
+    scope.POIs = records;
+    scope.$apply();
+    var i = 0;
+    for (i = 0; i < records.length; i++) {
+      var address =
+        records[i].Address + '<br>' +
+        records[i].City + ', ' +
+        records[i].State + ' ' +
+        records[i].Zip;
+      addPOIMarker(
+        poiLayer,
+        records[i].Latitude,
+        records[i].Longitude,
+        records[i].PointName,
+        records[i].PointID,
+        records[i].CategoryID,
+        records[i].CategoryName,
+        address
+      );
+    }
+  });
 }
 
 function addPOIMarker(layer, lat, lon, name, poiId, catId, catName, address) {
@@ -665,79 +642,6 @@ function storeLiveBuses(scope, xmlDoc) {
   }
   scope.buses = buses;
   scope.uniqueBusRoutes = uniqueBusRoutes;
-}
-
-function storeBusRoutes(scope, xmlDoc) {
-
-  $xml = $( xmlDoc );
-  $RouteID = $xml.find("RouteID");
-  $RouteAlias = $xml.find("RouteAlias");
-  $RouteAliasLong = $xml.find("RouteAliasLong");
-  $RouteDescription = $xml.find("RouteDescription");
-  $RouteColor = $xml.find("RouteColor");
-  $Bike = $xml.find("Bike");
-  $Wheelchair = $xml.find("Wheelchair");
-  $Metrorail = $xml.find("Metrorail");
-  $Airport = $xml.find("Airport");
-  $SortOrder = $xml.find("SortOrder");
-  var count = $RouteID.length;
-  var routes = [];
-  for (i = 0; i < count; i++) {
-    // Add each bus route to the scope
-    routes[i] = {
-      RouteID : $RouteID[i].textContent,
-      RouteAlias : $RouteAlias[i].textContent,
-      RouteAliasLong : $RouteAliasLong[i].textContent,
-      RouteDescription : $RouteDescription[i].textContent,
-      RouteColor : $RouteColor[i].textContent,
-      Bike : $Bike[i].textContent,
-      Wheelchair : $Wheelchair[i].textContent,
-      Metrorail : $Metrorail[i].textContent,
-      Airport : $Airport[i].textContent,
-      SortOrder : $SortOrder[i].textContent
-    };
-  }
-  scope.routes = routes;
-}
-
-function storePOIs(scope, xmlDoc) {
-
-  $xml = $( xmlDoc );
-  $PointID = $xml.find("PointID");
-  $CategoryID = $xml.find("CategoryID");
-  $CategoryName = $xml.find("CategoryName");
-  $PointName = $xml.find("PointName");
-  $Address = $xml.find("Address");
-  $City = $xml.find("City");
-  $State = $xml.find("State");
-  $Zip = $xml.find("Zip");
-  $Latitude = $xml.find("Latitude");
-  $Longitude = $xml.find("Longitude");
-  $svLatitude = $xml.find("svLatitude");
-  $svLongitude = $xml.find("svLongitude");
-  $svHeading = $xml.find("svHeading");
-
-  var count = $PointID.length;
-  var POIs = [];
-  for (i = 0; i < count; i++) {
-    // Add each POI to the array in the scope
-    POIs[i] = {
-      PointID : $PointID[i].textContent,
-      CategoryID : $CategoryID[i].textContent,
-      CategoryName : $CategoryName[i].textContent,
-      PointName : $PointName[i].textContent,
-      Address : $Address[i].textContent,
-      City : $City[i].textContent,
-      State : $State[i].textContent,
-      Zip : $Zip[i].textContent,
-      Latitude : $Latitude[i].textContent,
-      Longitude : $Longitude[i].textContent,
-      svLatitude : $svLatitude[i].textContent,
-      svLongitude : $svLongitude[i].textContent,
-      svHeading : $svHeading[i].textContent
-    };
-  }
-  scope.POIs = POIs;
 }
 
 function getTrolleyData(scope) {
