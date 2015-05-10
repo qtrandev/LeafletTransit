@@ -1,6 +1,5 @@
 // Initialize map
 var map = L.map('map').setView([25.795865,-80.287046], 11);
-var test = false; // Whether in test mode or online
 var debug = false; // Enable console debug messages
 var enableRefresh = true;
 var showAllLayers = true;
@@ -191,40 +190,24 @@ var miamiTransitAPIMarkers = [];
 // Base URL for API server
 var apiURL = 'https://miami-transit-api.herokuapp.com/';
 
-if (!test) {
-  // Bypass cross-origin remote server access linmitation using anyorigin.com - can set up a proxy web server instead
+init();
+
+function init() {
   angular.module('transitApp', []).controller('transitController', ['$scope', function($scope) {
     scope = $scope;
     $scope.tripRouteShapeRef = tripRouteShapeRef;
     $scope.refreshTime = refreshTime;
     }
   ]);
-  setTimeout(
-    function(data){
-      var dataSource = apiURL + 'api/Buses.xml';
-      var xmlhttp=new XMLHttpRequest();
-      xmlhttp.open("GET",dataSource,false);
-      try {
-        xmlhttp.send();
-        xmlData=xmlhttp.responseText;
-        $xml = $(xmlData);
-        if ($xml.find("BusID").length > 0) {
-          loadOnlineData(xmlData);
-        } else {
-          loadLocalData();
-        }
-      }
-      catch(err) {
-        loadLocalData();
-      }
-    }, 0);
-} else {
-  loadLocalData();
+  $.getJSON(apiURL + 'api/Buses.json',
+  function(data) {
+    var records = data.RecordSet.Record;
+    loadBusData(records);
+  });
 }
 
-// Run when data is available from the transit website
-function loadOnlineData(xmlData) {
-  generateBusList(xmlData, "REAL-TIME");
+function loadBusData(data) {
+  if (data !== null) generateBusList(data, "REAL-TIME");
   loadRouteColors(); // Bus list must be loaded first
   displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
   showPOIs();
@@ -243,36 +226,6 @@ function loadOnlineData(xmlData) {
   setInterval(function() {
     if (enableRefresh) callMiamiTransitAPI();
   }, refreshTime);
-}
-
-// Load local data from Buses.xml file for local testing or when online data is unavailable
-function loadLocalData() {
-  var xmlhttp=new XMLHttpRequest();
-  xmlhttp.open("GET","Buses.xml",false);
-  xmlhttp.send();
-  xmlData=xmlhttp.responseXML;
-  generateBusList(xmlData, "SAMPLE");
-  loadRouteColors(); // Bus list must be loaded first
-  displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
-  showPOIs();
-  getTrolleyData(scope);
-  loadTrolleyRoutes();
-  getTrolleyStops(scope);
-  getCitiBikes();
-  addDoralTrolleys();
-  addDoralTrolleyRoutes();
-  addMetroRail();
-  addMetroRailRoutes();
-  addMetroRailStations();
-  addMiamiBeachTrolleys();
-  addMiamiBeachTrolleyRoutes();
-  // Refresh Miami Transit API data every 5 seconds
-  setInterval(function() {
-    if (enableRefresh) callMiamiTransitAPI();
-  }, refreshTime);
-  if (!test) {
-    alert("Real-time data is unavailable. Check the Miami Transit website. Using sample data.");
-  }
 }
 
 function callMiamiTransitAPI() {
@@ -290,42 +243,52 @@ function callMiamiTransitAPI() {
   },1000);
 }
 
-// Create buses list from Miami Transit XML file
-function generateBusList(xmlDoc, realText) {
-  storeLiveBuses(scope, xmlDoc);
-  $xml = $( xmlDoc );
-  $BusID = $xml.find("BusID");
-  $BusName = $xml.find("BusName");
-  $Latitude = $xml.find("Latitude");
-  $Longitude = $xml.find("Longitude");
-  $TripHeadsign = $xml.find("TripHeadsign");
-  $LocationUpdated = $xml.find("LocationUpdated");
-  $TripID = $xml.find("TripID");
-  $RouteID = $xml.find("RouteID");
-  $ServiceDirection = $xml.find("ServiceDirection");
-  if (debug) console.log("BusID List length = "+$BusID.length);
+function generateBusList(data, realText) {
   var i = 0;
-  for (i = 0; i < $BusID.length; i++) {
+  var uniqueBusRoutes = [];
+  for (i = 0; i < data.length; i++) {
     // Add each bus to the map
     addBusMarker(
       busLayer,
-      $Latitude[i].textContent,
-      $Longitude[i].textContent,
-      $BusName[i].textContent,
-      $TripHeadsign[i].textContent,
-      $BusID[i].textContent,
-      $LocationUpdated[i].textContent,
+      data[i].Latitude,
+      data[i].Longitude,
+      data[i].BusName,
+      data[i].TripHeadsign,
+      data[i].BusID,
+      data[i].LocationUpdated,
       realText
     );
     // Add to the global trip-route-shape list
-    //console.log("Adding Trip ID to list: "+tripList[i].childNodes[0].nodeValue+" Trip list size = "+tripRouteShapeRef.length);
     tripRouteShapeRef[tripRouteShapeRef.length] = {
-      tripId: $TripID[i].textContent,
-      routeId: $RouteID[i].textContent,
+      tripId: data[i].TripID,
+      routeId: data[i].RouteID,
       shapeId: ""
     };
-    addRouteDirection($RouteID[i].textContent,$ServiceDirection[i].textContent);
+    addRouteDirection(data[i].RouteID,data[i].ServiceDirection);
+
+    // Filter out unique buses to display in bus stops table dropdown
+    var routeId = data[i].RouteID;
+    var serviceDirection = data[i].ServiceDirection;
+    var unique = true;
+    if (uniqueBusRoutes.length > 0) {
+      var j =0;
+      for (j = 0; j < uniqueBusRoutes.length; j++) {
+        if ((uniqueBusRoutes[j].RouteID === routeId) && (uniqueBusRoutes[j].ServiceDirection === serviceDirection)) {
+          // Found duplicate, don't add
+          unique = false;
+          break;
+        }
+      }
+    }
+    if (unique) {
+      uniqueBusRoutes.push({
+        RouteID : routeId,
+        ServiceDirection : serviceDirection
+      });
+    }
   }
+  scope.buses = data;
+  scope.uniqueBusRoutes = uniqueBusRoutes;
   scope.$apply();
 }
 
@@ -579,69 +542,6 @@ function addPOIMarker(layer, lat, lon, name, poiId, catId, catName, address) {
       { offset: new L.Point(0, -16) });
   layer.addLayer(marker);
   poiMapping[poiId] = marker;
-}
-
-/* Stores all data from xml files in the scope */
-
-function storeLiveBuses(scope, xmlDoc) {
-
-  $xml = $( xmlDoc );
-  $BusID = $xml.find("BusID");
-  $BusName = $xml.find("BusName");
-  $Latitude = $xml.find("Latitude");
-  $Longitude = $xml.find("Longitude");
-  $RouteID = $xml.find("RouteID");
-  $TripID = $xml.find("TripID");
-  //$Direction = $xml.find("Direction");
-  $ServiceDirection = $xml.find("ServiceDirection");
-  $Service = $xml.find("Service");
-  $ServiceName = $xml.find("ServiceName");
-  $TripHeadsign = $xml.find("TripHeadsign");
-  $LocationUpdated = $xml.find("LocationUpdated");
-
-  var count = $BusID.length;
-  var buses = [];
-  var uniqueBusRoutes = [];
-  for (i = 0; i < count; i++) {
-    // Add each bus to the list
-    buses[i] = {
-      BusID : $BusID[i].textContent,
-      BusName : $BusName[i].textContent,
-      Latitude : $Latitude[i].textContent,
-      Longitude : $Longitude[i].textContent,
-      RouteID : $RouteID[i].textContent,
-      TripID : $TripID[i].textContent,
-      //Direction : $Direction[i].textContent,
-      ServiceDirection : $ServiceDirection[i].textContent,
-      Service : $Service[i].textContent,
-      ServiceName : $ServiceName[i].textContent,
-      TripHeadsign : $TripHeadsign[i].textContent,
-      LocationUpdated : $LocationUpdated[i].textContent
-    };
-
-    // Filter out unique buses to display in bus stops table dropdown
-    var routeId = $RouteID[i].textContent;
-    var serviceDirection = $ServiceDirection[i].textContent;
-    var unique = true;
-    if (uniqueBusRoutes.length > 0) {
-      var j =0;
-      for (j = 0; j < uniqueBusRoutes.length; j++) {
-        if ((uniqueBusRoutes[j].RouteID === routeId) && (uniqueBusRoutes[j].ServiceDirection === serviceDirection)) {
-          // Found duplicate, don't add
-          unique = false;
-          break;
-        }
-      }
-    }
-    if (unique) {
-      uniqueBusRoutes.push({
-        RouteID : routeId,
-        ServiceDirection : serviceDirection
-      });
-    }
-  }
-  scope.buses = buses;
-  scope.uniqueBusRoutes = uniqueBusRoutes;
 }
 
 function getTrolleyData(scope) {
