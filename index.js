@@ -354,27 +354,23 @@ function addRouteDirection(route, serviceDirection) {
 
 
 function loadRouteColors() {
-  var xmlhttp=new XMLHttpRequest();
-  xmlhttp.open("GET","BusRoutes.xml",false);
-  xmlhttp.send();
-  xmlData=xmlhttp.responseXML;
-
-  storeBusRoutes(scope, xmlData);
-  $xml = $( xmlData );
-  $RouteID = $xml.find("RouteID");
-  $RouteColor = $xml.find("RouteColor");
-  var i = 0;
-  for (i = 0; i < $RouteID.length; i++) {
-    // Add to global ref list
-    // Data format is {tripId: "", routeId: "", shapeId: "", color: ""}
-    var route = $RouteID[i].textContent;
-    for (j = 0; j < tripRouteShapeRef.length; j++) {
-      if (tripRouteShapeRef[j].routeId == route) {
-        tripRouteShapeRef[j].color = $RouteColor[i].textContent;
+  $.getJSON(apiURL + 'api/BusRoutes.json',
+  function(data) {
+    var records = data.RecordSet.Record;
+    scope.routes = records;
+    var i = 0;
+    for (i = 0; i < records.length; i++) {
+      // Add to global ref list
+      // Data format is {tripId: "", routeId: "", shapeId: "", color: ""}
+      var route = records[i].RouteID;
+      for (j = 0; j < tripRouteShapeRef.length; j++) {
+        if (tripRouteShapeRef[j].routeId == route) {
+          tripRouteShapeRef[j].color = records[i].RouteColor;
+        }
       }
     }
-  }
-  scope.$apply();
+    scope.$apply();
+  });
 }
 
 function addBusMarker(layer, lat, lon, name, desc, id, time, realText) {
