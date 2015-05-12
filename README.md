@@ -21,7 +21,8 @@ The following data are shown
 * Citi bikes
 * Points of interest
 
-Data is retrieved directly from http://www.miamidade.gov/transit. During night-time when no data is returned, sample data is shown.
+Depends on https://github.com/CyberStrike/miami-transit-api to retrieve data from http://www.miamidade.gov/transit. During night-time when no data is returned, sample data is shown.  
+See http://miami-transit-api.herokuapp.com for API documentation.  
 
 #### Status
 Alpha. Still adding features from issues list.
