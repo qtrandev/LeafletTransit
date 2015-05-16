@@ -201,13 +201,13 @@ function init() {
   ]);
   $.getJSON(apiURL + 'api/Buses.json',
   function(data) {
-    var records = data.RecordSet.Record;
+    var records = data.RecordSet;
     loadBusData(records);
   });
 }
 
 function loadBusData(data) {
-  if (data !== null) generateBusList(data, "REAL-TIME");
+  if (data !== null) generateBusList(data.Record, "REAL-TIME");
   loadRouteColors(); // Bus list must be loaded first
   displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
   showPOIs();
@@ -545,28 +545,23 @@ function addPOIMarker(layer, lat, lon, name, poiId, catId, catName, address) {
 }
 
 function getTrolleyData(scope) {
-  var source = "http://miami.etaspot.net/service.php?service=get_vehicles&includeETAData=1&orderedETAArray=1&token=TESTING";
-  $.getJSON(
-       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-       (function(thisScope) {
-          return function(data) {
-            var trolleys = data.contents.get_vehicles;
-            var count = trolleys.length;
-            for (i = 0; i < count; i++) {
-              trolleys[i].receiveTime = (new Date(trolleys[i].receiveTime)).toLocaleString();
-              addTrolleyMarker(
-                trolleyLayer,
-                trolleys[i].lat,
-                trolleys[i].lng,
-                trolleys[i].equipmentID,
-                trolleys[i].routeID,
-                trolleys[i].receiveTime
-              );
-            }
-            scope.trolleys = trolleys;
-          };
-       }(scope))
-    );
+  $.getJSON( apiURL + 'api/trolley/vehicles.json',
+    function(data) {
+       var trolleys = data.get_vehicles;
+       var count = trolleys.length;
+       for (i = 0; i < count; i++) {
+         trolleys[i].receiveTime = (new Date(trolleys[i].receiveTime)).toLocaleString();
+         addTrolleyMarker(
+           trolleyLayer,
+           trolleys[i].lat,
+           trolleys[i].lng,
+           trolleys[i].equipmentID,
+           trolleys[i].routeID,
+           trolleys[i].receiveTime
+         );
+       }
+       scope.trolleys = trolleys;
+    });
 }
 
 function addTrolleyMarker(layer, lat, lng, equipmentID, routeID, receiveTime) {
@@ -600,26 +595,21 @@ function displayTrolleyRouteColors(layer, color, coords) {
 }
 
 function getTrolleyStops(scope) {
-  var source = "http://miami.etaspot.net/service.php?service=get_stops&includeETAData=1&orderedETAArray=1&token=TESTING";
-  $.getJSON(
-       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-       (function(thisScope) {
-          return function(data) {
-            var stops = data.contents.get_stops;
-            var count = stops.length;
-            for (i = 0; i < count; i++) {
-              addTrolleyStopMarker(
-                trolleyStopsLayer,
-                stops[i].lat,
-                stops[i].lng,
-                stops[i].name,
-                stops[i].id
-              );
-            }
-            scope.stops = stops;
-          };
-       }(scope))
-    );
+  $.getJSON( apiURL + 'api/trolley/stops.json',
+    function(data) {
+      var stops = data.get_stops;
+      var count = stops.length;
+      for (i = 0; i < count; i++) {
+        addTrolleyStopMarker(
+          trolleyStopsLayer,
+          stops[i].lat,
+          stops[i].lng,
+          stops[i].name,
+          stops[i].id
+        );
+      }
+      scope.stops = stops;
+  });
 }
 
 function addTrolleyStopMarker(layer, lat, lon, name, id) {
