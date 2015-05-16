@@ -352,81 +352,62 @@ function displayRoutesFromTripId(tripRefs) {
   if (debug) console.log("Trip refs length = "+tripRefs.length);
   var i = 0;
   for (i = 0; i < tripRefs.length; i++) {
-    // Send the request to get the shape ID for each trip ID
-    //if (debug) console.log("Sending request for shape ID with trip ID: "+tripRefs[i].tripId);
-    var source = 'http://www.miamidade.gov/transit/WebServices/BusRouteShapesByTrip/?TripID='+tripRefs[i].tripId;
-    $.getJSON(
-         'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-         (function(thistripId) {
-            return function(data) {
-              var shapeId = $.parseXML(data.contents).getElementsByTagName("ShapeID")[0].childNodes[0].nodeValue;
-        //if (debug) console.log("Shape ID retrieved: "+shapeId);
-        var routeId;
-        // Add shape ID into global trip reference list
-        // Data format is {tripId: "", routeId: "", shapeId: "", color: ""}
-        for (i = 0; i < tripRouteShapeRef.length; i++) {
-          if (tripRouteShapeRef[i].tripId == thistripId) {
-            tripRouteShapeRef[i].shapeId = shapeId;
-            routeId = tripRouteShapeRef[i].routeId;
-            //if (debug) console.log("Updated shape ID into global list for trip ID: "+tripRouteShapeRef[i].tripId);
-            break; // Can break since a separate request is sent for each trip ID
-          }
-        }
-        displayFromShapeId(shapeId, routeId);
-            };
-         }(tripRefs[i].tripId))
-      );
+  	// Send the request to get the shape ID for each trip ID
+    $.getJSON(apiURL + 'api/BusRouteShapesByTrip.json?TripID='+tripRefs[i].tripId,
+    (function(thistripId) {
+       return function(data) {
+         var records = data.RecordSet.Record;
+         var shapeId = records.ShapeID;
+         var routeId;
+         // Add shape ID into global trip reference list
+         // Data format is {tripId: "", routeId: "", shapeId: "", color: ""}
+         for (i = 0; i < tripRouteShapeRef.length; i++) {
+           if (tripRouteShapeRef[i].tripId == thistripId) {
+             tripRouteShapeRef[i].shapeId = shapeId;
+             routeId = tripRouteShapeRef[i].routeId;
+             break; // Can break since a separate request is sent for each trip ID
+           }
+         }
+         displayFromShapeId(shapeId, routeId);
+         };
+      }(tripRefs[i].tripId))
+    );
   }
 }
 
 // Retrieve lat/long list for each route's shape ID
 function displayFromShapeId(shapeId, routeId) {
-  var source = 'http://www.miamidade.gov/transit/WebServices/BusRouteShape/?ShapeID='+shapeId;
-  $.getJSON(
-       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-       (function(thisshapeId, thisRouteId) {
-          return function(data) {
-            //if (debug) console.log("Data received. Displaying route from the Shape ID: "+thisshapeId);
-            // Find the color for the route
+  $.getJSON(apiURL + 'api/BusRouteShape.json?ShapeID='+shapeId,
+    function(data) {
+      // Find the color for the route
       var color = "";
+      var records = data.RecordSet.Record;
       for (i = 0; i < tripRouteShapeRef.length; i++) {
-        if (tripRouteShapeRef[i].shapeId == thisshapeId) {
+        if (tripRouteShapeRef[i].shapeId == shapeId) {
           color = tripRouteShapeRef[i].color;
           break;
         }
       }
 
       if (displayedShapeIds.length === 0) { // Display the first shape ID
-        addRoutePoints(busLayer, '#'+color, $.parseXML(data.contents), thisRouteId);
-        addDisplayedShapeId(thisshapeId);
+        addRoutePoints(busLayer, '#'+color, records, routeId);
+        addDisplayedShapeId(shapeId);
       } else { // Check for any duplicate shape ID and not display
         for (var displayed in displayedShapeIds) {
-          if (displayed == thisshapeId) break;
-          addRoutePoints(busLayer, '#'+color, $.parseXML(data.contents), thisRouteId);
-          addDisplayedShapeId(thisshapeId);
+          if (displayed == shapeId) break;
+          addRoutePoints(busLayer, '#'+color, records, routeId);
+          addDisplayedShapeId(shapeId);
           break;
-          //if (debug) console.log("Added new shapeId: "+thisshapeId);
         }
       }
-      if (debug) console.log("tripRouteShapeRef length = "+tripRouteShapeRef.length);
-      if (debug) console.log("displayedShapeIds length = "+displayedShapeIds.length);
-          };
-       }(shapeId, routeId))
-    );
+    });
 }
 
 // Add all the route lines and colors to the map for each shape point list
-function addRoutePoints(layer, routeColor, xmlDoc, routeId) {
-  //if (debug) console.log("Added route points to map with color: "+routeColor);
-  var latList = xmlDoc.getElementsByTagName("Latitude");
-  var lonList = xmlDoc.getElementsByTagName("Longitude");
+function addRoutePoints(layer, routeColor, records, routeId) {
   var latlngs = [];
-  if (debug) console.log("latList length = "+latList.length);
-  for (i = 0; i < latList.length; i++) {
-    //L.marker([latList[i].childNodes[0].nodeValue, lonList[i].childNodes[0].nodeValue], {icon: myIcon2}).addTo(map).bindPopup(
-      //	'Route # '+route,
-      //	{ offset: new L.Point(0, -20) });
-    latlngs[latlngs.length] = (L.latLng(latList[i].childNodes[0].nodeValue, lonList[i].childNodes[0].nodeValue));
+  for (i = 0; i < records.length; i++) {
+    latlngs[latlngs.length] = (L.latLng(records[i].Latitude, records[i].Longitude));
   }
 
   var markerLine = L.polyline(latlngs, {color: routeColor});
