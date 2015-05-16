@@ -972,6 +972,7 @@ function addTSOTrolleyRouteLines(layer, points, routes) {
 function addMetroRail() {
   $.getJSON(apiURL + 'api/Trains.json',
   function(data) {
+    if (data.RecordSet === null) return; // No rail data at night
     var records = data.RecordSet.Record;
     var i = 0;
     for (i = 0; i < records.length; i++) {
