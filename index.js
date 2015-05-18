@@ -1194,8 +1194,8 @@ function addControlPane() {
       '<br><button onclick="showBusLayers()">Show Buses</button>  ' +
       '<button onclick="showTrolleyLayers()">Show Trolleys</button>  ' +
       '<button onclick="showRailLayers()">Show Rail</button>' +
-      '<br><br><button onclick="toggleLayers()">Toggle Layers</button>' +
-      '<br><br><button onclick="toggleRefresh()">Toggle Refresh</button>' +
+      '<br><br><button onclick="toggleLayers()">Toggle Layers</button>  ' +
+      '<button onclick="toggleRefresh()">Toggle Refresh</button>' +
       '<br><div id="slider"></div>';
   };
 
