@@ -1190,8 +1190,11 @@ function addControlPane() {
   };
 
   info.update = function () {
-    this._div.innerHTML = '<h4>Refresh Controls</h4>' +
-      '<br><button onclick="toggleLayers()">Toggle Layers</button>' +
+    this._div.innerHTML = '<h4>Map Controls</h4>' +
+      '<br><button onclick="showBusLayers()">Show Buses</button>  ' +
+      '<button onclick="showTrolleyLayers()">Show Trolleys</button>  ' +
+      '<button onclick="showRailLayers()">Show Rail</button>' +
+      '<br><br><button onclick="toggleLayers()">Toggle Layers</button>' +
       '<br><br><button onclick="toggleRefresh()">Toggle Refresh</button>' +
       '<br><div id="slider"></div>';
   };
@@ -1247,4 +1250,45 @@ function hideLayers() {
   map.removeLayer(miamiBeachTrolleyLayer);
   map.removeLayer(miamiTransitAPILayer);
   showAllLayers = true;
+}
+
+function showBusLayers() {
+  map.addLayer(busLayer);
+  map.addLayer(busStopsLayer);
+  map.removeLayer(poiLayer);
+  map.removeLayer(trolleyLayer);
+  map.removeLayer(trolleyStopsLayer);
+  map.removeLayer(bikeLayer);
+  map.removeLayer(nearbyLayer);
+  map.removeLayer(doralTrolleyLayer);
+  map.removeLayer(miamiBeachTrolleyLayer);
+  map.removeLayer(miamiTransitAPILayer);
+}
+
+function showTrolleyLayers() {
+  map.removeLayer(busLayer);
+  map.removeLayer(busStopsLayer);
+  map.removeLayer(metroRailLayer);
+  map.removeLayer(poiLayer);
+  map.removeLayer(bikeLayer);
+  map.removeLayer(nearbyLayer);
+  map.removeLayer(miamiTransitAPILayer);
+  map.addLayer(trolleyLayer);
+  map.addLayer(trolleyStopsLayer);
+  map.addLayer(doralTrolleyLayer);
+  map.addLayer(miamiBeachTrolleyLayer);
+}
+
+function showRailLayers() {
+  map.removeLayer(busLayer);
+  map.removeLayer(busStopsLayer);
+  map.addLayer(metroRailLayer);
+  map.removeLayer(poiLayer);
+  map.removeLayer(trolleyLayer);
+  map.removeLayer(trolleyStopsLayer);
+  map.removeLayer(bikeLayer);
+  map.removeLayer(nearbyLayer);
+  map.removeLayer(doralTrolleyLayer);
+  map.removeLayer(miamiBeachTrolleyLayer);
+  map.removeLayer(miamiTransitAPILayer);
 }
