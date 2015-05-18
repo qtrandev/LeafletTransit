@@ -1232,6 +1232,7 @@ function toggleRefresh() {
   enableRefresh = !enableRefresh;
   if (enableRefresh) {
     $(".info").show();
+    hideLayers();
     map.addLayer(miamiTransitAPILayer);
     callMiamiTransitAPI();
   } else {
@@ -1241,29 +1242,38 @@ function toggleRefresh() {
 
 function toggleLayers() {
   if (showAllLayers) {
-    map.addLayer(busLayer);
-    map.addLayer(busStopsLayer);
-    map.addLayer(metroRailLayer);
-    map.addLayer(poiLayer);
-    map.addLayer(trolleyLayer);
-    map.addLayer(trolleyStopsLayer);
-    map.addLayer(bikeLayer);
-    map.addLayer(nearbyLayer);
-    map.addLayer(doralTrolleyLayer);
-    map.addLayer(miamiBeachTrolleyLayer);
-    map.addLayer(miamiTransitAPILayer);
+    showLayers();
   } else {
-    map.removeLayer(busLayer);
-    map.removeLayer(busStopsLayer);
-    map.removeLayer(metroRailLayer);
-    map.removeLayer(poiLayer);
-    map.removeLayer(trolleyLayer);
-    map.removeLayer(trolleyStopsLayer);
-    map.removeLayer(bikeLayer);
-    map.removeLayer(nearbyLayer);
-    map.removeLayer(doralTrolleyLayer);
-    map.removeLayer(miamiBeachTrolleyLayer);
-    map.removeLayer(miamiTransitAPILayer);
+    hideLayers();
   }
-  showAllLayers = !showAllLayers;
+}
+
+function showLayers() {
+  map.addLayer(busLayer);
+  map.addLayer(busStopsLayer);
+  map.addLayer(metroRailLayer);
+  map.addLayer(poiLayer);
+  map.addLayer(trolleyLayer);
+  map.addLayer(trolleyStopsLayer);
+  map.addLayer(bikeLayer);
+  map.addLayer(nearbyLayer);
+  map.addLayer(doralTrolleyLayer);
+  map.addLayer(miamiBeachTrolleyLayer);
+  map.addLayer(miamiTransitAPILayer);
+  showAllLayers = false;
+}
+
+function hideLayers() {
+  map.removeLayer(busLayer);
+  map.removeLayer(busStopsLayer);
+  map.removeLayer(metroRailLayer);
+  map.removeLayer(poiLayer);
+  map.removeLayer(trolleyLayer);
+  map.removeLayer(trolleyStopsLayer);
+  map.removeLayer(bikeLayer);
+  map.removeLayer(nearbyLayer);
+  map.removeLayer(doralTrolleyLayer);
+  map.removeLayer(miamiBeachTrolleyLayer);
+  map.removeLayer(miamiTransitAPILayer);
+  showAllLayers = true;
 }
