@@ -670,75 +670,34 @@ function addBikeMarker(layer, lat, lng, id, address, bikes, dockings) {
 }
 
 function getNearBy(poiId, lat, lng) {
-  var source = "http://www.miamidade.gov/transit/WebServices/Nearby/?Lat="+lat+"&Long="+lng;
-  //var source = "http://www.miamidade.gov/transit/WebServices/PointsOfInterestTransit/?PointID="+poiId;
-  console.log("POI ID: "+poiId);
-  console.log(source);
-  processCachedNearby(poiId, lat, lng); //temp
-  return; //temp
-  $.getJSON(
-    'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-    (function(thisScope, thisPOI) {
-      return function(data) {
-        console.log(data.contents);
-        var xmlDoc = $.parseXML(data.contents);
-        $xml = $( xmlDoc );
-
-        $NearbyID = $xml.find("NearbyID");
-        if ($NearbyID.length > 0) {
-          console.log("Exit since we don't have code yet");
-          return;
-        } else {
-          processCachedNearby(thisPOI, lat, lng);
-        }
-      };
-    }(scope, poiId))
-  );
-}
-
-function processCachedNearby(poiId, lat, lng) {
-  var i = 0;
   if (nearbyCache.length > 0) {
     for (i = 0; i < nearbyCache.length; i++) {
       map.removeLayer(nearbyCache[i]);
     }
   }
-  var xmlhttp=new XMLHttpRequest();
-  xmlhttp.open("GET","./nearby/"+poiId+".xml",false);
-  xmlhttp.send();
-  if (xmlhttp.status!=200) {
-    console.log("No local file exists for POI ID "+poiId+". Not displaying POI info.");
-    return;
-  }
-  xmlDoc=xmlhttp.responseXML;
-  $xml = $( xmlDoc );
-
-  $NearbyID = $xml.find("NearbyID");
-  $NearbyName = $xml.find("NearbyName");
-  $NearbyType = $xml.find("NearbyType");
-  $Descr = $xml.find("Descr");
-  $Distance = $xml.find("Distance");
-  $Latitude = $xml.find("Latitude");
-  $Longitude = $xml.find("Longitude");
-  nearbyCache = [];
-  var bounds = [];
-  i = 0;
-  for (i = 0; i < $NearbyID.length; i++) {
-    addNearByMarker(
-      nearbyLayer,
-      $NearbyID[i].textContent,
-      $NearbyName[i].textContent,
-      $NearbyType[i].textContent,
-      $Descr[i].textContent,
-      $Distance[i].textContent,
-      $Latitude[i].textContent,
-      $Longitude[i].textContent,
-      lat,
-      lng
-    );
-    bounds[i] = [$Latitude[i].textContent,$Longitude[i].textContent];
-  }
-  map.fitBounds(bounds);
+  $.getJSON(apiURL + 'api/Nearby.json?Lat='+lat+'&Long='+lng,
+    function(data) {
+      var records = data.RecordSet.Record;
+      nearbyCache = [];
+      var bounds = [];
+      for (i = 0; i < records.length; i++) {
+        addNearByMarker(
+          nearbyLayer,
+          records[i].NearbyID,
+          records[i].NearbyName,
+          records[i].NearbyType,
+          records[i].Descr,
+          records[i].Distance,
+          records[i].Latitude,
+          records[i].Longitude,
+          lat,
+          lng
+        );
+        bounds[i] = [records[i].Latitude,records[i].Longitude];
+      }
+      map.fitBounds(bounds);
+    }
+  );
 }
 
 function addNearByMarker(layer, NearbyID, NearbyName, NearbyType, Descr, Distance, Latitude, Longitude, sourceLat, sourceLng) {
