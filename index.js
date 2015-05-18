@@ -1124,7 +1124,7 @@ function loadMiamiTransitAPIBuses() {
       // Check refresh display cache to display past bus locations
       var cache = refreshDisplayCache.Buses[records[i].BusID];
       if (cache !== undefined) {
-        displayCachedBuses(miamiTransitAPILayer, cache);
+
         // Only push to refresh display cache if position changed
         var lastBus = cache[cache.length-1];
         if (!((lastBus.Latitude === records[i].Latitude) && (lastBus.Longitude === records[i].Longitude))) {
@@ -1135,51 +1135,21 @@ function loadMiamiTransitAPIBuses() {
         cache = [records[i]];
         refreshDisplayCache.Buses[records[i].BusID] = cache;
       }
-      addMiamiTransitAPIBusesMarker(
-        miamiTransitAPILayer,
-        records[i].BusID,
-        records[i].BusName,
-        records[i].Latitude,
-        records[i].Longitude,
-        records[i].RouteID,
-        records[i].TripID,
-        records[i].Direction,
-        records[i].ServiceDirection,
-        records[i].Service,
-        records[i].ServiceName,
-        records[i].TripHeadsign,
-        records[i].LocationUpdated);
+      displayCachedBuses(miamiTransitAPILayer, cache[cache.length-1]);
+
     }
   });
 }
 
-function addMiamiTransitAPIBusesMarker(
-  layer, BusID, BusName, Latitude, Longitude, RouteID, TripID, Direction,
-  ServiceDirection, Service, ServiceName, TripHeadsign, LocationUpdated) {
-  var marker = L.marker([Latitude, Longitude], {icon: busIconAqua}).bindPopup(
-      '<strong>Miami Transit API Bus</strong>' +
-      '<br/><br/>Bus ID: ' + BusID +
-      '<br/>Bus Name: ' + BusName +
-      '<br/>Trip ID: ' + TripID +
-      '<br/>Trip: ' + TripHeadsign +
-      '<br/>Service: ' + Service +
-      '<br/>Service Name: ' + ServiceName +
-      '<br/>Service Direction: ' + ServiceDirection +
-      '<br/>Location Updated: ' + LocationUpdated,
-      { offset: new L.Point(0, -22) });
-  marker.addTo(layer);
-  miamiTransitAPIMarkers.push(marker);
+function displayCachedBuses(layer, bus) {
+  addMiamiTransitAPIBusesMarker(layer, bus, false);
+  addMiamiTransitAPIBusesMarker(layer, bus, true);
 }
 
-function displayCachedBuses(layer, cache) {
-  var i = 0;
-  for (i = 0; i < cache.length; i++) {
-    displayCachedBusIcon(layer, cache[i]);
-  }
-}
-
-function displayCachedBusIcon(layer, bus) {
-  var marker = L.marker([bus.Latitude, bus.Longitude], {icon: busIconGray, zIndexOffset: -100}).bindPopup(
+function addMiamiTransitAPIBusesMarker(layer, bus, latestBus) {
+  var options = latestBus? {icon: busIconAqua} : {icon: busIconGray, zIndexOffset: -100};
+  var offset = latestBus? { offset: new L.Point(0, -22) } : { offset: new L.Point(0, -15) };
+  var marker = L.marker([bus.Latitude, bus.Longitude], options).bindPopup(
       '<strong>Miami Transit API Bus</strong>' +
       '<br/><br/>Bus ID: ' + bus.BusID +
       '<br/>Bus Name: ' + bus.BusName +
@@ -1189,8 +1159,9 @@ function displayCachedBusIcon(layer, bus) {
       '<br/>Service Name: ' + bus.ServiceName +
       '<br/>Service Direction: ' + bus.ServiceDirection +
       '<br/>Location Updated: ' + bus.LocationUpdated,
-      { offset: new L.Point(0, -15) });
+      offset);
   marker.addTo(layer);
+  if (latestBus) miamiTransitAPIMarkers.push(marker);
 }
 
 function displayCachedBusLines(layer, cache) {
