@@ -211,6 +211,7 @@ function init() {
   ]);
   $.getJSON(apiURL + 'api/Buses.json',
   function(data) {
+    $("#wait").hide();
     var records = data.RecordSet;
     loadBusData(records);
   });
@@ -1205,12 +1206,12 @@ function addControlPane() {
 function toggleRefresh() {
   enableRefresh = !enableRefresh;
   if (enableRefresh) {
-    $(".info").show();
+    $("#refresh").show();
     hideLayers();
     map.addLayer(miamiTransitAPILayer);
     callMiamiTransitAPI();
   } else {
-    $(".info").hide();
+    $("#refresh").hide();
   }
 }
 
