@@ -81,6 +81,13 @@ var busIconAqua = L.icon({
     iconAnchor: [22, 22]
 });
 
+// Intialize gray bus icon
+var busIconGray = L.icon({
+    iconUrl: 'icons/icon-Bus-Tracker-gray.png',
+    iconSize: [44, 44],
+    iconAnchor: [22, 22]
+});
+
 // Intialize bus stop icon
 var busStopIcon = L.icon({
     iconUrl: 'icons/icon-Bus-Stop.png',
@@ -186,6 +193,9 @@ var refreshTime = 5000;
 
 // Cache Miami Transit API markers
 var miamiTransitAPIMarkers = [];
+
+// Cache old locations of buses and trolleys to display history
+var refreshDisplayCache = [];
 
 // Base URL for API server
 var apiURL = 'https://miami-transit-api.herokuapp.com/';
@@ -1105,22 +1115,36 @@ function addBusTrackingGPSMarker(layer, lat, lon, speed, bustime) {
 function loadMiamiTransitAPIBuses() {
   $.getJSON(apiURL+'buses.json',
   function(data) {
+    if (refreshDisplayCache.Buses === undefined) {
+      refreshDisplayCache.Buses = [];
+    }
+    var records = data.RecordSet.Record;
     var i = 0;
-    for (i = 0; i < data.RecordSet.Record.length; i++) {
+    for (i = 0; i < records.length; i++) {
+      // Check refresh display cache to display past bus locations
+      var cache = refreshDisplayCache.Buses[records[i].BusID];
+      if (cache !== undefined) {
+        displayCachedBuses(miamiTransitAPILayer, cache);
+        cache.push(records[i]);
+        displayCachedBusLines(miamiTransitAPILayer, cache);
+      } else {
+        cache = [records[i]];
+        refreshDisplayCache.Buses[records[i].BusID] = cache;
+      }
       addMiamiTransitAPIBusesMarker(
         miamiTransitAPILayer,
-        data.RecordSet.Record[i].BusID,
-        data.RecordSet.Record[i].BusName,
-        data.RecordSet.Record[i].Latitude,
-        data.RecordSet.Record[i].Longitude,
-        data.RecordSet.Record[i].RouteID,
-        data.RecordSet.Record[i].TripID,
-        data.RecordSet.Record[i].Direction,
-        data.RecordSet.Record[i].ServiceDirection,
-        data.RecordSet.Record[i].Service,
-        data.RecordSet.Record[i].ServiceName,
-        data.RecordSet.Record[i].TripHeadsign,
-        data.RecordSet.Record[i].LocationUpdated);
+        records[i].BusID,
+        records[i].BusName,
+        records[i].Latitude,
+        records[i].Longitude,
+        records[i].RouteID,
+        records[i].TripID,
+        records[i].Direction,
+        records[i].ServiceDirection,
+        records[i].Service,
+        records[i].ServiceName,
+        records[i].TripHeadsign,
+        records[i].LocationUpdated);
     }
   });
 }
@@ -1141,6 +1165,29 @@ function addMiamiTransitAPIBusesMarker(
       { offset: new L.Point(0, -22) });
   marker.addTo(layer);
   miamiTransitAPIMarkers.push(marker);
+}
+
+function displayCachedBuses(layer, cache) {
+  var i = 0;
+  for (i = 0; i < cache.length; i++) {
+    displayCachedBusIcon(layer, cache[i].Latitude, cache[i].Longitude);
+  }
+}
+
+function displayCachedBusIcon(layer, Latitude, Longitude) {
+  var marker = L.marker([Latitude, Longitude], {icon: busIconGray});
+  marker.addTo(layer);
+}
+
+function displayCachedBusLines(layer, cache) {
+  var latlngs = [];
+  var i = 0;
+  for (i = 0; i < cache.length; i++) {
+    latlngs.push(L.latLng(cache[i].Latitude, cache[i].Longitude));
+  }
+
+  var markerLine = L.polyline(latlngs, {color: 'aqua'});
+  markerLine.addTo(layer);
 }
 
 $(document).ready(function(){
