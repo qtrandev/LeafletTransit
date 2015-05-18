@@ -244,7 +244,7 @@ function callMiamiTransitAPI() {
     for (i = 0; i < miamiTransitAPIMarkers.length; i++) {
       map.removeLayer(miamiTransitAPIMarkers[i]);
     }
-    miamiTransitAPIMarkers.length = 0; // Clear array
+    //miamiTransitAPIMarkers.length = 0; // Clear array
   }
   setTimeout(function(){
     // Wait 1 second before adding back the markers on the map
