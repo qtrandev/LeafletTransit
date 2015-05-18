@@ -84,8 +84,8 @@ var busIconAqua = L.icon({
 // Intialize gray bus icon
 var busIconGray = L.icon({
     iconUrl: 'icons/icon-Bus-Tracker-gray.png',
-    iconSize: [44, 44],
-    iconAnchor: [22, 22]
+    iconSize: [33, 33],
+    iconAnchor: [15, 15]
 });
 
 // Intialize bus stop icon
@@ -1125,7 +1125,11 @@ function loadMiamiTransitAPIBuses() {
       var cache = refreshDisplayCache.Buses[records[i].BusID];
       if (cache !== undefined) {
         displayCachedBuses(miamiTransitAPILayer, cache);
-        cache.push(records[i]);
+        // Only push to refresh display cache if position changed
+        var lastBus = cache[cache.length-1];
+        if (!((lastBus.Latitude === records[i].Latitude) && (lastBus.Longitude === records[i].Longitude))) {
+          cache.push(records[i]);
+        }
         displayCachedBusLines(miamiTransitAPILayer, cache);
       } else {
         cache = [records[i]];
@@ -1170,12 +1174,22 @@ function addMiamiTransitAPIBusesMarker(
 function displayCachedBuses(layer, cache) {
   var i = 0;
   for (i = 0; i < cache.length; i++) {
-    displayCachedBusIcon(layer, cache[i].Latitude, cache[i].Longitude);
+    displayCachedBusIcon(layer, cache[i]);
   }
 }
 
-function displayCachedBusIcon(layer, Latitude, Longitude) {
-  var marker = L.marker([Latitude, Longitude], {icon: busIconGray});
+function displayCachedBusIcon(layer, bus) {
+  var marker = L.marker([bus.Latitude, bus.Longitude], {icon: busIconGray, zIndexOffset: -100}).bindPopup(
+      '<strong>Miami Transit API Bus</strong>' +
+      '<br/><br/>Bus ID: ' + bus.BusID +
+      '<br/>Bus Name: ' + bus.BusName +
+      '<br/>Trip ID: ' + bus.TripID +
+      '<br/>Trip: ' + bus.TripHeadsign +
+      '<br/>Service: ' + bus.Service +
+      '<br/>Service Name: ' + bus.ServiceName +
+      '<br/>Service Direction: ' + bus.ServiceDirection +
+      '<br/>Location Updated: ' + bus.LocationUpdated,
+      { offset: new L.Point(0, -15) });
   marker.addTo(layer);
 }
 
@@ -1219,6 +1233,7 @@ function toggleRefresh() {
   if (enableRefresh) {
     $(".info").show();
     map.addLayer(miamiTransitAPILayer);
+    callMiamiTransitAPI();
   } else {
     $(".info").hide();
   }
