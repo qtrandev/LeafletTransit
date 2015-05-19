@@ -197,6 +197,9 @@ var miamiTransitAPIMarkers = [];
 // Cache old locations of buses and trolleys to display history
 var refreshDisplayCache = [];
 
+// Cache markers
+var cachedMarkers = [];
+
 // Base URL for API server
 var apiURL = 'https://miami-transit-api.herokuapp.com/';
 
@@ -1125,7 +1128,6 @@ function loadMiamiTransitAPIBuses() {
       // Check refresh display cache to display past bus locations
       var cache = refreshDisplayCache.Buses[records[i].BusID];
       if (cache !== undefined) {
-
         // Only push to refresh display cache if position changed
         var lastBus = cache[cache.length-1];
         if (!((lastBus.Latitude === records[i].Latitude) && (lastBus.Longitude === records[i].Longitude))) {
@@ -1137,7 +1139,6 @@ function loadMiamiTransitAPIBuses() {
         refreshDisplayCache.Buses[records[i].BusID] = cache;
       }
       displayCachedBuses(miamiTransitAPILayer, cache[cache.length-1]);
-
     }
   });
 }
@@ -1148,6 +1149,13 @@ function displayCachedBuses(layer, bus) {
 }
 
 function addMiamiTransitAPIBusesMarker(layer, bus, latestBus) {
+  if (latestBus) {
+    if (cachedMarkers[bus.BusID] !== undefined) {
+      var currentMarker = cachedMarkers[bus.BusID];
+      currentMarker.setLatLng(L.latLng(bus.Latitude, bus.Longitude));
+      return;
+    }
+  }
   var options = latestBus? {icon: busIconAqua} : {icon: busIconGray, zIndexOffset: -100};
   var offset = latestBus? { offset: new L.Point(0, -22) } : { offset: new L.Point(0, -15) };
   var marker = L.marker([bus.Latitude, bus.Longitude], options).bindPopup(
@@ -1162,7 +1170,7 @@ function addMiamiTransitAPIBusesMarker(layer, bus, latestBus) {
       '<br/>Location Updated: ' + bus.LocationUpdated,
       offset);
   marker.addTo(layer);
-  if (latestBus) miamiTransitAPIMarkers.push(marker);
+  if (latestBus) cachedMarkers[bus.BusID] = marker;
 }
 
 function displayCachedBusLines(layer, cache) {
@@ -1256,6 +1264,7 @@ function hideLayers() {
 function showBusLayers() {
   map.addLayer(busLayer);
   map.addLayer(busStopsLayer);
+  map.removeLayer(metroRailLayer);
   map.removeLayer(poiLayer);
   map.removeLayer(trolleyLayer);
   map.removeLayer(trolleyStopsLayer);
