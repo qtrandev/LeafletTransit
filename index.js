@@ -246,9 +246,9 @@ function callMiamiTransitAPI() {
   if (miamiTransitAPIMarkers.length > 0) {
     var i = 0;
     for (i = 0; i < miamiTransitAPIMarkers.length; i++) {
-      map.removeLayer(miamiTransitAPIMarkers[i]);
+      miamiTransitAPILayer.removeLayer(miamiTransitAPIMarkers[i]);
     }
-    //miamiTransitAPIMarkers.length = 0; // Clear array
+    miamiTransitAPIMarkers = []; // Clear array
   }
   setTimeout(function(){
     // Wait 1 second before adding back the markers on the map
@@ -1156,7 +1156,7 @@ function addMiamiTransitAPIBusesMarker(layer, bus, latestBus) {
       return;
     }
   }
-  var options = latestBus? {icon: busIconAqua} : {icon: busIconGray, zIndexOffset: -100};
+  var options = latestBus? {icon: busIconAqua} : {icon: busIconGray, zIndexOffset: -90};
   var offset = latestBus? { offset: new L.Point(0, -22) } : { offset: new L.Point(0, -15) };
   var marker = L.marker([bus.Latitude, bus.Longitude], options).bindPopup(
       '<strong>Miami Transit API Bus</strong>' +
