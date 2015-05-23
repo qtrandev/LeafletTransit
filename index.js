@@ -200,6 +200,7 @@ refreshDisplayCache.BusGPS = [];
 var cachedMarkers = [];
 var cachedBusGPSMarkers = [];
 var cachedMetroRailMarkers = [];
+var cachedMDTBusMarkers = [];
 var fakePositionOffset = 0.0;
 
 // Base URL for API server
@@ -248,6 +249,7 @@ function callMiamiTransitAPI() {
   loadBusTrackingGPSData();
   loadMiamiTransitAPIBuses();
   addMetroRail();
+  refreshMDTBuses();
 }
 
 function generateBusList(data, realText) {
@@ -350,9 +352,7 @@ function addBusMarker(layer, lat, lon, name, desc, id, time, realText) {
       { offset: new L.Point(0, 0) });
   marker.addTo(layer);
   busMapping[id] = marker;
-
-  var marker2 = L.circleMarker(L.latLng(lat, lon), {color: 'aqua', radius: 23});
-  marker2.addTo(layer);
+  cachedMDTBusMarkers[id] = marker;
 }
 
 function displayRoutesFromTripId(tripRefs) {
@@ -1354,6 +1354,19 @@ function flashMarker(layer, marker) {
   setInterval(function() {
     map.removeLayer(circleMarker);
   }, 2000);
+}
 
-
+function refreshMDTBuses() {
+  $.getJSON(apiURL + 'api/Buses.json',
+  function(data) {
+    var records = data.RecordSet.Record;
+    var i = 0;
+    for (i = 0; i < records.length; i++) {
+      if (cachedMDTBusMarkers[records[i].BusID] !== undefined) {
+        var currentMarker = cachedMDTBusMarkers[records[i].BusID];
+        currentMarker.setLatLng(L.latLng(records[i].Latitude, records[i].Longitude));
+        flashMarker(busLayer, currentMarker);
+      }
+    }
+  });
 }
