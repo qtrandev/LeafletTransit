@@ -191,14 +191,17 @@ var cityTrolley = "";
 // Refresh time for Miami Transit API
 var refreshTime = 5000;
 
-// Cache Miami Transit API markers
-var miamiTransitAPIMarkers = [];
-
 // Cache old locations of buses and trolleys to display history
 var refreshDisplayCache = [];
+refreshDisplayCache.Buses = [];
+refreshDisplayCache.BusGPS = [];
 
 // Cache markers
 var cachedMarkers = [];
+
+// Cache Bus GPS markers
+var cachedBusGPSMarkers = [];
+var fakePositionOffset = 0.0;
 
 // Base URL for API server
 var apiURL = 'https://miami-transit-api.herokuapp.com/';
@@ -243,18 +246,8 @@ function loadBusData(data) {
 }
 
 function callMiamiTransitAPI() {
-  if (miamiTransitAPIMarkers.length > 0) {
-    var i = 0;
-    for (i = 0; i < miamiTransitAPIMarkers.length; i++) {
-      miamiTransitAPILayer.removeLayer(miamiTransitAPIMarkers[i]);
-    }
-    miamiTransitAPIMarkers = []; // Clear array
-  }
-  setTimeout(function(){
-    // Wait 1 second before adding back the markers on the map
-    loadBusTrackingGPSData();
-    loadMiamiTransitAPIBuses();
-  },1000);
+  loadBusTrackingGPSData();
+  loadMiamiTransitAPIBuses();
 }
 
 function generateBusList(data, realText) {
@@ -1090,27 +1083,65 @@ function addMiamiBeachTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longi
 function loadBusTrackingGPSData() {
   $.getJSON(apiURL+'tracker.json',
   function(data) {
+  	if (refreshDisplayCache.BusGPS === undefined) {
+      refreshDisplayCache.BusGPS = [];
+    }
+    var records = data.features;
+    //fakePositionOffset+=0.002;
+    //records[0].properties.lon = records[0].properties.lon*1 - fakePositionOffset;
     var i = 0;
-    for (i = 0; i < data.features.length; i++) {
+    for (i = 0; i < records.length; i++) {
+      // Check refresh display cache to display past bus locations
+      var cache = refreshDisplayCache.BusGPS[records[i].properties.BusID];
+      if (cache !== undefined) {
+        // Only push to refresh display cache if position changed
+        var lastBus = cache[cache.length-1];
+        if (!((lastBus.properties.lat === records[i].properties.lat) && (lastBus.properties.lon === records[i].properties.lon))) {
+          cache.push(records[i]);
+        }
+        displayCachedBusGPSLines(miamiTransitAPILayer, cache);
+      } else {
+        cache = [records[i]];
+        refreshDisplayCache.BusGPS[records[i].properties.BusID] = cache;
+      }
+      displayCachedGPSBuses(miamiTransitAPILayer, cache[cache.length-1]);
       addBusTrackingGPSMarker(
         miamiTransitAPILayer,
-        data.features[i].properties.lat,
-        data.features[i].properties.lon,
-        data.features[i].properties.speed,
-        data.features[i].properties.bustime);
+        records[i].properties.BusID,
+        records[i].properties.lat,
+        records[i].properties.lon,
+        records[i].properties.speed,
+        records[i].properties.bustime);
     }
   });
 }
 
-function addBusTrackingGPSMarker(layer, lat, lon, speed, bustime) {
+function displayCachedGPSBuses(layer, record) {
+  var marker = L.marker([record.properties.lat, record.properties.lon], {icon: busIconGray, zIndexOffset: -90}).bindPopup(
+      '<strong>Bus Tracking GPS</strong>'+
+      '<br /><br />Bus ID: ' +record.properties.BusID+
+      '<br />Speed: ' +record.properties.speed+ ' MPH'+
+      '<br />Bus Time: '+record.properties.bustime,
+      { offset: new L.Point(0, -15) });
+  marker.addTo(layer);
+}
+
+function addBusTrackingGPSMarker(layer, BusID, lat, lon, speed, bustime) {
   try {
+    if (cachedBusGPSMarkers[BusID] !== undefined) {
+      var currentMarker = cachedBusGPSMarkers[BusID];
+      currentMarker.setLatLng(L.latLng(lat, lon));
+      flashMarker(layer, currentMarker);
+      return;
+    }
     var marker = L.marker([lat, lon], {icon: busIconBlue}).bindPopup(
         '<strong>Bus Tracking GPS</strong>'+
-		'<br /><br />Speed: ' +speed+ ' MPH'+
+		    '<br /><br />Bus ID: ' +BusID+
+        '<br />Speed: ' +speed+ ' MPH'+
         '<br />Bus Time: '+bustime,
         { offset: new L.Point(0, -22) });
     marker.addTo(layer);
-    miamiTransitAPIMarkers.push(marker);
+    cachedBusGPSMarkers[BusID] = marker;
   } catch (e) {
     console.log("Cannot add marker in addBusTrackingGPSMarker. Lat: "+lat+" Lon: "+lon+" Error: "+e);
   }
@@ -1153,6 +1184,7 @@ function addMiamiTransitAPIBusesMarker(layer, bus, latestBus) {
     if (cachedMarkers[bus.BusID] !== undefined) {
       var currentMarker = cachedMarkers[bus.BusID];
       currentMarker.setLatLng(L.latLng(bus.Latitude, bus.Longitude));
+      flashMarker(layer, currentMarker);
       return;
     }
   }
@@ -1179,8 +1211,20 @@ function displayCachedBusLines(layer, cache) {
   for (i = 0; i < cache.length; i++) {
     latlngs.push(L.latLng(cache[i].Latitude, cache[i].Longitude));
   }
+  displayLines(layer, latlngs, 'aqua');
+}
 
-  var markerLine = L.polyline(latlngs, {color: 'aqua'});
+function displayCachedBusGPSLines(layer, cache) {
+  var latlngs = [];
+  var i = 0;
+  for (i = 0; i < cache.length; i++) {
+    latlngs.push(L.latLng(cache[i].properties.lat, cache[i].properties.lon));
+  }
+  displayLines(layer, latlngs, 'aqua');
+}
+
+function displayLines(layer, latlngs, color) {
+  var markerLine = L.polyline(latlngs, {color: color});
   markerLine.addTo(layer);
 }
 
@@ -1204,7 +1248,7 @@ function addControlPane() {
       '<button onclick="showTrolleyLayers()">Show Trolleys</button>  ' +
       '<button onclick="showRailLayers()">Show Rail</button>' +
       '<br><br><button onclick="toggleLayers()">Toggle Layers</button>  ' +
-      '<button onclick="toggleRefresh()">Toggle Refresh</button>' +
+      '<button onclick="toggleRefresh()">Bus GPS Toggle Refresh</button>' +
       '<br><div id="slider"></div>';
   };
 
@@ -1301,4 +1345,14 @@ function showRailLayers() {
   map.removeLayer(doralTrolleyLayer);
   map.removeLayer(miamiBeachTrolleyLayer);
   map.removeLayer(miamiTransitAPILayer);
+}
+
+function flashMarker(layer, marker) {
+  var circleMarker = L.circleMarker(marker.getLatLng(), {color: 'aqua', radius: 23});
+  circleMarker.addTo(layer);
+  setInterval(function() {
+    map.removeLayer(circleMarker);
+  }, 2000);
+
+
 }
