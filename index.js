@@ -113,7 +113,7 @@ var metroRailStationIcon = L.icon({
 var trolleyIcon = L.icon({
     iconUrl: 'icons/icon-Trolley-Tracker.png',
     iconSize: [44, 44],
-    iconAnchor: [22, 44]
+    iconAnchor: [22, 22]
 });
 
 // Trolley stop icon
@@ -201,6 +201,7 @@ var cachedMarkers = [];
 var cachedBusGPSMarkers = [];
 var cachedMetroRailMarkers = [];
 var cachedMDTBusMarkers = [];
+var cachedMiamiTrolleyMarkers = [];
 var fakePositionOffset = 0.0;
 
 // Base URL for API server
@@ -250,6 +251,7 @@ function callMiamiTransitAPI() {
   loadMiamiTransitAPIBuses();
   addMetroRail();
   refreshMDTBuses();
+  refreshMiamiTrolleys();
 }
 
 function generateBusList(data, realText) {
@@ -557,8 +559,9 @@ function addTrolleyMarker(layer, lat, lng, equipmentID, routeID, receiveTime) {
       'Trolley # '+equipmentID+
       '<br />Route: '+routeID+
       '<br />Received Time: '+receiveTime,
-      { offset: new L.Point(0, -22) });
+      { offset: new L.Point(0, 0) });
   marker.addTo(layer);
+  cachedMiamiTrolleyMarkers[equipmentID] = marker;
 }
 
 function loadTrolleyRoutes() {
@@ -1266,8 +1269,8 @@ function toggleRefresh() {
     $("#refresh").show();
     hideLayers();
     map.addLayer(busLayer);
-    map.addLayer(busStopsLayer);
     map.addLayer(metroRailLayer);
+    map.addLayer(trolleyLayer);
     map.addLayer(miamiTransitAPILayer);
     callMiamiTransitAPI();
   } else {
@@ -1376,4 +1379,19 @@ function refreshMDTBuses() {
       }
     }
   });
+}
+
+function refreshMiamiTrolleys() {
+  $.getJSON( apiURL + 'api/trolley/vehicles.json',
+    function(data) {
+       var trolleys = data.get_vehicles;
+       var i = 0;
+       for (i = 0; i < trolleys.length; i++) {
+         if (cachedMiamiTrolleyMarkers[trolleys[i].equipmentID] !== undefined) {
+           var currentMarker = cachedMiamiTrolleyMarkers[trolleys[i].equipmentID];
+           currentMarker.setLatLng(L.latLng(trolleys[i].lat, trolleys[i].lng));
+           flashMarker(trolleyLayer, currentMarker);
+         }
+       }
+    });
 }
