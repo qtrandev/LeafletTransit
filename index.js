@@ -203,6 +203,7 @@ var cachedMetroRailMarkers = [];
 var cachedMDTBusMarkers = [];
 var cachedMiamiTrolleyMarkers = [];
 var cachedDoralTrolleyMarkers = [];
+var cachedMiamiBeachTrolleyMarkers = [];
 var fakePositionOffset = 0.0;
 
 // Base URL for API server
@@ -254,6 +255,7 @@ function callMiamiTransitAPI() {
   refreshMDTBuses();
   refreshMiamiTrolleys();
   addDoralTrolleys();
+  addMiamiBeachTrolleys();
 }
 
 function generateBusList(data, realText) {
@@ -1097,10 +1099,17 @@ function handleMiamiBeachTrolleyCallback(data) {
 }
 
 function addMiamiBeachTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longitude, Direction, Heading) {
+  if (cachedMiamiBeachTrolleyMarkers[MarkerID] !== undefined) {
+    var currentMarker = cachedMiamiBeachTrolleyMarkers[MarkerID];
+    currentMarker.setLatLng(L.latLng(Latitude, Longitude));
+    flashMarker(layer, currentMarker);
+    return;
+  }
   var marker = L.marker([Latitude, Longitude], {icon: miamiBeachTrolleyIcon, zIndexOffset: 100}).bindPopup(
       '<strong>Miami Beach Trolley ' + MarkerName + '</strong><br><br>ID: ' + MarkerID + '<br>Direction: ' +  Direction,
       { offset: new L.Point(0, -22) });
   layer.addLayer(marker);
+  cachedMiamiBeachTrolleyMarkers[MarkerID] = marker;
 }
 
 function loadBusTrackingGPSData() {
@@ -1283,6 +1292,7 @@ function toggleRefresh() {
     map.addLayer(trolleyLayer);
     map.addLayer(miamiTransitAPILayer);
     map.addLayer(doralTrolleyLayer);
+    map.addLayer(miamiBeachTrolleyLayer);
     callMiamiTransitAPI();
   } else {
     $("#refresh").hide();
