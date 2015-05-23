@@ -1256,7 +1256,8 @@ function addControlPane() {
       '<button onclick="showTrolleyLayers()">Show Trolleys</button>  ' +
       '<button onclick="showRailLayers()">Show Rail</button>' +
       '<br><br><button onclick="toggleLayers()">Show/Hide All</button>  ' +
-      '<button onclick="toggleRefresh()">Enable/Disable Refresh</button>' +
+      '<button onclick="showBusGPS()">Show Bus GPS</button>' +
+      '<br><br><button onclick="toggleRefresh()">Enable/Disable Refresh</button>' +
       '<br><div id="slider"></div>';
   };
 
@@ -1356,6 +1357,14 @@ function showRailLayers() {
   map.removeLayer(doralTrolleyLayer);
   map.removeLayer(miamiBeachTrolleyLayer);
   map.removeLayer(miamiTransitAPILayer);
+}
+
+function showBusGPS() {
+  enableRefresh = true;
+  $("#refresh").show();
+  hideLayers();
+  map.addLayer(miamiTransitAPILayer);
+  callMiamiTransitAPI();
 }
 
 function flashMarker(layer, marker) {
