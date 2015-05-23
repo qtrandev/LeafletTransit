@@ -191,16 +191,15 @@ var cityTrolley = "";
 // Refresh time for Miami Transit API
 var refreshTime = 5000;
 
-// Cache old locations of buses and trolleys to display history
+// Cache old locations of buses to display history
 var refreshDisplayCache = [];
 refreshDisplayCache.Buses = [];
 refreshDisplayCache.BusGPS = [];
 
 // Cache markers
 var cachedMarkers = [];
-
-// Cache Bus GPS markers
 var cachedBusGPSMarkers = [];
+var cachedMetroRailMarkers = [];
 var fakePositionOffset = 0.0;
 
 // Base URL for API server
@@ -248,6 +247,7 @@ function loadBusData(data) {
 function callMiamiTransitAPI() {
   loadBusTrackingGPSData();
   loadMiamiTransitAPIBuses();
+  addMetroRail();
 }
 
 function generateBusList(data, realText) {
@@ -939,6 +939,12 @@ function addMetroRail() {
 }
 
 function addMetroRailMarker(layer, Latitude, Longitude, TrainID, LineID, Cars, Direction, ServiceDirection, LocationUpdated) {
+  if (cachedMetroRailMarkers[TrainID] !== undefined) {
+      var currentMarker = cachedMetroRailMarkers[TrainID];
+      currentMarker.setLatLng(L.latLng(Latitude, Longitude));
+      flashMarker(layer, currentMarker);
+      return;
+    }
   var marker = L.marker([Latitude, Longitude], {icon: metroRailIcon, zIndexOffset: 100}).bindPopup(
       '<strong>Metro Rail Train ' + TrainID +
       '<br>Line: ' + LineID +
@@ -948,6 +954,7 @@ function addMetroRailMarker(layer, Latitude, Longitude, TrainID, LineID, Cars, D
       '<br>Location Updated: ' + LocationUpdated,
       { offset: new L.Point(0, 0) });
   layer.addLayer(marker);
+  cachedMetroRailMarkers[TrainID] = marker;
 }
 
 function addMetroRailRoutes() {
@@ -1083,9 +1090,6 @@ function addMiamiBeachTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longi
 function loadBusTrackingGPSData() {
   $.getJSON(apiURL+'tracker.json',
   function(data) {
-  	if (refreshDisplayCache.BusGPS === undefined) {
-      refreshDisplayCache.BusGPS = [];
-    }
     var records = data.features;
     //fakePositionOffset+=0.002;
     //records[0].properties.lon = records[0].properties.lon*1 - fakePositionOffset;
@@ -1150,9 +1154,6 @@ function addBusTrackingGPSMarker(layer, BusID, lat, lon, speed, bustime) {
 function loadMiamiTransitAPIBuses() {
   $.getJSON(apiURL+'buses.json',
   function(data) {
-    if (refreshDisplayCache.Buses === undefined) {
-      refreshDisplayCache.Buses = [];
-    }
     var records = data.RecordSet.Record;
     var i = 0;
     for (i = 0; i < records.length; i++) {
