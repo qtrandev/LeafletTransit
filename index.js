@@ -1248,8 +1248,8 @@ function addControlPane() {
       '<br><button onclick="showBusLayers()">Show Buses</button>  ' +
       '<button onclick="showTrolleyLayers()">Show Trolleys</button>  ' +
       '<button onclick="showRailLayers()">Show Rail</button>' +
-      '<br><br><button onclick="toggleLayers()">Toggle Layers</button>  ' +
-      '<button onclick="toggleRefresh()">Bus GPS Toggle Refresh</button>' +
+      '<br><br><button onclick="toggleLayers()">Show/Hide All</button>  ' +
+      '<button onclick="toggleRefresh()">Enable/Disable Refresh</button>' +
       '<br><div id="slider"></div>';
   };
 
@@ -1261,6 +1261,9 @@ function toggleRefresh() {
   if (enableRefresh) {
     $("#refresh").show();
     hideLayers();
+    map.addLayer(busLayer);
+    map.addLayer(busStopsLayer);
+    map.addLayer(metroRailLayer);
     map.addLayer(miamiTransitAPILayer);
     callMiamiTransitAPI();
   } else {
