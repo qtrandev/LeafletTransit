@@ -615,6 +615,8 @@ function routeChanged(rd) {
 }
 
 function focusPOI(poiIdLatLng) {
+  map.addLayer(poiLayer);
+  map.addLayer(nearbyLayer);
   var array = poiIdLatLng.split(",");
   var poiId = array[0];
   var lat = array[1];
@@ -626,11 +628,13 @@ function focusPOI(poiIdLatLng) {
 }
 
 function focusRoute(routeId) {
+  map.addLayer(busLayer);
   map.fitBounds(polylineMapping[routeId].getBounds());
   window.scrollTo(0, 0);
 }
 
 function focusBus(busId) {
+  map.addLayer(busLayer);
   map.fitBounds(L.latLngBounds([busMapping[busId].getLatLng()]));
   busMapping[busId].openPopup();
   window.scrollTo(0, 0);
