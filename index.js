@@ -60,6 +60,9 @@ miamiBeachTrolleyLayer.addTo(map);
 // Button to allow user to locate current position
 L.control.locate({ locateOptions: { maxZoom: 15 }}).addTo(map);
 
+// Button to allow map to be full-screen
+L.control.fullscreen().addTo(map);
+
 // Intialize bus icon
 var busIcon = L.icon({
     iconUrl: 'icons/icon-Bus-Tracker.png',
