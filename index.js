@@ -250,7 +250,7 @@ function loadBusData(data) {
 
 function callMiamiTransitAPI() {
   loadBusTrackingGPSData();
-  loadMiamiTransitAPIBuses();
+  //loadMiamiTransitAPIBuses();
   addMetroRail();
   refreshMDTBuses();
   refreshMiamiTrolleys();
