@@ -60,6 +60,9 @@ miamiBeachTrolleyLayer.addTo(map);
 // Button to allow user to locate current position
 L.control.locate({ locateOptions: { maxZoom: 15 }}).addTo(map);
 
+// Button to allow map to be full-screen
+L.control.fullscreen().addTo(map);
+
 // Intialize bus icon
 var busIcon = L.icon({
     iconUrl: 'icons/icon-Bus-Tracker.png',
@@ -79,6 +82,13 @@ var busIconAqua = L.icon({
     iconUrl: 'icons/icon-Bus-Tracker-aqua.png',
     iconSize: [44, 44],
     iconAnchor: [22, 22]
+});
+
+// Intialize gray bus icon
+var busIconGray = L.icon({
+    iconUrl: 'icons/icon-Bus-Tracker-gray.png',
+    iconSize: [33, 33],
+    iconAnchor: [15, 15]
 });
 
 // Intialize bus stop icon
@@ -106,7 +116,7 @@ var metroRailStationIcon = L.icon({
 var trolleyIcon = L.icon({
     iconUrl: 'icons/icon-Trolley-Tracker.png',
     iconSize: [44, 44],
-    iconAnchor: [22, 44]
+    iconAnchor: [22, 22]
 });
 
 // Trolley stop icon
@@ -184,8 +194,20 @@ var cityTrolley = "";
 // Refresh time for Miami Transit API
 var refreshTime = 5000;
 
-// Cache Miami Transit API markers
-var miamiTransitAPIMarkers = [];
+// Cache old locations of buses to display history
+var refreshDisplayCache = [];
+refreshDisplayCache.Buses = [];
+refreshDisplayCache.BusGPS = [];
+
+// Cache markers
+var cachedMarkers = [];
+var cachedBusGPSMarkers = [];
+var cachedMetroRailMarkers = [];
+var cachedMDTBusMarkers = [];
+var cachedMiamiTrolleyMarkers = [];
+var cachedDoralTrolleyMarkers = [];
+var cachedMiamiBeachTrolleyMarkers = [];
+var fakePositionOffset = 0.0;
 
 // Base URL for API server
 var apiURL = 'https://miami-transit-api.herokuapp.com/';
@@ -201,13 +223,14 @@ function init() {
   ]);
   $.getJSON(apiURL + 'api/Buses.json',
   function(data) {
-    var records = data.RecordSet.Record;
+    $("#wait").hide();
+    var records = data.RecordSet;
     loadBusData(records);
   });
 }
 
 function loadBusData(data) {
-  if (data !== null) generateBusList(data, "REAL-TIME");
+  if (data !== null) generateBusList(data.Record, "REAL-TIME");
   loadRouteColors(); // Bus list must be loaded first
   displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
   showPOIs();
@@ -229,18 +252,13 @@ function loadBusData(data) {
 }
 
 function callMiamiTransitAPI() {
-  if (miamiTransitAPIMarkers.length > 0) {
-    var i = 0;
-    for (i = 0; i < miamiTransitAPIMarkers.length; i++) {
-      map.removeLayer(miamiTransitAPIMarkers[i]);
-    }
-    miamiTransitAPIMarkers.length = 0; // Clear array
-  }
-  setTimeout(function(){
-    // Wait 1 second before adding back the markers on the map
-    loadBusTrackingGPSData();
-    loadMiamiTransitAPIBuses();
-  },1000);
+  loadBusTrackingGPSData();
+  //loadMiamiTransitAPIBuses();
+  addMetroRail();
+  refreshMDTBuses();
+  refreshMiamiTrolleys();
+  addDoralTrolleys();
+  addMiamiBeachTrolleys();
 }
 
 function generateBusList(data, realText) {
@@ -343,90 +361,69 @@ function addBusMarker(layer, lat, lon, name, desc, id, time, realText) {
       { offset: new L.Point(0, 0) });
   marker.addTo(layer);
   busMapping[id] = marker;
-
-  var marker2 = L.circleMarker(L.latLng(lat, lon), {color: 'aqua', radius: 23});
-  marker2.addTo(layer);
+  cachedMDTBusMarkers[id] = marker;
 }
 
 function displayRoutesFromTripId(tripRefs) {
   if (debug) console.log("Trip refs length = "+tripRefs.length);
   var i = 0;
   for (i = 0; i < tripRefs.length; i++) {
-    // Send the request to get the shape ID for each trip ID
-    //if (debug) console.log("Sending request for shape ID with trip ID: "+tripRefs[i].tripId);
-    var source = 'http://www.miamidade.gov/transit/WebServices/BusRouteShapesByTrip/?TripID='+tripRefs[i].tripId;
-    $.getJSON(
-         'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-         (function(thistripId) {
-            return function(data) {
-              var shapeId = $.parseXML(data.contents).getElementsByTagName("ShapeID")[0].childNodes[0].nodeValue;
-        //if (debug) console.log("Shape ID retrieved: "+shapeId);
-        var routeId;
-        // Add shape ID into global trip reference list
-        // Data format is {tripId: "", routeId: "", shapeId: "", color: ""}
-        for (i = 0; i < tripRouteShapeRef.length; i++) {
-          if (tripRouteShapeRef[i].tripId == thistripId) {
-            tripRouteShapeRef[i].shapeId = shapeId;
-            routeId = tripRouteShapeRef[i].routeId;
-            //if (debug) console.log("Updated shape ID into global list for trip ID: "+tripRouteShapeRef[i].tripId);
-            break; // Can break since a separate request is sent for each trip ID
-          }
-        }
-        displayFromShapeId(shapeId, routeId);
-            };
-         }(tripRefs[i].tripId))
-      );
+  	// Send the request to get the shape ID for each trip ID
+    $.getJSON(apiURL + 'api/BusRouteShapesByTrip.json?TripID='+tripRefs[i].tripId,
+    (function(thistripId) {
+       return function(data) {
+         var records = data.RecordSet.Record;
+         var shapeId = records.ShapeID;
+         var routeId;
+         // Add shape ID into global trip reference list
+         // Data format is {tripId: "", routeId: "", shapeId: "", color: ""}
+         for (i = 0; i < tripRouteShapeRef.length; i++) {
+           if (tripRouteShapeRef[i].tripId == thistripId) {
+             tripRouteShapeRef[i].shapeId = shapeId;
+             routeId = tripRouteShapeRef[i].routeId;
+             break; // Can break since a separate request is sent for each trip ID
+           }
+         }
+         displayFromShapeId(shapeId, routeId);
+         };
+      }(tripRefs[i].tripId))
+    );
   }
 }
 
 // Retrieve lat/long list for each route's shape ID
 function displayFromShapeId(shapeId, routeId) {
-  var source = 'http://www.miamidade.gov/transit/WebServices/BusRouteShape/?ShapeID='+shapeId;
-  $.getJSON(
-       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-       (function(thisshapeId, thisRouteId) {
-          return function(data) {
-            //if (debug) console.log("Data received. Displaying route from the Shape ID: "+thisshapeId);
-            // Find the color for the route
+  $.getJSON(apiURL + 'api/BusRouteShape.json?ShapeID='+shapeId,
+    function(data) {
+      // Find the color for the route
       var color = "";
+      var records = data.RecordSet.Record;
       for (i = 0; i < tripRouteShapeRef.length; i++) {
-        if (tripRouteShapeRef[i].shapeId == thisshapeId) {
+        if (tripRouteShapeRef[i].shapeId == shapeId) {
           color = tripRouteShapeRef[i].color;
           break;
         }
       }
 
       if (displayedShapeIds.length === 0) { // Display the first shape ID
-        addRoutePoints(busLayer, '#'+color, $.parseXML(data.contents), thisRouteId);
-        addDisplayedShapeId(thisshapeId);
+        addRoutePoints(busLayer, '#'+color, records, routeId);
+        addDisplayedShapeId(shapeId);
       } else { // Check for any duplicate shape ID and not display
         for (var displayed in displayedShapeIds) {
-          if (displayed == thisshapeId) break;
-          addRoutePoints(busLayer, '#'+color, $.parseXML(data.contents), thisRouteId);
-          addDisplayedShapeId(thisshapeId);
+          if (displayed == shapeId) break;
+          addRoutePoints(busLayer, '#'+color, records, routeId);
+          addDisplayedShapeId(shapeId);
           break;
-          //if (debug) console.log("Added new shapeId: "+thisshapeId);
         }
       }
-      if (debug) console.log("tripRouteShapeRef length = "+tripRouteShapeRef.length);
-      if (debug) console.log("displayedShapeIds length = "+displayedShapeIds.length);
-          };
-       }(shapeId, routeId))
-    );
+    });
 }
 
 // Add all the route lines and colors to the map for each shape point list
-function addRoutePoints(layer, routeColor, xmlDoc, routeId) {
-  //if (debug) console.log("Added route points to map with color: "+routeColor);
-  var latList = xmlDoc.getElementsByTagName("Latitude");
-  var lonList = xmlDoc.getElementsByTagName("Longitude");
+function addRoutePoints(layer, routeColor, records, routeId) {
   var latlngs = [];
-  if (debug) console.log("latList length = "+latList.length);
-  for (i = 0; i < latList.length; i++) {
-    //L.marker([latList[i].childNodes[0].nodeValue, lonList[i].childNodes[0].nodeValue], {icon: myIcon2}).addTo(map).bindPopup(
-      //	'Route # '+route,
-      //	{ offset: new L.Point(0, -20) });
-    latlngs[latlngs.length] = (L.latLng(latList[i].childNodes[0].nodeValue, lonList[i].childNodes[0].nodeValue));
+  for (i = 0; i < records.length; i++) {
+    latlngs[latlngs.length] = (L.latLng(records[i].Latitude, records[i].Longitude));
   }
 
   var markerLine = L.polyline(latlngs, {color: routeColor});
@@ -545,28 +542,23 @@ function addPOIMarker(layer, lat, lon, name, poiId, catId, catName, address) {
 }
 
 function getTrolleyData(scope) {
-  var source = "http://miami.etaspot.net/service.php?service=get_vehicles&includeETAData=1&orderedETAArray=1&token=TESTING";
-  $.getJSON(
-       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-       (function(thisScope) {
-          return function(data) {
-            var trolleys = data.contents.get_vehicles;
-            var count = trolleys.length;
-            for (i = 0; i < count; i++) {
-              trolleys[i].receiveTime = (new Date(trolleys[i].receiveTime)).toLocaleString();
-              addTrolleyMarker(
-                trolleyLayer,
-                trolleys[i].lat,
-                trolleys[i].lng,
-                trolleys[i].equipmentID,
-                trolleys[i].routeID,
-                trolleys[i].receiveTime
-              );
-            }
-            scope.trolleys = trolleys;
-          };
-       }(scope))
-    );
+  $.getJSON( apiURL + 'api/trolley/vehicles.json',
+    function(data) {
+       var trolleys = data.get_vehicles;
+       var count = trolleys.length;
+       for (i = 0; i < count; i++) {
+         trolleys[i].receiveTime = (new Date(trolleys[i].receiveTime)).toLocaleString();
+         addTrolleyMarker(
+           trolleyLayer,
+           trolleys[i].lat,
+           trolleys[i].lng,
+           trolleys[i].equipmentID,
+           trolleys[i].routeID,
+           trolleys[i].receiveTime
+         );
+       }
+       scope.trolleys = trolleys;
+    });
 }
 
 function addTrolleyMarker(layer, lat, lng, equipmentID, routeID, receiveTime) {
@@ -574,8 +566,9 @@ function addTrolleyMarker(layer, lat, lng, equipmentID, routeID, receiveTime) {
       'Trolley # '+equipmentID+
       '<br />Route: '+routeID+
       '<br />Received Time: '+receiveTime,
-      { offset: new L.Point(0, -22) });
+      { offset: new L.Point(0, 0) });
   marker.addTo(layer);
+  cachedMiamiTrolleyMarkers[equipmentID] = marker;
 }
 
 function loadTrolleyRoutes() {
@@ -600,26 +593,21 @@ function displayTrolleyRouteColors(layer, color, coords) {
 }
 
 function getTrolleyStops(scope) {
-  var source = "http://miami.etaspot.net/service.php?service=get_stops&includeETAData=1&orderedETAArray=1&token=TESTING";
-  $.getJSON(
-       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-       (function(thisScope) {
-          return function(data) {
-            var stops = data.contents.get_stops;
-            var count = stops.length;
-            for (i = 0; i < count; i++) {
-              addTrolleyStopMarker(
-                trolleyStopsLayer,
-                stops[i].lat,
-                stops[i].lng,
-                stops[i].name,
-                stops[i].id
-              );
-            }
-            scope.stops = stops;
-          };
-       }(scope))
-    );
+  $.getJSON( apiURL + 'api/trolley/stops.json',
+    function(data) {
+      var stops = data.get_stops;
+      var count = stops.length;
+      for (i = 0; i < count; i++) {
+        addTrolleyStopMarker(
+          trolleyStopsLayer,
+          stops[i].lat,
+          stops[i].lng,
+          stops[i].name,
+          stops[i].id
+        );
+      }
+      scope.stops = stops;
+  });
 }
 
 function addTrolleyStopMarker(layer, lat, lon, name, id) {
@@ -637,6 +625,8 @@ function routeChanged(rd) {
 }
 
 function focusPOI(poiIdLatLng) {
+  map.addLayer(poiLayer);
+  map.addLayer(nearbyLayer);
   var array = poiIdLatLng.split(",");
   var poiId = array[0];
   var lat = array[1];
@@ -648,11 +638,13 @@ function focusPOI(poiIdLatLng) {
 }
 
 function focusRoute(routeId) {
+  map.addLayer(busLayer);
   map.fitBounds(polylineMapping[routeId].getBounds());
   window.scrollTo(0, 0);
 }
 
 function focusBus(busId) {
+  map.addLayer(busLayer);
   map.fitBounds(L.latLngBounds([busMapping[busId].getLatLng()]));
   busMapping[busId].openPopup();
   window.scrollTo(0, 0);
@@ -699,75 +691,34 @@ function addBikeMarker(layer, lat, lng, id, address, bikes, dockings) {
 }
 
 function getNearBy(poiId, lat, lng) {
-  var source = "http://www.miamidade.gov/transit/WebServices/Nearby/?Lat="+lat+"&Long="+lng;
-  //var source = "http://www.miamidade.gov/transit/WebServices/PointsOfInterestTransit/?PointID="+poiId;
-  console.log("POI ID: "+poiId);
-  console.log(source);
-  processCachedNearby(poiId, lat, lng); //temp
-  return; //temp
-  $.getJSON(
-    'http://anyorigin.com/dev/get?url='+source+'&callback=?',
-    (function(thisScope, thisPOI) {
-      return function(data) {
-        console.log(data.contents);
-        var xmlDoc = $.parseXML(data.contents);
-        $xml = $( xmlDoc );
-
-        $NearbyID = $xml.find("NearbyID");
-        if ($NearbyID.length > 0) {
-          console.log("Exit since we don't have code yet");
-          return;
-        } else {
-          processCachedNearby(thisPOI, lat, lng);
-        }
-      };
-    }(scope, poiId))
-  );
-}
-
-function processCachedNearby(poiId, lat, lng) {
-  var i = 0;
   if (nearbyCache.length > 0) {
     for (i = 0; i < nearbyCache.length; i++) {
       map.removeLayer(nearbyCache[i]);
     }
   }
-  var xmlhttp=new XMLHttpRequest();
-  xmlhttp.open("GET","./nearby/"+poiId+".xml",false);
-  xmlhttp.send();
-  if (xmlhttp.status!=200) {
-    console.log("No local file exists for POI ID "+poiId+". Not displaying POI info.");
-    return;
-  }
-  xmlDoc=xmlhttp.responseXML;
-  $xml = $( xmlDoc );
-
-  $NearbyID = $xml.find("NearbyID");
-  $NearbyName = $xml.find("NearbyName");
-  $NearbyType = $xml.find("NearbyType");
-  $Descr = $xml.find("Descr");
-  $Distance = $xml.find("Distance");
-  $Latitude = $xml.find("Latitude");
-  $Longitude = $xml.find("Longitude");
-  nearbyCache = [];
-  var bounds = [];
-  i = 0;
-  for (i = 0; i < $NearbyID.length; i++) {
-    addNearByMarker(
-      nearbyLayer,
-      $NearbyID[i].textContent,
-      $NearbyName[i].textContent,
-      $NearbyType[i].textContent,
-      $Descr[i].textContent,
-      $Distance[i].textContent,
-      $Latitude[i].textContent,
-      $Longitude[i].textContent,
-      lat,
-      lng
-    );
-    bounds[i] = [$Latitude[i].textContent,$Longitude[i].textContent];
-  }
-  map.fitBounds(bounds);
+  $.getJSON(apiURL + 'api/Nearby.json?Lat='+lat+'&Long='+lng,
+    function(data) {
+      var records = data.RecordSet.Record;
+      nearbyCache = [];
+      var bounds = [];
+      for (i = 0; i < records.length; i++) {
+        addNearByMarker(
+          nearbyLayer,
+          records[i].NearbyID,
+          records[i].NearbyName,
+          records[i].NearbyType,
+          records[i].Descr,
+          records[i].Distance,
+          records[i].Latitude,
+          records[i].Longitude,
+          lat,
+          lng
+        );
+        bounds[i] = [records[i].Latitude,records[i].Longitude];
+      }
+      map.fitBounds(bounds);
+    }
+  );
 }
 
 function addNearByMarker(layer, NearbyID, NearbyName, NearbyType, Descr, Distance, Latitude, Longitude, sourceLat, sourceLng) {
@@ -840,10 +791,17 @@ function handleDoralTrolleyCallback(data) {
 }
 
 function addDoralTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longitude, Direction, Heading) {
+  if (cachedDoralTrolleyMarkers[MarkerID] !== undefined) {
+    var currentMarker = cachedDoralTrolleyMarkers[MarkerID];
+    currentMarker.setLatLng(L.latLng(Latitude, Longitude));
+    flashMarker(layer, currentMarker);
+    return;
+  }
   var marker = L.marker([Latitude, Longitude], {icon: doralTrolleyIcon, zIndexOffset: 100}).bindPopup(
       '<strong>Doral Trolley ' + MarkerName + '</strong><br><br>ID: ' + MarkerID + '<br>Direction: ' +  Direction,
       { offset: new L.Point(0, -22) });
   layer.addLayer(marker);
+  cachedDoralTrolleyMarkers[MarkerID] = marker;
 }
 
 function addMiamiBeachTrolleyRoutes() {
@@ -982,6 +940,7 @@ function addTSOTrolleyRouteLines(layer, points, routes) {
 function addMetroRail() {
   $.getJSON(apiURL + 'api/Trains.json',
   function(data) {
+    if (data.RecordSet === null) return; // No rail data at night
     var records = data.RecordSet.Record;
     var i = 0;
     for (i = 0; i < records.length; i++) {
@@ -1001,6 +960,12 @@ function addMetroRail() {
 }
 
 function addMetroRailMarker(layer, Latitude, Longitude, TrainID, LineID, Cars, Direction, ServiceDirection, LocationUpdated) {
+  if (cachedMetroRailMarkers[TrainID] !== undefined) {
+      var currentMarker = cachedMetroRailMarkers[TrainID];
+      currentMarker.setLatLng(L.latLng(Latitude, Longitude));
+      flashMarker(layer, currentMarker);
+      return;
+    }
   var marker = L.marker([Latitude, Longitude], {icon: metroRailIcon, zIndexOffset: 100}).bindPopup(
       '<strong>Metro Rail Train ' + TrainID +
       '<br>Line: ' + LineID +
@@ -1010,6 +975,7 @@ function addMetroRailMarker(layer, Latitude, Longitude, TrainID, LineID, Cars, D
       '<br>Location Updated: ' + LocationUpdated,
       { offset: new L.Point(0, 0) });
   layer.addLayer(marker);
+  cachedMetroRailMarkers[TrainID] = marker;
 }
 
 function addMetroRailRoutes() {
@@ -1136,36 +1102,78 @@ function handleMiamiBeachTrolleyCallback(data) {
 }
 
 function addMiamiBeachTrolleyMarker(layer, MarkerID, MarkerName, Latitude, Longitude, Direction, Heading) {
+  if (cachedMiamiBeachTrolleyMarkers[MarkerID] !== undefined) {
+    var currentMarker = cachedMiamiBeachTrolleyMarkers[MarkerID];
+    currentMarker.setLatLng(L.latLng(Latitude, Longitude));
+    flashMarker(layer, currentMarker);
+    return;
+  }
   var marker = L.marker([Latitude, Longitude], {icon: miamiBeachTrolleyIcon, zIndexOffset: 100}).bindPopup(
       '<strong>Miami Beach Trolley ' + MarkerName + '</strong><br><br>ID: ' + MarkerID + '<br>Direction: ' +  Direction,
       { offset: new L.Point(0, -22) });
   layer.addLayer(marker);
+  cachedMiamiBeachTrolleyMarkers[MarkerID] = marker;
 }
 
 function loadBusTrackingGPSData() {
   $.getJSON(apiURL+'tracker.json',
   function(data) {
+    var records = data.features;
+    //fakePositionOffset+=0.002;
+    //records[0].properties.lon = records[0].properties.lon*1 - fakePositionOffset;
     var i = 0;
-    for (i = 0; i < data.features.length; i++) {
+    for (i = 0; i < records.length; i++) {
+      // Check refresh display cache to display past bus locations
+      var cache = refreshDisplayCache.BusGPS[records[i].properties.BusID];
+      if (cache !== undefined) {
+        // Only push to refresh display cache if position changed
+        var lastBus = cache[cache.length-1];
+        if (!((lastBus.properties.lat === records[i].properties.lat) && (lastBus.properties.lon === records[i].properties.lon))) {
+          cache.push(records[i]);
+        }
+        displayCachedBusGPSLines(miamiTransitAPILayer, cache);
+      } else {
+        cache = [records[i]];
+        refreshDisplayCache.BusGPS[records[i].properties.BusID] = cache;
+      }
+      displayCachedGPSBuses(miamiTransitAPILayer, cache[cache.length-1]);
       addBusTrackingGPSMarker(
         miamiTransitAPILayer,
-        data.features[i].properties.lat,
-        data.features[i].properties.lon,
-        data.features[i].properties.speed,
-        data.features[i].properties.bustime);
+        records[i].properties.BusID,
+        records[i].properties.lat,
+        records[i].properties.lon,
+        records[i].properties.speed,
+        records[i].properties.bustime);
     }
   });
 }
 
-function addBusTrackingGPSMarker(layer, lat, lon, speed, bustime) {
+function displayCachedGPSBuses(layer, record) {
+  var marker = L.marker([record.properties.lat, record.properties.lon], {icon: busIconGray, zIndexOffset: -90}).bindPopup(
+      '<strong>Bus Tracking GPS</strong>'+
+      '<br /><br />Bus ID: ' +record.properties.BusID+
+      '<br />Speed: ' +record.properties.speed+ ' MPH'+
+      '<br />Bus Time: '+record.properties.bustime,
+      { offset: new L.Point(0, -15) });
+  marker.addTo(layer);
+}
+
+function addBusTrackingGPSMarker(layer, BusID, lat, lon, speed, bustime) {
   try {
+    if (cachedBusGPSMarkers[BusID] !== undefined) {
+      var currentMarker = cachedBusGPSMarkers[BusID];
+      currentMarker.setLatLng(L.latLng(lat, lon));
+      flashMarker(layer, currentMarker);
+      return;
+    }
     var marker = L.marker([lat, lon], {icon: busIconBlue}).bindPopup(
         '<strong>Bus Tracking GPS</strong>'+
-		'<br /><br />Speed: ' +speed+ ' MPH'+
+		    '<br /><br />Bus ID: ' +BusID+
+        '<br />Speed: ' +speed+ ' MPH'+
         '<br />Bus Time: '+bustime,
         { offset: new L.Point(0, -22) });
     marker.addTo(layer);
-    miamiTransitAPIMarkers.push(marker);
+    cachedBusGPSMarkers[BusID] = marker;
   } catch (e) {
     console.log("Cannot add marker in addBusTrackingGPSMarker. Lat: "+lat+" Lon: "+lon+" Error: "+e);
   }
@@ -1174,42 +1182,79 @@ function addBusTrackingGPSMarker(layer, lat, lon, speed, bustime) {
 function loadMiamiTransitAPIBuses() {
   $.getJSON(apiURL+'buses.json',
   function(data) {
+    var records = data.RecordSet.Record;
     var i = 0;
-    for (i = 0; i < data.RecordSet.Record.length; i++) {
-      addMiamiTransitAPIBusesMarker(
-        miamiTransitAPILayer,
-        data.RecordSet.Record[i].BusID,
-        data.RecordSet.Record[i].BusName,
-        data.RecordSet.Record[i].Latitude,
-        data.RecordSet.Record[i].Longitude,
-        data.RecordSet.Record[i].RouteID,
-        data.RecordSet.Record[i].TripID,
-        data.RecordSet.Record[i].Direction,
-        data.RecordSet.Record[i].ServiceDirection,
-        data.RecordSet.Record[i].Service,
-        data.RecordSet.Record[i].ServiceName,
-        data.RecordSet.Record[i].TripHeadsign,
-        data.RecordSet.Record[i].LocationUpdated);
+    for (i = 0; i < records.length; i++) {
+      // Check refresh display cache to display past bus locations
+      var cache = refreshDisplayCache.Buses[records[i].BusID];
+      if (cache !== undefined) {
+        // Only push to refresh display cache if position changed
+        var lastBus = cache[cache.length-1];
+        if (!((lastBus.Latitude === records[i].Latitude) && (lastBus.Longitude === records[i].Longitude))) {
+          cache.push(records[i]);
+        }
+        displayCachedBusLines(miamiTransitAPILayer, cache);
+      } else {
+        cache = [records[i]];
+        refreshDisplayCache.Buses[records[i].BusID] = cache;
+      }
+      displayCachedBuses(miamiTransitAPILayer, cache[cache.length-1]);
     }
   });
 }
 
-function addMiamiTransitAPIBusesMarker(
-  layer, BusID, BusName, Latitude, Longitude, RouteID, TripID, Direction,
-  ServiceDirection, Service, ServiceName, TripHeadsign, LocationUpdated) {
-  var marker = L.marker([Latitude, Longitude], {icon: busIconAqua}).bindPopup(
+function displayCachedBuses(layer, bus) {
+  addMiamiTransitAPIBusesMarker(layer, bus, false);
+  addMiamiTransitAPIBusesMarker(layer, bus, true);
+}
+
+function addMiamiTransitAPIBusesMarker(layer, bus, latestBus) {
+  if (latestBus) {
+    if (cachedMarkers[bus.BusID] !== undefined) {
+      var currentMarker = cachedMarkers[bus.BusID];
+      currentMarker.setLatLng(L.latLng(bus.Latitude, bus.Longitude));
+      flashMarker(layer, currentMarker);
+      return;
+    }
+  }
+  var options = latestBus? {icon: busIconAqua} : {icon: busIconGray, zIndexOffset: -90};
+  var offset = latestBus? { offset: new L.Point(0, -22) } : { offset: new L.Point(0, -15) };
+  var marker = L.marker([bus.Latitude, bus.Longitude], options).bindPopup(
       '<strong>Miami Transit API Bus</strong>' +
-      '<br/><br/>Bus ID: ' + BusID +
-      '<br/>Bus Name: ' + BusName +
-      '<br/>Trip ID: ' + TripID +
-      '<br/>Trip: ' + TripHeadsign +
-      '<br/>Service: ' + Service +
-      '<br/>Service Name: ' + ServiceName +
-      '<br/>Service Direction: ' + ServiceDirection +
-      '<br/>Location Updated: ' + LocationUpdated,
-      { offset: new L.Point(0, -22) });
+      '<br/><br/>Bus ID: ' + bus.BusID +
+      '<br/>Bus Name: ' + bus.BusName +
+      '<br/>Trip ID: ' + bus.TripID +
+      '<br/>Trip: ' + bus.TripHeadsign +
+      '<br/>Service: ' + bus.Service +
+      '<br/>Service Name: ' + bus.ServiceName +
+      '<br/>Service Direction: ' + bus.ServiceDirection +
+      '<br/>Location Updated: ' + bus.LocationUpdated,
+      offset);
   marker.addTo(layer);
-  miamiTransitAPIMarkers.push(marker);
+  if (latestBus) cachedMarkers[bus.BusID] = marker;
+}
+
+function displayCachedBusLines(layer, cache) {
+  var latlngs = [];
+  var i = 0;
+  for (i = 0; i < cache.length; i++) {
+    latlngs.push(L.latLng(cache[i].Latitude, cache[i].Longitude));
+  }
+  displayLines(layer, latlngs, 'aqua');
+}
+
+function displayCachedBusGPSLines(layer, cache) {
+  var latlngs = [];
+  var i = 0;
+  for (i = 0; i < cache.length; i++) {
+    latlngs.push(L.latLng(cache[i].properties.lat, cache[i].properties.lon));
+  }
+  displayLines(layer, latlngs, 'aqua');
+}
+
+function displayLines(layer, latlngs, color) {
+  var markerLine = L.polyline(latlngs, {color: color});
+  markerLine.addTo(layer);
 }
 
 $(document).ready(function(){
@@ -1227,9 +1272,13 @@ function addControlPane() {
   };
 
   info.update = function () {
-    this._div.innerHTML = '<h4>Refresh Controls</h4>' +
-      '<br><button onclick="toggleLayers()">Toggle Layers</button>' +
-      '<br><br><button onclick="toggleRefresh()">Toggle Refresh</button>' +
+    this._div.innerHTML = '<h4>Map Controls</h4>' +
+      '<br><button onclick="showBusLayers()">Show Buses</button>  ' +
+      '<button onclick="showTrolleyLayers()">Show Trolleys</button>  ' +
+      '<button onclick="showRailLayers()">Show Rail</button>' +
+      '<br><br><button onclick="toggleLayers()">Show/Hide All</button>  ' +
+      '<button onclick="showBusGPS()">Show Bus GPS</button>' +
+      '<br><br><button onclick="toggleRefresh()">Enable/Disable Refresh</button>' +
       '<br><div id="slider"></div>';
   };
 
@@ -1239,38 +1288,142 @@ function addControlPane() {
 function toggleRefresh() {
   enableRefresh = !enableRefresh;
   if (enableRefresh) {
-    $(".info").show();
+    $("#refresh").show();
+    hideLayers();
+    map.addLayer(busLayer);
+    map.addLayer(metroRailLayer);
+    map.addLayer(trolleyLayer);
     map.addLayer(miamiTransitAPILayer);
+    map.addLayer(doralTrolleyLayer);
+    map.addLayer(miamiBeachTrolleyLayer);
+    callMiamiTransitAPI();
   } else {
-    $(".info").hide();
+    $("#refresh").hide();
   }
 }
 
 function toggleLayers() {
   if (showAllLayers) {
-    map.addLayer(busLayer);
-    map.addLayer(busStopsLayer);
-    map.addLayer(metroRailLayer);
-    map.addLayer(poiLayer);
-    map.addLayer(trolleyLayer);
-    map.addLayer(trolleyStopsLayer);
-    map.addLayer(bikeLayer);
-    map.addLayer(nearbyLayer);
-    map.addLayer(doralTrolleyLayer);
-    map.addLayer(miamiBeachTrolleyLayer);
-    map.addLayer(miamiTransitAPILayer);
+    showLayers();
   } else {
-    map.removeLayer(busLayer);
-    map.removeLayer(busStopsLayer);
-    map.removeLayer(metroRailLayer);
-    map.removeLayer(poiLayer);
-    map.removeLayer(trolleyLayer);
-    map.removeLayer(trolleyStopsLayer);
-    map.removeLayer(bikeLayer);
-    map.removeLayer(nearbyLayer);
-    map.removeLayer(doralTrolleyLayer);
-    map.removeLayer(miamiBeachTrolleyLayer);
-    map.removeLayer(miamiTransitAPILayer);
+    hideLayers();
   }
-  showAllLayers = !showAllLayers;
+}
+
+function showLayers() {
+  map.addLayer(busLayer);
+  map.addLayer(busStopsLayer);
+  map.addLayer(metroRailLayer);
+  map.addLayer(poiLayer);
+  map.addLayer(trolleyLayer);
+  map.addLayer(trolleyStopsLayer);
+  map.addLayer(bikeLayer);
+  map.addLayer(nearbyLayer);
+  map.addLayer(doralTrolleyLayer);
+  map.addLayer(miamiBeachTrolleyLayer);
+  map.addLayer(miamiTransitAPILayer);
+  showAllLayers = false;
+}
+
+function hideLayers() {
+  map.removeLayer(busLayer);
+  map.removeLayer(busStopsLayer);
+  map.removeLayer(metroRailLayer);
+  map.removeLayer(poiLayer);
+  map.removeLayer(trolleyLayer);
+  map.removeLayer(trolleyStopsLayer);
+  map.removeLayer(bikeLayer);
+  map.removeLayer(nearbyLayer);
+  map.removeLayer(doralTrolleyLayer);
+  map.removeLayer(miamiBeachTrolleyLayer);
+  map.removeLayer(miamiTransitAPILayer);
+  showAllLayers = true;
+}
+
+function showBusLayers() {
+  map.addLayer(busLayer);
+  map.addLayer(busStopsLayer);
+  map.removeLayer(metroRailLayer);
+  map.removeLayer(poiLayer);
+  map.removeLayer(trolleyLayer);
+  map.removeLayer(trolleyStopsLayer);
+  map.removeLayer(bikeLayer);
+  map.removeLayer(nearbyLayer);
+  map.removeLayer(doralTrolleyLayer);
+  map.removeLayer(miamiBeachTrolleyLayer);
+  map.removeLayer(miamiTransitAPILayer);
+}
+
+function showTrolleyLayers() {
+  map.removeLayer(busLayer);
+  map.removeLayer(busStopsLayer);
+  map.removeLayer(metroRailLayer);
+  map.removeLayer(poiLayer);
+  map.removeLayer(bikeLayer);
+  map.removeLayer(nearbyLayer);
+  map.removeLayer(miamiTransitAPILayer);
+  map.addLayer(trolleyLayer);
+  map.addLayer(trolleyStopsLayer);
+  map.addLayer(doralTrolleyLayer);
+  map.addLayer(miamiBeachTrolleyLayer);
+}
+
+function showRailLayers() {
+  map.removeLayer(busLayer);
+  map.removeLayer(busStopsLayer);
+  map.addLayer(metroRailLayer);
+  map.removeLayer(poiLayer);
+  map.removeLayer(trolleyLayer);
+  map.removeLayer(trolleyStopsLayer);
+  map.removeLayer(bikeLayer);
+  map.removeLayer(nearbyLayer);
+  map.removeLayer(doralTrolleyLayer);
+  map.removeLayer(miamiBeachTrolleyLayer);
+  map.removeLayer(miamiTransitAPILayer);
+}
+
+function showBusGPS() {
+  enableRefresh = true;
+  $("#refresh").show();
+  hideLayers();
+  map.addLayer(miamiTransitAPILayer);
+  callMiamiTransitAPI();
+}
+
+function flashMarker(layer, marker) {
+  var circleMarker = L.circleMarker(marker.getLatLng(), {color: 'aqua', radius: 23});
+  circleMarker.addTo(layer);
+  setInterval(function() {
+    map.removeLayer(circleMarker);
+  }, 2000);
+}
+
+function refreshMDTBuses() {
+  $.getJSON(apiURL + 'api/Buses.json',
+  function(data) {
+    var records = data.RecordSet.Record;
+    var i = 0;
+    for (i = 0; i < records.length; i++) {
+      if (cachedMDTBusMarkers[records[i].BusID] !== undefined) {
+        var currentMarker = cachedMDTBusMarkers[records[i].BusID];
+        currentMarker.setLatLng(L.latLng(records[i].Latitude, records[i].Longitude));
+        flashMarker(busLayer, currentMarker);
+      }
+    }
+  });
+}
+
+function refreshMiamiTrolleys() {
+  $.getJSON( apiURL + 'api/trolley/vehicles.json',
+    function(data) {
+       var trolleys = data.get_vehicles;
+       var i = 0;
+       for (i = 0; i < trolleys.length; i++) {
+         if (cachedMiamiTrolleyMarkers[trolleys[i].equipmentID] !== undefined) {
+           var currentMarker = cachedMiamiTrolleyMarkers[trolleys[i].equipmentID];
+           currentMarker.setLatLng(L.latLng(trolleys[i].lat, trolleys[i].lng));
+           flashMarker(trolleyLayer, currentMarker);
+         }
+       }
+    });
 }
