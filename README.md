@@ -70,6 +70,11 @@ Add issues and features in issues list.
 Make the change yourself by editing the file on Github and let [qtrandev](https://github.com/qtrandev) know.  
 Message [qtrandev](https://github.com/qtrandev) if you would like to directly commit.  
 
+## Related Projects
+
+[AndroidTransit](https://github.com/qtrandev/AndroidTransit) - Displaying Miami Transit information in an Android app.  
+[MeteorTransit](https://github.com/qtrandev/MeteorTransit) - Displaying Miami Transit information in an Meteor app.  
+
 ## License
 
 Licensed through Code for America [LICENSE.md file](https://github.com/codeforamerica/ceviche-cms/blob/master/LICENCE.md).
