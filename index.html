@@ -28,11 +28,28 @@
   <link href="styles.css" rel="stylesheet">
 </head>
 <body>
-  <h1>Miami-Dade Transit Live</h1>
-  <p class="info">Source Code: <a href="https://github.com/Code-for-Miami/LeafletTransit" target="_blank">https://github.com/Code-for-Miami/LeafletTransit</a></p>
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Miami-Dade Transit Live</a>
+      </div>
+      <div class="collapse navbar-collapse" id="navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#">Map<span class="sr-only">(current)</span></a></li>
+          <li><a href="https://github.com/Code-for-Miami/LeafletTransit" target="_blank">Source Code</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div id="map" style="height: 700px; width: 90%; margin-left: auto; margin-right: auto;"></div>
   <p class="info" id="wait">Waiting for server to go online in 15 seconds...</p>
   <p class="info" id="refresh">Data from Miami Transit API GPS updates every 5 seconds</p>
-  <div id="map" style="height: 700px; width: 90%; margin-left: auto; margin-right: auto;"></div>
   <div class="tabsection" data-ng-controller="transitController" style="margin-left: auto; margin-right: auto; width: 50%; padding: 20px 0px 0px 0px">
     <ul class="nav nav-pills nav-justified">
       <li class="active">
@@ -169,5 +186,6 @@
     When data is unavailable (night-time), no live buses are shown.</p>
   </div><!-- All Javascript code to display the buses on the map -->
   <script src="index.js"></script>
+  <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
 </body>
 </html>
