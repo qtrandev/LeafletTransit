@@ -1,15 +1,10 @@
-# LeafletTransit
+# LeafletTransit 
 
 ## What
 
 This is a LeafletJS-based prototype of a real time map for various transit systems, including Miami-Dade Transit and various trolley services.
 
-Live demo is at http://www.qtrandev.com/transit. More stable past demos are at:  
-* http://www.qtrandev.com/transit7
-* http://www.qtrandev.com/transit5
-* http://www.qtrandev.com/transit4
-* http://www.qtrandev.com/transit3
-* http://www.qtrandev.com/transit2   
+Live demo is at http://codeformiami.org/LeafletTransit. Past demo is at http://www.qtrandev.com/transit
 
 Reload the site often for the latest data to show. (Can use Shift + Reload button for full page refresh)  
 Press F12 in your browser to view the Javascript console for any errors.
@@ -21,11 +16,11 @@ The following data are shown
 * Citi bikes
 * Points of interest
 
-Depends on https://github.com/CyberStrike/miami-transit-api to retrieve data from http://www.miamidade.gov/transit. During night-time when no data is returned, sample data is shown.  
+Depends on https://github.com/CyberStrike/miami-transit-api to retrieve data from http://www.miamidade.gov/transit. During night-time when no bus data is returned, no buses are shown.  
 See http://miami-transit-api.herokuapp.com for API documentation.  
 
 #### Status
-Alpha. Still adding features from issues list.
+Beta. Working out bugs and looking at design.
 
 #### Screenshots
 <img src="http://www.qtrandev.com/transit5/screenshots/screenshot1.png" alt="Screenshot 1" width="50%">
@@ -67,8 +62,8 @@ Use a Javascript debugger to debug such as in Firefox or Chrome.
 
 Pull requests are accepted.  
 Add issues and features in issues list.
-Make the change yourself by editing the file on Github and let [qtrandev](https://github.com/qtrandev) know.  
-Message [qtrandev](https://github.com/qtrandev) if you would like to directly commit.  
+Make the change yourself by editing the file in the dev branch on GitHub and make a pull request.  
+See https://github.com/Code-for-Miami/getting-started/wiki/Contributor-Workflow
 
 ## Related Projects
 
