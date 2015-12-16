@@ -1,9 +1,15 @@
-h1 {
-    color: #007AC2;
-    font-family:  Verdana, Geneva, sans-serif;
-    font-size: 32px;
-    text-align: center;
-    text-shadow: 2px 4px 3px rgba(0,0,0,0.3);
+body {
+  padding-top: 50px;
+}
+
+html,
+body,
+.tab-content,
+.tab-pane,
+#map {
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
 }
 
 p {
@@ -15,14 +21,6 @@ p.info {
   font-family:  Verdana, Geneva, sans-serif;
   color: #4F8636;
   text-align: center;
-}
-
-table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-}
-th,td {
-    padding: 15px;
 }
 
 .leaflet-control-locate {
