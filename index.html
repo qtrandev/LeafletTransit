@@ -41,35 +41,39 @@
       </div>
       <div class="collapse navbar-collapse" id="navbar-collapse">
         <ul class="nav navbar-nav">
-          <li class="active"><a href="#">Map<span class="sr-only">(current)</span></a></li>
-          <li><a href="https://github.com/Code-for-Miami/LeafletTransit" target="_blank">Source Code</a></li>
+          <li class="active">
+            <a data-toggle="tab" href="#mapWrapper">Map</a>
+          </li>
+          <li>
+            <a data-toggle="tab" href="#livebuses">Live Buses</a>
+          </li>
+          <li>
+            <a data-toggle="tab" href="#busroutes">Bus Routes</a>
+          </li>
+          <li>
+            <a data-toggle="tab" href="#busstops">Bus Stops</a>
+          </li>
+          <li>
+            <a data-toggle="tab" href="#POIs">Points of Interest</a>
+          </li>
+          <li>
+            <a data-toggle="tab" href="#trolleys">Trolleys</a>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a href="https://github.com/Code-for-Miami/LeafletTransit" target="_blank">Github</a>
+          </li>
         </ul>
       </div>
     </div>
   </nav>
-  <div id="map"></div>
-  <p class="info" id="wait">Waiting for server to go online in 15 seconds...</p>
-  <p class="info" id="refresh">Data from Miami Transit API GPS updates every 5 seconds</p>
-  <div class="tabsection" data-ng-controller="transitController" style="margin-left: auto; margin-right: auto; width: 50%; padding: 20px 0px 0px 0px">
-    <ul class="nav nav-pills nav-justified">
-      <li class="active">
-        <a data-toggle="tab" href="#livebuses">Live Buses</a>
-      </li>
-      <li>
-        <a data-toggle="tab" href="#busroutes">Bus Routes</a>
-      </li>
-      <li>
-        <a data-toggle="tab" href="#busstops">Bus Stops</a>
-      </li>
-      <li>
-        <a data-toggle="tab" href="#POIs">POIs</a>
-      </li>
-      <li>
-        <a data-toggle="tab" href="#trolleys">Trolleys</a>
-      </li>
-    </ul>
-    <div class="tab-content">
-      <div class="tab-pane fade in active" id="livebuses">
+  <div class="tab-content" data-ng-controller="transitController">
+    <div class="tab-pane fade in active" id="mapWrapper">
+      <div id="map"></div>
+    </div>
+    <div class="tab-pane fade in" id="livebuses">
+      <div class="container">
         <h3>Live Buses</h3>Live Buses: {{buses.length}}
         <div id="busTable">
           <table>
@@ -92,7 +96,9 @@
           </table>
         </div>
       </div>
-      <div class="tab-pane fade" id="busroutes">
+    </div>
+    <div class="tab-pane fade" id="busroutes">
+      <div class="container">
         <h3>Bus Routes</h3>Bus Routes: {{routes.length}}
         <div id="busroutesTable">
           <table>
@@ -111,7 +117,9 @@
           </table>
         </div>
       </div>
-      <div class="tab-pane fade" id="busstops">
+    </div>
+    <div class="tab-pane fade" id="busstops">
+      <div class="container">
         <h3>Bus Stops</h3>Stops: {{busStops[routeDir].length}}<br>
         Route: <select onchange="routeChanged(this.value)">
           <option data-ng-repeat="x in uniqueBusRoutes" value="{{x.RouteID}} {{x.ServiceDirection}}">
@@ -133,7 +141,9 @@
           </table>
         </div>
       </div>
-      <div class="tab-pane fade" id="POIs">
+    </div>
+    <div class="tab-pane fade" id="POIs">
+      <div class="container">
         <h3>Points of Interest</h3>POIs: {{POIs.length}}<br>
         <div id="POIsTable">
           <table>
@@ -156,7 +166,9 @@
           </table>
         </div>
       </div>
-      <div class="tab-pane fade" id="trolleys">
+    </div>
+    <div class="tab-pane fade" id="trolleys">
+      <div class="container">
         <h3>Trolleys</h3>City of Miami Trolleys: {{trolleys.length}}<br>
         <div id="trolleysTable">
           <table>

@@ -12,6 +12,8 @@ h1 {
 
 html,
 body,
+.tab-content,
+.tab-pane,
 #map {
   height: 100%;
   overflow: hidden;
