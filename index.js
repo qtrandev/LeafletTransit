@@ -66,43 +66,55 @@ L.control.fullscreen().addTo(map);
 // FontAwesome prefix
 L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
 
+var defaultIconSize = [27, 35];
+var defaultIconAnchor = [14, 32];
+
 // Initialize bus icon
 var busIcon = L.AwesomeMarkers.icon({
     icon: 'bus',
-    markerColor: 'cadetblue'
+    markerColor: 'cadetblue',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
 // Initialize blue bus icon
 var busIconBlue = L.AwesomeMarkers.icon({
     icon: 'bus',
-    markerColor: 'blue'
+    markerColor: 'blue',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
 // Initialize aqua bus icon
 var busIconAqua = L.AwesomeMarkers.icon({
     icon: 'bus',
-    markerColor: 'cadetblue'
+    markerColor: 'cadetblue',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
 // Initialize gray bus icon
 var busIconGray = L.AwesomeMarkers.icon({
     icon: 'bus',
-    markerColor: 'gray'
+    markerColor: 'gray',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
 // Initialize bus stop icon
 var busStopIcon = L.AwesomeMarkers.icon({
     icon: 'circle',
-    iconColor: '#000',
+    iconColor: '#333',
     markerColor: 'transparent',
-    shadowSize: [0, 0],
-    extraClasses: 'icon-stop'
+    shadowSize: [0, 0]
 });
 
 // Initialize Metrorail icon
 var metroRailIcon = L.AwesomeMarkers.icon({
     icon: 'train',
-    markerColor: 'purple'
+    markerColor: 'purple',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
 // Initialize Metrorail station icon
@@ -110,56 +122,63 @@ var metroRailStationIcon = L.AwesomeMarkers.icon({
     icon: 'circle',
     iconColor: '#7100ab',
     markerColor: 'transparent',
-    shadowSize: [0, 0],
-    extraClasses: 'icon-stop'
+    shadowSize: [0, 0]
 });
 
 // Trolley icon
 var trolleyIcon = L.AwesomeMarkers.icon({
     icon: 'subway',
-    markerColor: 'red'
+    markerColor: 'blue',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
 // Doral trolley icon
 var doralTrolleyIcon = L.AwesomeMarkers.icon({
     icon: 'subway',
-    markerColor: 'lightred'
+    markerColor: 'orange',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
 // Miami Beach trolley icon
 var miamiBeachTrolleyIcon = L.AwesomeMarkers.icon({
     icon: 'subway',
-    markerColor: 'beige'
+    markerColor: 'green',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
 // Trolley stop icon
 var trolleyStopIcon = L.AwesomeMarkers.icon({
     icon: 'circle',
-    iconColor: '#c00',
+    iconColor: '#666',
     markerColor: 'transparent',
-    shadowSize: [0, 0],
-    extraClasses: 'icon-stop'
+    shadowSize: [0, 0]
 });
 
 // Doral trolley route icon
 var TSOTrolleyrouteIcon = L.AwesomeMarkers.icon({
     icon: 'circle',
-    iconColor: '#c00',
+    iconColor: '#666',
     markerColor: 'transparent',
-    shadowSize: [0, 0],
-    extraClasses: 'icon-stop'
+    shadowSize: [0, 0]
 });
 
 // Citi bike icon
 var bikeIcon = L.AwesomeMarkers.icon({
     icon: 'bicycle',
-    markerColor: 'blue'
+    markerColor: 'blue',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
 // POI icon
 var poiIcon = L.AwesomeMarkers.icon({
     icon: 'map-pin',
-    markerColor: 'orange'
+    markerColor: 'orange',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
 //iconColor:
@@ -1282,7 +1301,7 @@ function addControlPane() {
       '<button class="btn btn-sm btn-primary" onclick="showBusLayers()"><i class="fa fa-bus"></i> Show Buses</button>' +
       '<button class="btn btn-sm btn-primary" onclick="showTrolleyLayers()"><i class="fa fa-subway"></i> Show Trolleys</button>' +
       '<button class="btn btn-sm btn-primary" onclick="showRailLayers()"><i class="fa fa-train"></i> Show Metrorail</button>' +
-      '<button class="btn btn-sm btn-primary" onclick="showBusGPS()"><i class="fa fa-compass"></i> Show Bus GPS</button>' +
+      '<button class="btn btn-sm btn-primary" onclick="showBusGPS()"><i class="fa fa-location-arrow"></i> Show Bus GPS</button>' +
       '<button class="btn btn-sm btn-primary" onclick="toggleLayers()"><i class="fa fa-eye"></i> Show/Hide All</button>' +
       '<button class="btn btn-sm btn-primary" onclick="toggleRefresh()"><i class="fa fa-refresh"></i> Refresh</button>' +
       '</div>';
