@@ -1397,6 +1397,7 @@ function showBusGPS() {
 }
 
 function flashMarker(layer, marker) {
+  return; // Temporarily disable flashing of markers since this is hurting performance
   var circleMarker = L.circleMarker(marker.getLatLng(), {color: 'aqua', radius: 23});
   circleMarker.addTo(layer);
   setInterval(function() {
