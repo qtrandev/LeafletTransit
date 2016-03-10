@@ -162,7 +162,8 @@ var TSOTrolleyrouteIcon = L.AwesomeMarkers.icon({
     icon: 'circle',
     iconColor: '#666',
     markerColor: 'transparent',
-    shadowSize: [0, 0]
+    shadowSize: [0, 0],
+    iconAnchor: [0, 0]
 });
 
 // Citi bike icon
