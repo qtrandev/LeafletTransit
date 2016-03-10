@@ -106,6 +106,7 @@ var busStopIcon = L.AwesomeMarkers.icon({
     icon: 'circle',
     iconColor: '#333',
     markerColor: 'transparent',
+    iconAnchor: [17, 12],
     shadowSize: [0, 0]
 });
 
@@ -122,6 +123,7 @@ var metroRailStationIcon = L.AwesomeMarkers.icon({
     icon: 'circle',
     iconColor: '#7100ab',
     markerColor: 'transparent',
+    iconAnchor: [17, 12],
     shadowSize: [0, 0]
 });
 
@@ -154,6 +156,7 @@ var trolleyStopIcon = L.AwesomeMarkers.icon({
     icon: 'circle',
     iconColor: '#666',
     markerColor: 'transparent',
+    iconAnchor: [17, 12],
     shadowSize: [0, 0]
 });
 
@@ -162,6 +165,7 @@ var TSOTrolleyrouteIcon = L.AwesomeMarkers.icon({
     icon: 'circle',
     iconColor: '#666',
     markerColor: 'transparent',
+    iconAnchor: [17, 12],
     shadowSize: [0, 0]
 });
 
