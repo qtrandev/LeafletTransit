@@ -106,6 +106,7 @@ var busStopIcon = L.AwesomeMarkers.icon({
     icon: 'circle',
     iconColor: '#333',
     markerColor: 'transparent',
+    iconAnchor: [17, 12],
     shadowSize: [0, 0]
 });
 
@@ -122,6 +123,7 @@ var metroRailStationIcon = L.AwesomeMarkers.icon({
     icon: 'circle',
     iconColor: '#7100ab',
     markerColor: 'transparent',
+    iconAnchor: [17, 12],
     shadowSize: [0, 0]
 });
 
@@ -154,6 +156,7 @@ var trolleyStopIcon = L.AwesomeMarkers.icon({
     icon: 'circle',
     iconColor: '#666',
     markerColor: 'transparent',
+    iconAnchor: [17, 12],
     shadowSize: [0, 0]
 });
 
@@ -163,7 +166,7 @@ var TSOTrolleyrouteIcon = L.AwesomeMarkers.icon({
     iconColor: '#666',
     markerColor: 'transparent',
     shadowSize: [0, 0],
-    iconAnchor: [0, 0]
+    iconAnchor: [17, 12]
 });
 
 // Citi bike icon
@@ -1148,7 +1151,7 @@ function loadBusTrackingGPSData() {
     var i = 0;
     for (i = 0; i < records.length; i++) {
       // Check refresh display cache to display past bus locations
-      var cache = refreshDisplayCache.BusGPS[records[i].properties.BusID];
+      var cache = refreshDisplayCache.BusGPS[records[i].properties.deviceid];
       if (cache !== undefined) {
         // Only push to refresh display cache if position changed
         var lastBus = cache[cache.length-1];
@@ -1158,12 +1161,12 @@ function loadBusTrackingGPSData() {
         displayCachedBusGPSLines(miamiTransitAPILayer, cache);
       } else {
         cache = [records[i]];
-        refreshDisplayCache.BusGPS[records[i].properties.BusID] = cache;
+        refreshDisplayCache.BusGPS[records[i].properties.deviceid] = cache;
       }
       displayCachedGPSBuses(miamiTransitAPILayer, cache[cache.length-1]);
       addBusTrackingGPSMarker(
         miamiTransitAPILayer,
-        records[i].properties.BusID,
+        records[i].properties.deviceid,
         records[i].properties.lat,
         records[i].properties.lon,
         records[i].properties.speed,
@@ -1175,29 +1178,29 @@ function loadBusTrackingGPSData() {
 function displayCachedGPSBuses(layer, record) {
   var marker = L.marker([record.properties.lat, record.properties.lon], {icon: busIconGray, zIndexOffset: -90}).bindPopup(
       '<strong>Bus Tracking GPS</strong>'+
-      '<br /><br />Bus ID: ' +record.properties.BusID+
+      '<br /><br />Bus ID: ' +record.properties.deviceid+
       '<br />Speed: ' +record.properties.speed+ ' MPH'+
       '<br />Bus Time: '+record.properties.bustime,
       { offset: new L.Point(0, -15) });
   marker.addTo(layer);
 }
 
-function addBusTrackingGPSMarker(layer, BusID, lat, lon, speed, bustime) {
+function addBusTrackingGPSMarker(layer, deviceid, lat, lon, speed, bustime) {
   try {
-    if (cachedBusGPSMarkers[BusID] !== undefined) {
-      var currentMarker = cachedBusGPSMarkers[BusID];
+    if (cachedBusGPSMarkers[deviceid] !== undefined) {
+      var currentMarker = cachedBusGPSMarkers[deviceid];
       currentMarker.setLatLng(L.latLng(lat, lon));
       flashMarker(layer, currentMarker);
       return;
     }
     var marker = L.marker([lat, lon], {icon: busIconBlue}).bindPopup(
         '<strong>Bus Tracking GPS</strong>'+
-		    '<br /><br />Bus ID: ' +BusID+
+		    '<br /><br />Bus ID: ' +deviceid+
         '<br />Speed: ' +speed+ ' MPH'+
         '<br />Bus Time: '+bustime,
         { offset: new L.Point(0, -22) });
     marker.addTo(layer);
-    cachedBusGPSMarkers[BusID] = marker;
+    cachedBusGPSMarkers[deviceid] = marker;
   } catch (e) {
     console.log("Cannot add marker in addBusTrackingGPSMarker. Lat: "+lat+" Lon: "+lon+" Error: "+e);
   }
@@ -1394,6 +1397,7 @@ function showBusGPS() {
 }
 
 function flashMarker(layer, marker) {
+  return; // Temporarily disable flashing of markers since this is hurting performance
   var circleMarker = L.circleMarker(marker.getLatLng(), {color: 'aqua', radius: 23});
   circleMarker.addTo(layer);
   setInterval(function() {
