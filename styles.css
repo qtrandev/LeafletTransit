@@ -1,0 +1,59 @@
+body {
+  padding-top: 50px;
+}
+
+html,
+body,
+.tab-content,
+.tab-pane,
+#map {
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+}
+
+p {
+  font-family:  Verdana, Geneva, sans-serif;
+  color: #4F8636;
+}
+
+p.info {
+  font-family:  Verdana, Geneva, sans-serif;
+  color: #4F8636;
+  text-align: center;
+}
+
+.leaflet-control-locate {
+  border:1px solid rgba(0,0,0,0.4);
+  }
+.leaflet-control-locate a {
+  background-color:#fff;
+  background-position:-3px, -2px;
+  }
+.leaflet-control-locate.active a {
+  background-position:-33px -2px;
+  }
+
+.control {
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  border-radius: 5px;
+}
+
+.control h5 {
+    margin: 0 0 10px;
+    color: #777;
+}
+
+.overflow-y {
+  overflow-y: scroll;
+}
+
+.btn-group-left .btn {
+  text-align: left;
+}
+
+.btn-group-left .fa {
+  width: 14px;
+  margin-right: 4px;
+  text-align: center;
+}
