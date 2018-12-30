@@ -44,18 +44,18 @@ L.control.layers({'Open Street Map':osmLayer, 'Google Maps':googleRoadmap, 'Goog
     'Miami Beach Trolleys': miamiBeachTrolleyLayer,
     'Doral Trolleys': doralTrolleyLayer,
     'Citi Bikes': bikeLayer,
-    'Miami Transit API Bus GPS': miamiTransitAPILayer,
+    'Miami Transit API Bus GPS': miamiTransitAPILayer
 }).addTo(map);
 // Add certain layers as default to be shown
 busLayer.addTo(map);
 metroRailLayer.addTo(map);
-poiLayer.addTo(map);
 trolleyLayer.addTo(map);
-bikeLayer.addTo(map);
-nearbyLayer.addTo(map);
 doralTrolleyLayer.addTo(map);
 miamiBeachTrolleyLayer.addTo(map);
 //miamiTransitAPILayer.addTo(map);
+//poiLayer.addTo(map);
+//bikeLayer.addTo(map);
+//nearbyLayer.addTo(map);
 
 // Button to allow user to locate current position
 L.control.locate({ locateOptions: { maxZoom: 15 }}).addTo(map);
@@ -63,103 +63,130 @@ L.control.locate({ locateOptions: { maxZoom: 15 }}).addTo(map);
 // Button to allow map to be full-screen
 L.control.fullscreen().addTo(map);
 
-// Intialize bus icon
-var busIcon = L.icon({
-    iconUrl: 'icons/icon-Bus-Tracker.png',
-    iconSize: [44, 44],
-    iconAnchor: [22, 22]
+// FontAwesome prefix
+L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
+
+var defaultIconSize = [27, 35];
+var defaultIconAnchor = [14, 32];
+
+// Initialize bus icon
+var busIcon = L.AwesomeMarkers.icon({
+    icon: 'bus',
+    markerColor: 'cadetblue',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
-// Intialize blue bus icon
-var busIconBlue = L.icon({
-    iconUrl: 'icons/icon-Bus-Tracker-blue.png',
-    iconSize: [44, 44],
-    iconAnchor: [22, 22]
+// Initialize blue bus icon
+var busIconBlue = L.AwesomeMarkers.icon({
+    icon: 'bus',
+    markerColor: 'blue',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
-// Intialize aqua bus icon
-var busIconAqua = L.icon({
-    iconUrl: 'icons/icon-Bus-Tracker-aqua.png',
-    iconSize: [44, 44],
-    iconAnchor: [22, 22]
+// Initialize aqua bus icon
+var busIconAqua = L.AwesomeMarkers.icon({
+    icon: 'bus',
+    markerColor: 'cadetblue',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
-// Intialize gray bus icon
-var busIconGray = L.icon({
-    iconUrl: 'icons/icon-Bus-Tracker-gray.png',
-    iconSize: [33, 33],
-    iconAnchor: [15, 15]
+// Initialize gray bus icon
+var busIconGray = L.AwesomeMarkers.icon({
+    icon: 'bus',
+    markerColor: 'gray',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
-// Intialize bus stop icon
-var busStopIcon = L.icon({
-    iconUrl: 'icons/icon-Bus-Stop.png',
-    iconSize: [22, 22],
-    iconAnchor: [11, 22]
+// Initialize bus stop icon
+var busStopIcon = L.AwesomeMarkers.icon({
+    icon: 'circle',
+    iconColor: '#333',
+    markerColor: 'transparent',
+    iconAnchor: [17, 12],
+    shadowSize: [0, 0]
 });
 
-// Intialize Metrorail icon
-var metroRailIcon = L.icon({
-    iconUrl: 'icons/icon-Rail-Tracker.png',
-    iconSize: [44, 44],
-    iconAnchor: [22, 22]
+// Initialize Metrorail icon
+var metroRailIcon = L.AwesomeMarkers.icon({
+    icon: 'train',
+    markerColor: 'purple',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
-// Intialize Metrorail station icon
-var metroRailStationIcon = L.icon({
-    iconUrl: 'icons/icon-Rail-Station.png',
-    iconSize: [22, 22],
-    iconAnchor: [11, 11]
+// Initialize Metrorail station icon
+var metroRailStationIcon = L.AwesomeMarkers.icon({
+    icon: 'circle',
+    iconColor: '#7100ab',
+    markerColor: 'transparent',
+    iconAnchor: [17, 12],
+    shadowSize: [0, 0]
 });
 
 // Trolley icon
-var trolleyIcon = L.icon({
-    iconUrl: 'icons/icon-Trolley-Tracker.png',
-    iconSize: [44, 44],
-    iconAnchor: [22, 22]
-});
-
-// Trolley stop icon
-var trolleyStopIcon = L.icon({
-    iconUrl: 'icons/icon-Trolley-Stop.png',
-    iconSize: [22, 22],
-    iconAnchor: [11, 22]
-});
-
-// Citi bike icon
-var bikeIcon = L.icon({
-    iconUrl: 'icons/citibikepin.png',
-    iconSize: [33, 42],
-    iconAnchor: [16, 42]
-});
-
-// POI icon
-var poiIcon = L.icon({
-    iconUrl: 'icons/icon-POI.png',
-    iconSize: [44, 44],
-    iconAnchor: [22, 38]
+var trolleyIcon = L.AwesomeMarkers.icon({
+    icon: 'subway',
+    markerColor: 'blue',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
 // Doral trolley icon
-var doralTrolleyIcon = L.icon({
-    iconUrl: 'icons/doral-bus.png',
-    iconSize: [28, 45],
-    iconAnchor: [14, 45]
-});
-
-// Doral trolley route icon
-var TSOTrolleyrouteIcon = L.icon({
-    iconUrl: 'icons/doral-bus-stop.png',
-    iconSize: [15, 15],
-    iconAnchor: [7, 15]
+var doralTrolleyIcon = L.AwesomeMarkers.icon({
+    icon: 'subway',
+    markerColor: 'orange',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
 
 // Miami Beach trolley icon
-var miamiBeachTrolleyIcon = L.icon({
-    iconUrl: 'icons/miamibeach-bus.png',
-    iconSize: [28, 45],
-    iconAnchor: [14, 45]
+var miamiBeachTrolleyIcon = L.AwesomeMarkers.icon({
+    icon: 'subway',
+    markerColor: 'green',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
 });
+
+// Trolley stop icon
+var trolleyStopIcon = L.AwesomeMarkers.icon({
+    icon: 'circle',
+    iconColor: '#666',
+    markerColor: 'transparent',
+    iconAnchor: [17, 12],
+    shadowSize: [0, 0]
+});
+
+// Doral trolley route icon
+var TSOTrolleyrouteIcon = L.AwesomeMarkers.icon({
+    icon: 'circle',
+    iconColor: '#666',
+    markerColor: 'transparent',
+    shadowSize: [0, 0],
+    iconAnchor: [17, 12]
+});
+
+// Citi bike icon
+var bikeIcon = L.AwesomeMarkers.icon({
+    icon: 'bicycle',
+    markerColor: 'blue',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
+});
+
+// POI icon
+var poiIcon = L.AwesomeMarkers.icon({
+    icon: 'map-pin',
+    markerColor: 'orange',
+    iconSize: defaultIconSize,
+    iconAnchor: defaultIconAnchor
+});
+
+//iconColor:
+//spin:true
 
 // Keep track of each route ID, trip ID and its shape ID, and color of the route.
 var tripRouteShapeRef = []; // Format is {tripId: "", routeId: "", shapeId: "", color: ""}
@@ -529,11 +556,11 @@ function showPOIs() {
 }
 
 function addPOIMarker(layer, lat, lon, name, poiId, catId, catName, address) {
-  var poiIcon = L.icon({
-      iconUrl: 'icons/icon-POI-'+catId+'.png',
-      iconSize: [33, 33], // Normal size is 44x44
-      iconAnchor: [16, 33]
-  });
+  //var poiIcon = L.icon({
+  //    iconUrl: 'icons/icon-POI-'+catId+'.png',
+  //    iconSize: [33, 33], // Normal size is 44x44
+  //    iconAnchor: [16, 33]
+  //});
   var marker = L.marker([lat, lon], {icon: poiIcon, zIndexOffset: -1000}).bindPopup(
       '<strong>' + catName + '</strong><br><br>' + name + '<br>' +  address,
       { offset: new L.Point(0, -16) });
@@ -1124,7 +1151,7 @@ function loadBusTrackingGPSData() {
     var i = 0;
     for (i = 0; i < records.length; i++) {
       // Check refresh display cache to display past bus locations
-      var cache = refreshDisplayCache.BusGPS[records[i].properties.BusID];
+      var cache = refreshDisplayCache.BusGPS[records[i].properties.deviceid];
       if (cache !== undefined) {
         // Only push to refresh display cache if position changed
         var lastBus = cache[cache.length-1];
@@ -1134,12 +1161,12 @@ function loadBusTrackingGPSData() {
         displayCachedBusGPSLines(miamiTransitAPILayer, cache);
       } else {
         cache = [records[i]];
-        refreshDisplayCache.BusGPS[records[i].properties.BusID] = cache;
+        refreshDisplayCache.BusGPS[records[i].properties.deviceid] = cache;
       }
       displayCachedGPSBuses(miamiTransitAPILayer, cache[cache.length-1]);
       addBusTrackingGPSMarker(
         miamiTransitAPILayer,
-        records[i].properties.BusID,
+        records[i].properties.deviceid,
         records[i].properties.lat,
         records[i].properties.lon,
         records[i].properties.speed,
@@ -1151,29 +1178,29 @@ function loadBusTrackingGPSData() {
 function displayCachedGPSBuses(layer, record) {
   var marker = L.marker([record.properties.lat, record.properties.lon], {icon: busIconGray, zIndexOffset: -90}).bindPopup(
       '<strong>Bus Tracking GPS</strong>'+
-      '<br /><br />Bus ID: ' +record.properties.BusID+
+      '<br /><br />Bus ID: ' +record.properties.deviceid+
       '<br />Speed: ' +record.properties.speed+ ' MPH'+
       '<br />Bus Time: '+record.properties.bustime,
       { offset: new L.Point(0, -15) });
   marker.addTo(layer);
 }
 
-function addBusTrackingGPSMarker(layer, BusID, lat, lon, speed, bustime) {
+function addBusTrackingGPSMarker(layer, deviceid, lat, lon, speed, bustime) {
   try {
-    if (cachedBusGPSMarkers[BusID] !== undefined) {
-      var currentMarker = cachedBusGPSMarkers[BusID];
+    if (cachedBusGPSMarkers[deviceid] !== undefined) {
+      var currentMarker = cachedBusGPSMarkers[deviceid];
       currentMarker.setLatLng(L.latLng(lat, lon));
       flashMarker(layer, currentMarker);
       return;
     }
     var marker = L.marker([lat, lon], {icon: busIconBlue}).bindPopup(
         '<strong>Bus Tracking GPS</strong>'+
-		    '<br /><br />Bus ID: ' +BusID+
+		    '<br /><br />Bus ID: ' +deviceid+
         '<br />Speed: ' +speed+ ' MPH'+
         '<br />Bus Time: '+bustime,
         { offset: new L.Point(0, -22) });
     marker.addTo(layer);
-    cachedBusGPSMarkers[BusID] = marker;
+    cachedBusGPSMarkers[deviceid] = marker;
   } catch (e) {
     console.log("Cannot add marker in addBusTrackingGPSMarker. Lat: "+lat+" Lon: "+lon+" Error: "+e);
   }
@@ -1261,6 +1288,8 @@ $(document).ready(function(){
   // Initial slider
   //$( "#slider" ).slider();
   toggleRefresh();
+
+  $(".navbar-nav li a").click(collapseOffCanvasNav);
 });
 
 function addControlPane() {
@@ -1272,14 +1301,14 @@ function addControlPane() {
   };
 
   info.update = function () {
-    this._div.innerHTML = '<h4>Map Controls</h4>' +
-      '<br><button onclick="showBusLayers()">Show Buses</button>  ' +
-      '<button onclick="showTrolleyLayers()">Show Trolleys</button>  ' +
-      '<button onclick="showRailLayers()">Show Rail</button>' +
-      '<br><br><button onclick="toggleLayers()">Show/Hide All</button>  ' +
-      '<button onclick="showBusGPS()">Show Bus GPS</button>' +
-      '<br><br><button onclick="toggleRefresh()">Enable/Disable Refresh</button>' +
-      '<br><div id="slider"></div>';
+    this._div.innerHTML = '<div class="btn-group-vertical btn-group-left" role="group">' +
+      '<button class="btn btn-sm btn-primary" onclick="showBusLayers()"><i class="fa fa-bus"></i> Show Buses</button>' +
+      '<button class="btn btn-sm btn-primary" onclick="showTrolleyLayers()"><i class="fa fa-subway"></i> Show Trolleys</button>' +
+      '<button class="btn btn-sm btn-primary" onclick="showRailLayers()"><i class="fa fa-train"></i> Show Metrorail</button>' +
+      '<button class="btn btn-sm btn-primary" onclick="showBusGPS()"><i class="fa fa-location-arrow"></i> Show Bus GPS</button>' +
+      '<button class="btn btn-sm btn-primary" onclick="toggleLayers()"><i class="fa fa-eye"></i> Show/Hide All</button>' +
+      '<button class="btn btn-sm btn-primary" onclick="toggleRefresh()"><i class="fa fa-refresh"></i> Refresh</button>' +
+      '</div>';
   };
 
   info.addTo(map);
@@ -1341,27 +1370,13 @@ function hideLayers() {
 }
 
 function showBusLayers() {
+  hideLayers();
   map.addLayer(busLayer);
   map.addLayer(busStopsLayer);
-  map.removeLayer(metroRailLayer);
-  map.removeLayer(poiLayer);
-  map.removeLayer(trolleyLayer);
-  map.removeLayer(trolleyStopsLayer);
-  map.removeLayer(bikeLayer);
-  map.removeLayer(nearbyLayer);
-  map.removeLayer(doralTrolleyLayer);
-  map.removeLayer(miamiBeachTrolleyLayer);
-  map.removeLayer(miamiTransitAPILayer);
 }
 
 function showTrolleyLayers() {
-  map.removeLayer(busLayer);
-  map.removeLayer(busStopsLayer);
-  map.removeLayer(metroRailLayer);
-  map.removeLayer(poiLayer);
-  map.removeLayer(bikeLayer);
-  map.removeLayer(nearbyLayer);
-  map.removeLayer(miamiTransitAPILayer);
+  hideLayers();
   map.addLayer(trolleyLayer);
   map.addLayer(trolleyStopsLayer);
   map.addLayer(doralTrolleyLayer);
@@ -1369,17 +1384,8 @@ function showTrolleyLayers() {
 }
 
 function showRailLayers() {
-  map.removeLayer(busLayer);
-  map.removeLayer(busStopsLayer);
+  hideLayers();
   map.addLayer(metroRailLayer);
-  map.removeLayer(poiLayer);
-  map.removeLayer(trolleyLayer);
-  map.removeLayer(trolleyStopsLayer);
-  map.removeLayer(bikeLayer);
-  map.removeLayer(nearbyLayer);
-  map.removeLayer(doralTrolleyLayer);
-  map.removeLayer(miamiBeachTrolleyLayer);
-  map.removeLayer(miamiTransitAPILayer);
 }
 
 function showBusGPS() {
@@ -1391,6 +1397,7 @@ function showBusGPS() {
 }
 
 function flashMarker(layer, marker) {
+  return; // Temporarily disable flashing of markers since this is hurting performance
   var circleMarker = L.circleMarker(marker.getLatLng(), {color: 'aqua', radius: 23});
   circleMarker.addTo(layer);
   setInterval(function() {
@@ -1426,4 +1433,15 @@ function refreshMiamiTrolleys() {
          }
        }
     });
+}
+
+/**
+ *  Collapse offcanvas nav on nav item click
+ */
+function collapseOffCanvasNav() {
+  var toggle = $('.navbar-toggle').is(':visible');
+
+  if (toggle) {
+    $('.navbar-collapse').collapse('hide');
+  }
 }
