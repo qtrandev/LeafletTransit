@@ -4,7 +4,7 @@
 
 This is a LeafletJS-based prototype of a real time map for various transit systems, including Miami-Dade Transit and various trolley services.
 
-Live demo is at http://codeformiami.org/LeafletTransit. Past demo is at http://www.qtrandev.com/transit
+Live demo is at http://qtrandev.github.io/LeafletTransit. Past demo is at http://www.qtrandev.com/transit
 
 Reload the site often for the latest data to show. (Can use Shift + Reload button for full page refresh)  
 Press F12 in your browser to view the Javascript console for any errors.
