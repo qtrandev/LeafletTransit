@@ -164,7 +164,7 @@
               </tr>
               <tr data-ng-repeat="x in POIs">
                 <td>{{x.PointID}}</td>
-                <td><img height="33" src="icons/icon-POI-{{x.CategoryID}}.png" width="33">{{x.CategoryID}}</td>
+                <td><!--<img height="33" src="icons/icon-POI-{{x.CategoryID}}.png" width="33">-->{{x.CategoryID}}</td>
                 <td>{{x.CategoryName}}</td>
                 <td><button class="btn btn-primary" id="{{x.PointID}},{{x.Latitude}},{{x.Longitude}}" onclick="focusPOI(this.id)">{{x.PointName}}</button></td>
                 <td>{{x.Address}}, {{x.City}}, {{x.State}} {{x.Zip}}</td>
