@@ -54,7 +54,7 @@ doralTrolleyLayer.addTo(map);
 miamiBeachTrolleyLayer.addTo(map);
 //miamiTransitAPILayer.addTo(map);
 //poiLayer.addTo(map);
-//bikeLayer.addTo(map);
+bikeLayer.addTo(map);
 //nearbyLayer.addTo(map);
 
 // Button to allow user to locate current position
@@ -681,7 +681,7 @@ function focusBus(busId) {
 function getCitiBikes() {
   var source = "http://citibikemiami.com/downtown-miami-locations.xml";
   $.getJSON(
-       'http://anyorigin.com/dev/get?url='+source+'&callback=?',
+       'http://www.whateverorigin.org/get?url='+source+'&callback=?',
        (function(thisScope) {
         return function(data) {
           var xmlDoc = $.parseXML(data.contents);
