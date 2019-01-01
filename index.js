@@ -660,7 +660,7 @@ function focusPOI(poiIdLatLng) {
   var lng = array[2];
   map.fitBounds(L.latLngBounds([poiMapping[poiId].getLatLng()]));
   poiMapping[poiId].openPopup();
-  //window.scrollTo(0, 0);
+  $('.navbar-nav a[href="#mapWrapper"]').tab('show');
   getNearBy(poiId,lat,lng);
 }
 
@@ -668,14 +668,14 @@ function focusPOI(poiIdLatLng) {
 function focusRoute(routeId) {
   map.addLayer(busLayer);
   map.fitBounds(polylineMapping[routeId].getBounds());
-  //window.scrollTo(0, 0);
+  //$('.navbar-nav a[href="#mapWrapper"]').tab('show');
 }
 
 function focusBus(busId) {
   map.addLayer(busLayer);
   map.fitBounds(L.latLngBounds([busMapping[busId].getLatLng()]));
   busMapping[busId].openPopup();
-  //window.scrollTo(0, 0);
+  $('.navbar-nav a[href="#mapWrapper"]').tab('show');
 }
 
 function getCitiBikes() {
