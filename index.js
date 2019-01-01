@@ -259,7 +259,7 @@ function init() {
 function loadBusData(data) {
   if (data !== null) generateBusList(data.Record, "REAL-TIME");
   loadRouteColors(); // Bus list must be loaded first
-  displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
+  //displayRoutesFromTripId(tripRouteShapeRef); // Bus list must be loaded first to have the trip IDs
   showPOIs();
   getTrolleyData(scope);
   loadTrolleyRoutes();
@@ -648,7 +648,7 @@ function routeChanged(rd) {
   scope.routeDir = rd;
   scope.$apply();
   var routeId = rd.split(" ")[0];
-  focusRoute(routeId);
+  //focusRoute(routeId);
 }
 
 function focusPOI(poiIdLatLng) {
@@ -660,21 +660,22 @@ function focusPOI(poiIdLatLng) {
   var lng = array[2];
   map.fitBounds(L.latLngBounds([poiMapping[poiId].getLatLng()]));
   poiMapping[poiId].openPopup();
-  window.scrollTo(0, 0);
+  //window.scrollTo(0, 0);
   getNearBy(poiId,lat,lng);
 }
 
+// Function no longer used
 function focusRoute(routeId) {
   map.addLayer(busLayer);
   map.fitBounds(polylineMapping[routeId].getBounds());
-  window.scrollTo(0, 0);
+  //window.scrollTo(0, 0);
 }
 
 function focusBus(busId) {
   map.addLayer(busLayer);
   map.fitBounds(L.latLngBounds([busMapping[busId].getLatLng()]));
   busMapping[busId].openPopup();
-  window.scrollTo(0, 0);
+  //window.scrollTo(0, 0);
 }
 
 function getCitiBikes() {
@@ -1303,6 +1304,7 @@ function addControlPane() {
   info.update = function () {
     this._div.innerHTML = '<div class="btn-group-vertical btn-group-left" role="group">' +
       '<button class="btn btn-sm btn-primary" onclick="showBusLayers()"><i class="fa fa-bus"></i> Show Buses</button>' +
+      '<button class="btn btn-sm btn-primary" onclick="displayRoutesFromTripId(tripRouteShapeRef)"><i class="fa fa-road"></i> Request Bus Routes/Stops</button>' +
       '<button class="btn btn-sm btn-primary" onclick="showTrolleyLayers()"><i class="fa fa-subway"></i> Show Trolleys</button>' +
       '<button class="btn btn-sm btn-primary" onclick="showRailLayers()"><i class="fa fa-train"></i> Show Metrorail</button>' +
       '<button class="btn btn-sm btn-primary" onclick="toggleLayers()"><i class="fa fa-eye"></i> Show/Hide All</button>' +
