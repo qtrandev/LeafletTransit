@@ -33,7 +33,7 @@ var bikeLayer = new L.LayerGroup();
 var nearbyLayer = new L.LayerGroup();
 var doralTrolleyLayer = new L.LayerGroup();
 var miamiBeachTrolleyLayer = new L.LayerGroup();
-var miamiTransitAPILayer = new L.LayerGroup();
+//var miamiTransitAPILayer = new L.LayerGroup();
 L.control.layers({'Open Street Map':osmLayer, 'Google Maps':googleRoadmap, 'Google Maps Satellite':googleHybrid, 'Google Maps Traffic':googleTraffic},{
     'Miami-Dade Transit Live Buses': busLayer,
     'Miami-Dade Transit Bus Stops': busStopsLayer,
@@ -44,7 +44,7 @@ L.control.layers({'Open Street Map':osmLayer, 'Google Maps':googleRoadmap, 'Goog
     'Miami Beach Trolleys': miamiBeachTrolleyLayer,
     'Doral Trolleys': doralTrolleyLayer,
     'Citi Bikes': bikeLayer,
-    'Miami Transit API Bus GPS': miamiTransitAPILayer
+    //'Miami Transit API Bus GPS': miamiTransitAPILayer
 }).addTo(map);
 // Add certain layers as default to be shown
 busLayer.addTo(map);
@@ -279,7 +279,7 @@ function loadBusData(data) {
 }
 
 function callMiamiTransitAPI() {
-  loadBusTrackingGPSData();
+  //loadBusTrackingGPSData();
   //loadMiamiTransitAPIBuses();
   addMetroRail();
   refreshMDTBuses();
@@ -1305,7 +1305,6 @@ function addControlPane() {
       '<button class="btn btn-sm btn-primary" onclick="showBusLayers()"><i class="fa fa-bus"></i> Show Buses</button>' +
       '<button class="btn btn-sm btn-primary" onclick="showTrolleyLayers()"><i class="fa fa-subway"></i> Show Trolleys</button>' +
       '<button class="btn btn-sm btn-primary" onclick="showRailLayers()"><i class="fa fa-train"></i> Show Metrorail</button>' +
-      '<button class="btn btn-sm btn-primary" onclick="showBusGPS()"><i class="fa fa-location-arrow"></i> Show Bus GPS</button>' +
       '<button class="btn btn-sm btn-primary" onclick="toggleLayers()"><i class="fa fa-eye"></i> Show/Hide All</button>' +
       '<button class="btn btn-sm btn-primary" onclick="toggleRefresh()"><i class="fa fa-refresh"></i> Refresh</button>' +
       '</div>';
@@ -1322,7 +1321,7 @@ function toggleRefresh() {
     map.addLayer(busLayer);
     map.addLayer(metroRailLayer);
     map.addLayer(trolleyLayer);
-    map.addLayer(miamiTransitAPILayer);
+    //map.addLayer(miamiTransitAPILayer);
     map.addLayer(doralTrolleyLayer);
     map.addLayer(miamiBeachTrolleyLayer);
     callMiamiTransitAPI();
@@ -1350,7 +1349,7 @@ function showLayers() {
   map.addLayer(nearbyLayer);
   map.addLayer(doralTrolleyLayer);
   map.addLayer(miamiBeachTrolleyLayer);
-  map.addLayer(miamiTransitAPILayer);
+  //map.addLayer(miamiTransitAPILayer);
   showAllLayers = false;
 }
 
@@ -1365,7 +1364,7 @@ function hideLayers() {
   map.removeLayer(nearbyLayer);
   map.removeLayer(doralTrolleyLayer);
   map.removeLayer(miamiBeachTrolleyLayer);
-  map.removeLayer(miamiTransitAPILayer);
+  //map.removeLayer(miamiTransitAPILayer);
   showAllLayers = true;
 }
 
