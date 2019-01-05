@@ -1308,7 +1308,7 @@ function addControlPane() {
       '<button class="btn btn-sm btn-primary" onclick="showTrolleyLayers()"><i class="fa fa-subway"></i> Show Trolleys</button>' +
       '<button class="btn btn-sm btn-primary" onclick="showRailLayers()"><i class="fa fa-train"></i> Show Metrorail</button>' +
       '<button class="btn btn-sm btn-primary" onclick="toggleLayers()"><i class="fa fa-eye"></i> Show/Hide All</button>' +
-      '<button class="btn btn-sm btn-primary" onclick="toggleRefresh()"><i class="fa fa-refresh"></i> Refresh</button>' +
+      '<button class="btn btn-sm btn-primary" onclick="toggleRefresh()"><i class="fa fa-refresh"></i> Enable Live Refresh</button>' +
       '</div>';
   };
 
