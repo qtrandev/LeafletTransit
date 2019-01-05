@@ -670,9 +670,13 @@ function focusRoute(routeId) {
     $('.navbar-nav a[href="#mapWrapper"]').tab('show');
     setTimeout(function() {
       map.fitBounds(polylineMapping[routeId].getBounds());
-    }, 1000);
+      polylineMapping[routeId].setStyle({
+        opacity: 1.0,
+        weight: 10
+      });
+    }, 2000);
   } else {
-    alert("Please request the bus routes/stops on the map first!");
+    alert("Please request the bus routes/stops on the map first and also confirm it exists!");
   }
 }
 
