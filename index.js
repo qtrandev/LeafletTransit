@@ -648,7 +648,11 @@ function routeChanged(rd) {
   scope.routeDir = rd;
   scope.$apply();
   var routeId = rd.split(" ")[0];
-  //focusRoute(routeId);
+  if (polylineMapping[routeId]) {
+    focusRoute(routeId);
+  } else {
+    alert("Please request the bus routes/stops on the map first!");
+  }
 }
 
 function focusPOI(poiIdLatLng) {
@@ -664,11 +668,12 @@ function focusPOI(poiIdLatLng) {
   getNearBy(poiId,lat,lng);
 }
 
-// Function no longer used
 function focusRoute(routeId) {
   map.addLayer(busLayer);
-  map.fitBounds(polylineMapping[routeId].getBounds());
-  //$('.navbar-nav a[href="#mapWrapper"]').tab('show');
+  $('.navbar-nav a[href="#mapWrapper"]').tab('show');
+  setTimeout(function() {
+    map.fitBounds(polylineMapping[routeId].getBounds());
+  }, 1000);
 }
 
 function focusBus(busId) {
