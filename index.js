@@ -648,7 +648,11 @@ function routeChanged(rd) {
   scope.routeDir = rd;
   scope.$apply();
   var routeId = rd.split(" ")[0];
-  //focusRoute(routeId);
+  if (polylineMapping[routeId]) {
+    focusRoute(routeId);
+  } else {
+    alert("Please request the bus routes/stops on the map first!");
+  }
 }
 
 function focusPOI(poiIdLatLng) {
@@ -664,11 +668,12 @@ function focusPOI(poiIdLatLng) {
   getNearBy(poiId,lat,lng);
 }
 
-// Function no longer used
 function focusRoute(routeId) {
   map.addLayer(busLayer);
-  map.fitBounds(polylineMapping[routeId].getBounds());
-  //$('.navbar-nav a[href="#mapWrapper"]').tab('show');
+  $('.navbar-nav a[href="#mapWrapper"]').tab('show');
+  setTimeout(function() {
+    map.fitBounds(polylineMapping[routeId].getBounds());
+  }, 1000);
 }
 
 function focusBus(busId) {
@@ -1308,7 +1313,7 @@ function addControlPane() {
       '<button class="btn btn-sm btn-primary" onclick="showTrolleyLayers()"><i class="fa fa-subway"></i> Show Trolleys</button>' +
       '<button class="btn btn-sm btn-primary" onclick="showRailLayers()"><i class="fa fa-train"></i> Show Metrorail</button>' +
       '<button class="btn btn-sm btn-primary" onclick="toggleLayers()"><i class="fa fa-eye"></i> Show/Hide All</button>' +
-      '<button class="btn btn-sm btn-primary" onclick="toggleRefresh()"><i class="fa fa-refresh"></i> Refresh</button>' +
+      '<button class="btn btn-sm btn-primary" onclick="toggleRefresh()"><i class="fa fa-refresh"></i> Enable Live Refresh</button>' +
       '</div>';
   };
 
