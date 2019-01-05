@@ -115,7 +115,7 @@
                 <th>Route Color</th>
               </tr>
               <tr data-ng-repeat="x in routes">
-                <td>{{x.RouteID}}</td>
+                <td><button class="btn btn-primary" onclick="focusRoute(this.innerHTML)">{{x.RouteID}}</button></td>
                 <td>{{x.RouteAliasLong}}</td>
                 <td>{{x.RouteDescription}}</td>
                 <td style="background-color: #{{x.RouteColor}}">{{x.RouteColor}}</td>
