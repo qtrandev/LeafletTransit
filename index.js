@@ -4,20 +4,12 @@ var debug = false; // Enable console debug messages
 var enableRefresh = true;
 var showAllLayers = true;
 
-// Load MapBox map
-var accessToken = 'pk.eyJ1IjoicXRyYW5kZXYiLCJhIjoiSDF2cGNjZyJ9.D1ybOKe77AQDPHkxCCEpJQ';
-var osmLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=' + accessToken, {
-  maxZoom: 20,
-  attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-    '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-    'Imagery &copy; <a href="http://mapbox.com">Mapbox</a>'
+// Load CARTO tile layer
+var osmLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
 });
 osmLayer.addTo(map);
-
-// Set up Google Maps layers
-var googleRoadmap = new L.Google('ROADMAP', { maxZoom: 20 });
-var googleHybrid = new L.Google('HYBRID', { maxZoom: 20 });
-var googleTraffic = new L.GoogleTraffic('ROADMAP', { maxZoom: 20 });
 
 // Add Control Panel
 addControlPane();
@@ -34,7 +26,7 @@ var nearbyLayer = new L.LayerGroup();
 var doralTrolleyLayer = new L.LayerGroup();
 var miamiBeachTrolleyLayer = new L.LayerGroup();
 //var miamiTransitAPILayer = new L.LayerGroup();
-L.control.layers({'Open Street Map':osmLayer, 'Google Maps':googleRoadmap, 'Google Maps Satellite':googleHybrid, 'Google Maps Traffic':googleTraffic},{
+L.control.layers({'Open Street Map':osmLayer},{
     'Miami-Dade Transit Live Buses': busLayer,
     'Miami-Dade Transit Bus Stops': busStopsLayer,
     'Miami-Dade Transit Metro Rail': metroRailLayer,
