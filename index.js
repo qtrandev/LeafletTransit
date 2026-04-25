@@ -228,8 +228,8 @@ var cachedDoralTrolleyMarkers = [];
 var cachedMiamiBeachTrolleyMarkers = [];
 var fakePositionOffset = 0.0;
 
-// Base URL for API server
-var apiURL = 'https://miami-transit-api.herokuapp.com/';
+// Base URL for API server — Netlify Function proxy handles CORS + XML→JSON conversion
+var apiURL = '/';
 
 init();
 
@@ -1399,12 +1399,7 @@ function showBusGPS() {
 }
 
 function flashMarker(layer, marker) {
-  return; // Temporarily disable flashing of markers since this is hurting performance
-  var circleMarker = L.circleMarker(marker.getLatLng(), {color: 'aqua', radius: 23});
-  circleMarker.addTo(layer);
-  setInterval(function() {
-    map.removeLayer(circleMarker);
-  }, 2000);
+  // Disabled — was hurting performance
 }
 
 function refreshMDTBuses() {
